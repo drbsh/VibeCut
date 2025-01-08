@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:padding="5dp"
+    android:background="@drawable/rounded_corners_item_project"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp">
+
+    <!-- Изображение видео -->
+    <ImageView
+        android:id="@+id/video_preview"
+        android:layout_width="124dp"
+        android:layout_height="90dp"
+        android:layout_marginStart="5dp"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true"/>
+
+    <RelativeLayout
+        android:id="@+id/info_project"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_toEndOf="@id/video_preview"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="2dp">
+
+            <!-- Название видео -->
+            <TextView
+                android:id="@+id/video_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Название видео"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/lemonmilkrusbylyajka"
+                android:textColor="@color/black"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"/>
+            <!-- Длительность видео -->
+            <TextView
+                android:id="@+id/video_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:layout_alignParentStart="true"
+                android:layout_marginBottom="7dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:fontFamily="@font/lemonmilkrusbylyajka"
+                android:layout_below="@id/video_title"/>
+            <!-- Дата видео -->
+            <TextView
+                android:id="@+id/video_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01.01.2023"
+                android:layout_alignParentBottom="true"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:fontFamily="@font/lemonmilkrusbylyajka"
+                android:layout_marginBottom="15dp"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="7dp">
+        <!-- Кнопки -->
+        <ImageButton
+            android:id="@+id/change_favourite"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/save_star_favourite_empty"
+            android:layout_alignParentStart="true"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"/>
+
+        <ImageButton
+            android:id="@+id/delete_project"
+            android:layout_width="22dp"
+            android:layout_height="24dp"
+            android:background="@drawable/trash"
+            android:layout_toEndOf="@id/change_favourite"
+            android:layout_marginStart="11dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"/>
+
+    </RelativeLayout>
+</RelativeLayout>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <!--Вся страница в LinearLayout-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_main"
+        android:orientation="vertical"
+        android:weightSum="1">
+        <!--хеддер-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/backgroundHeaderMain"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="18dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:onClick="openFavouritesClick"
+                android:src="@drawable/favourites_icon"
+                android:contentDescription="Избранное"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/islandmoments_regular"
+                android:gravity="center"
+                android:text="VibeCut"
+                android:textColor="@color/black"
+                android:textSize="50sp" />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="18dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:onClick="openSettingsClick"
+                android:src="@drawable/settings_icon"
+                android:contentDescription="Настройки"/>
+        </LinearLayout>
+        <!-- Белая линия -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/white" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.8"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/listProjectsView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:scrollbars="vertical"
+                tools:listitem="@layout/project_view_item"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:background="@android:color/transparent"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!-- Кнопка создать проект -->
+            <RelativeLayout
+                android:id="@+id/createNewProjectButton"
+                android:onClick="createNewProjectClick"
+                android:layout_width="266dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:background="@drawable/rounded_button_background"
+                android:padding="12dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/button_icon"
+                        android:layout_width="43dp"
+                        android:layout_height="42dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/create_project_star"/>
+
+                    <!--тут текст кривовато как будто-->
+                    <TextView
+                        android:id="@+id/button_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/button_icon"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="8dp"
+                        android:text="Создать проект"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/black"
+                        android:textSize="18sp" />
+
+                </RelativeLayout>
+
+            </RelativeLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
