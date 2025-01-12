@@ -91,19 +91,11 @@ public class ProjectDialog extends DialogFragment {
         nameProject.setText(projectInfo.getName());
 
         addMedia.setOnClickListener(v -> {
-            if (nameProject.getText().toString().isEmpty()){
-                Toast.makeText(getActivity(), "Пожалуйста, заполните сначала название проекта.", Toast.LENGTH_SHORT).show();
-                return;
+            File folder = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getIdProj());
+            if (!folder.exists()) {
+                folder.mkdirs();
             }
-            else{
-                projectInfo.setName(nameProject.getText().toString());
-                File folder = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getName());
-                if (!folder.exists()) {
-                    folder.mkdirs();
-                }
-                pickMedia();
-            }
-
+            pickMedia();
         });
 
         // Обработчик для кнопки "Избранное"

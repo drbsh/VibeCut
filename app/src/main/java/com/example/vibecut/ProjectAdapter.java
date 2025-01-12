@@ -127,7 +127,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
                                 public void onClick(DialogInterface dialog, int which) {
                                     // Удаляем папку проекта
                                     ProjectInfo projectToDelete =  projects.get(position);
-                                    File directory = new File(itemView.getContext().getFilesDir(), "VibeCutProjects" + "/" + projectToDelete.getName());
+                                    File directory = new File(itemView.getContext().getFilesDir(), "VibeCutProjects" + "/" + projectToDelete.getIdProj());
                                     deleteDirectory(directory);
 
                                     projects.remove(position);

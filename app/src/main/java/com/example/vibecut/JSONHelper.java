@@ -28,8 +28,8 @@ public class JSONHelper {
                 .create();
         String jsonString = gson.toJson(projectInfo);
 
-        File directory = new File(context.getFilesDir(), DIRECTORY_NAME + "/" + projectInfo.getName());
-        File file = new File(directory, projectInfo.getName() + ".json");
+        File directory = new File(context.getFilesDir(), DIRECTORY_NAME + "/" + projectInfo.getIdProj());
+        File file = new File(directory, projectInfo.getIdProj() + ".json");
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             fileOutputStream.write(jsonString.getBytes());

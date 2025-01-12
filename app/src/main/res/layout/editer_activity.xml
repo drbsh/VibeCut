@@ -8,11 +8,12 @@
         android:layout_height="match_parent"
         android:background="@color/black2"
         android:orientation="vertical"
-        android:weightSum="1">
+        android:weightSum="1.075">
         <!--хеддер-->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.064"
             android:background="@color/backgroundHeaderMain"
             android:gravity="center_vertical"
             android:orientation="horizontal">
@@ -38,7 +39,17 @@
                 android:text="VibeCut"
                 android:textColor="@color/black"
                 android:textSize="50sp" />
-
+            <ImageButton
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="18dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:onClick="saveProjectClick"
+                android:src="@drawable/save"
+                android:scaleType="fitCenter"
+                android:contentDescription="Сохранить"/>
             <ImageButton
                 android:layout_width="35dp"
                 android:layout_height="35dp"
@@ -59,7 +70,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.075"
             android:weightSum="5">
             <ImageButton
                 android:id="@+id/button_folder_project"
@@ -77,10 +89,34 @@
                 android:background="@android:color/transparent"
                 android:src="@drawable/add_document"/>
 
-            <View
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="2.9"/>
+                android:orientation="vertical"
+                android:layout_weight="2.9"
+                android:weightSum="1">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.5"
+                    android:fontFamily="@font/lemonmilkrusbylyajka"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    android:textColor="@color/grey"
+                    android:text="Проект:"
+                    android:layout_marginTop="3dp"/>
+                <TextView
+                    android:id="@+id/nameProject"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.5"
+                    android:fontFamily="@font/lemonmilkrusbylyajka"
+                    android:gravity="center"
+                    android:textSize="20sp"
+                    android:textColor="@color/grey"
+                    android:text=""/>
+            </LinearLayout>
+
             <ImageButton
                 android:id="@+id/button_cancel"
                 android:layout_width="0dp"
@@ -100,7 +136,8 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="450dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.579"
             android:orientation="vertical">
 
             <VideoView
@@ -145,14 +182,16 @@
         <!--Таймлайн-->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="174dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.223"
             android:background="@color/timeline">
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="103dp">
+            android:layout_height="0dp"
+            android:layout_weight="0.134">
             <ImageButton
                 android:id="@+id/button_add_text"
                 android:layout_width="0dp"

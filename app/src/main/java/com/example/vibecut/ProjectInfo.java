@@ -10,8 +10,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ProjectInfo implements Serializable {
+    private String idProj;
     private String preview; // Изменено на String
     private String name;
     private LocalTime duration = LocalTime.of(0, 0); // 00:00
@@ -20,9 +22,11 @@ public class ProjectInfo implements Serializable {
     private List<MediaFile> projectFiles = new ArrayList<MediaFile>();
     //private File fileProject;
     public ProjectInfo(){
+        this.idProj = UUID.randomUUID().toString(); //рандом id
     }
 
     public ProjectInfo(String preview, String name, LocalTime duration, LocalDateTime date, Boolean isFavourite, ArrayList<MediaFile> projectFiles/*,File fileProject*/) {
+        this.idProj = UUID.randomUUID().toString(); //рандом id
         this.preview = preview; // Сериализация Uri в строку
         this.name = name;
         this.duration = duration;
@@ -30,6 +34,14 @@ public class ProjectInfo implements Serializable {
         this.isFavourite = isFavourite;
         this.projectFiles = projectFiles;
         //this.fileProject = fileProject;
+    }
+
+    public String getIdProj(){
+        return idProj;
+    }
+
+    public void setIdProj(String idProj){
+        this.idProj = idProj;
     }
 
     public Uri getPreview() {
