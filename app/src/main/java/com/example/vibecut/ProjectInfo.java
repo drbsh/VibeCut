@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectInfo implements Serializable {
-    private Uri preview;
+    private String preview; // Изменено на String
     private String name;
     private LocalTime duration = LocalTime.of(0, 0); // 00:00
     private LocalDateTime date;
@@ -22,8 +22,8 @@ public class ProjectInfo implements Serializable {
     public ProjectInfo(){
     }
 
-    public ProjectInfo(Uri preview, String name, LocalTime duration, LocalDateTime date, Boolean isFavourite, ArrayList<MediaFile> projectFiles/*,File fileProject*/) {
-        this.preview = preview;
+    public ProjectInfo(String preview, String name, LocalTime duration, LocalDateTime date, Boolean isFavourite, ArrayList<MediaFile> projectFiles/*,File fileProject*/) {
+        this.preview = preview; // Сериализация Uri в строку
         this.name = name;
         this.duration = duration;
         this.date = date;
@@ -33,11 +33,14 @@ public class ProjectInfo implements Serializable {
     }
 
     public Uri getPreview() {
-        return preview;
+        if (preview != null){
+            return Uri.parse(preview); // Десериализация строки в Uri
+        }
+        return null;
     }
 
     public void setPreview(Uri preview) {
-        this.preview = preview;
+        this.preview = preview.toString(); // Сериализация Uri в строку
     }
 
     public String getName() {

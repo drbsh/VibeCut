@@ -1,23 +1,20 @@
 package com.example.vibecut;
 
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 
 import java.io.Serializable;
-import java.nio.file.Path;
 
 public class MediaFile implements Serializable {
     private String nameFile;
-    private Uri previewMedia;
-    private Uri pathToFile;
+    private String previewMedia; // Изменено на String
+    private String pathToFile; // Изменено на String
 
-    public MediaFile(){}
+    public MediaFile() {}
 
-    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile){
+    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile) {
         this.nameFile = nameFile;
-        this.pathToFile = pathToFile;
-        this.previewMedia = previewMedia;
+        this.previewMedia = previewMedia.toString(); // Сериализация Uri в строку
+        this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
     }
 
     public String getNameFile() {
@@ -29,18 +26,18 @@ public class MediaFile implements Serializable {
     }
 
     public Uri getPreviewUri() {
-        return previewMedia;
+        return Uri.parse(previewMedia); // Десериализация строки в Uri
     }
 
     public void setPreviewUri(Uri previewMedia) {
-        this.previewMedia = previewMedia;
+        this.previewMedia = previewMedia.toString(); // Сериализация Uri в строку
     }
 
     public Uri getPathToFile() {
-        return pathToFile;
+        return Uri.parse(pathToFile); // Десериализация строки в Uri
     }
 
     public void setPathToFile(Uri pathToFile) {
-        this.pathToFile = pathToFile;
+        this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
     }
 }

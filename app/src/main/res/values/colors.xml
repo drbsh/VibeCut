@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="black2">#252525</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#dee2e5</color>
     <color name="backgroundHeaderMain">#AFC8EF</color>
+    <color name="timeline">#393939</color>
 </resources>

@@ -2,5 +2,185 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <!--Вся страница в LinearLayout-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black2"
+        android:orientation="vertical"
+        android:weightSum="1">
+        <!--хеддер-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/backgroundHeaderMain"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
+            <ImageButton
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="18dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:onClick="backClick"
+                android:src="@drawable/back"
+                android:scaleType="fitCenter"
+                android:contentDescription="Назад"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/islandmoments_regular"
+                android:gravity="center"
+                android:text="VibeCut"
+                android:textColor="@color/black"
+                android:textSize="50sp" />
+
+            <ImageButton
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="18dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:onClick="openSettingsClick"
+                android:src="@drawable/export"
+                android:scaleType="fitCenter"
+                android:contentDescription="Экспорт"/>
+        </LinearLayout>
+        <!-- Белая линия -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/white" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:weightSum="5">
+            <ImageButton
+                android:id="@+id/button_folder_project"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="@android:color/transparent"
+                android:src="@drawable/folder"/>
+
+            <ImageButton
+                android:id="@+id/add_file"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="@android:color/transparent"
+                android:src="@drawable/add_document"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2.9"/>
+            <ImageButton
+                android:id="@+id/button_cancel"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="@android:color/transparent"
+                android:src="@drawable/cancel"/>
+
+            <ImageButton
+                android:id="@+id/button_undo"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:background="@android:color/transparent"
+                android:src="@drawable/undo"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
+            android:orientation="vertical">
+
+            <VideoView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="6">
+
+                <ImageButton
+                    android:id="@+id/button_rewind"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/rewind"/>
+
+                <ImageButton
+                    android:id="@+id/button_play"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/play"/>
+
+                <ImageButton
+                    android:id="@+id/button_forward"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/forward"/>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--Таймлайн-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="174dp"
+            android:background="@color/timeline">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="103dp">
+            <ImageButton
+                android:id="@+id/button_add_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/add_text"/>
+            <ImageButton
+                android:id="@+id/button_crop"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/crop"/>
+            <ImageButton
+                android:id="@+id/button_add_filters"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/filters"/>
+            <ImageButton
+                android:id="@+id/button_settings"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:src="@drawable/settings_editer"/>
+        </LinearLayout>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

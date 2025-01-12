@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ProjectDialog.ProjectDialogListener {
-    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1;
     private RecyclerView listProjectsView;
     private ProjectAdapter projectAdapter;
     private static List<ProjectInfo> projectList;
@@ -78,10 +77,15 @@ public class MainActivity extends AppCompatActivity implements ProjectDialog.Pro
 
     //переход на страницу избранного
     public void openFavouritesClick(View view) {
-        Intent intent = new Intent(this, FavouritesActivity.class);
-        intent.putExtra("projectList", (Serializable) projectList);
-        startActivity(intent);
+        if (projectList != null) {
+            Intent intent = new Intent(this, FavouritesActivity.class);
+            intent.putExtra("projectList", (Serializable) projectList);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Список проектов пуст.", Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     public void openSettingsClick(View view) {
         Intent intent = new Intent(this, SettingsActivity.class);

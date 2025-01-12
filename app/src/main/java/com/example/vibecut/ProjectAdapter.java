@@ -22,7 +22,7 @@ import java.util.List;
 
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHolder> {
     private final LayoutInflater inflater;
-    private static List<ProjectInfo> projects;
+    private List<ProjectInfo> projects;
     private final Context context;
 
     public ProjectAdapter(Context context, List<ProjectInfo> projects) {
@@ -71,10 +71,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         holder.favouriteButton.setBackgroundResource(isFavourite ? R.drawable.save_star_favourite_full : R.drawable.save_star_favourite_empty);
 
         //открытие окна редактирования
-        /*holder.itemView.setOnClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(inflater.getContext(), EditerActivity.class);
             context.startActivity(intent);
-        });*/
+        });
     }
 
     @Override
