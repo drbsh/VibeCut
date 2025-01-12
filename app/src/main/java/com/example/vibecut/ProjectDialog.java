@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -152,6 +153,7 @@ public class ProjectDialog extends DialogFragment {
     private void pickMedia() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/* video/*"); // Выбор изображений и видео
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, PICK_MEDIA_REQUEST);
     }
 
@@ -159,37 +161,68 @@ public class ProjectDialog extends DialogFragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_MEDIA_REQUEST && resultCode == RESULT_OK && data != null) {
-            Uri selectedMediaUri = data.getData();
-            // Получаем имя файла из Uri
-            String fileName = getFileName(selectedMediaUri);
-            String mimeType = requireContext().getContentResolver().getType(selectedMediaUri);
-            Uri preview = null;
-            // Проверяем, является ли файл изображением или видео
-            if (mimeType != null) {
-                if (mimeType.startsWith("image/")) {
-                    preview = selectedMediaUri;
-                } else if (mimeType.startsWith("video/")) {
-                    try{
-                        preview = getVideoThumbnail(selectedMediaUri); // Метод для получения миниатюры видео
-                    }catch (IOException e) {
-                        e.printStackTrace(); // Логируем ошибку
-                        Toast.makeText(requireContext(), "Не удалось получить миниатюру видео.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                }else {
-                    Toast.makeText(requireContext(), "Выбранный файл не является изображением или видео.", Toast.LENGTH_SHORT).show();
-                    return;
+            if (data.getClipData() != null) {
+                // Если выбрано несколько файлов
+                int count = data.getClipData().getItemCount();
+                for (int i = 0; i < count; i++) {
+                    ClipData.Item item = data.getClipData().getItemAt(i);
+                    processingFile(item);
                 }
+            } else if (data.getData() != null) {
+                // Если выбран только один файл
+                processingFile(data.getData());
             }
-            MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri);
-            // Добавляем MediaFile в проект
-            projectInfo.addMediaFile(mediaFile);
-            // Добавляем MediaFile в список
-            mediaFiles.add(mediaFile);
-            // Уведомляем адаптер об изменении данных
-            mediaAdapter.notifyItemInserted(mediaFiles.size() - 1);
         }
     }
+
+    // Обработка каждого файла
+    private void processingFile(ClipData.Item item) {
+        Uri selectedMediaUri = item.getUri(); // Получаем Uri из ClipData.Item
+        processUri(selectedMediaUri);
+    }
+
+    private void processingFile(Uri selectedMediaUri) {
+        processUri(selectedMediaUri);
+    }
+
+    private void processUri(Uri selectedMediaUri) {
+        // Получаем имя файла из Uri
+        String fileName = getFileName(selectedMediaUri);
+        String mimeType = requireContext().getContentResolver().getType(selectedMediaUri);
+        Uri preview = getPreview(mimeType, selectedMediaUri);
+
+        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri);
+        // Добавляем MediaFile в проект
+        projectInfo.addMediaFile(mediaFile);
+        // Добавляем MediaFile в список
+        mediaFiles.add(mediaFile);
+        // Уведомляем адаптер об изменении данных
+        mediaAdapter.notifyItemInserted(mediaFiles.size() - 1);
+    }
+
+
+    // Получение предпросмотра
+    private Uri getPreview(String mimeType, Uri selectedMediaUri) {
+        Uri preview = null;
+        if (mimeType != null) {
+            if (mimeType.startsWith("image/")) {
+                preview = selectedMediaUri;
+            } else if (mimeType.startsWith("video/")) {
+                try {
+                    preview = getVideoThumbnail(selectedMediaUri); // Метод для получения миниатюры видео
+                } catch (IOException e) {
+                    e.printStackTrace(); // Логируем ошибку
+                    Toast.makeText(requireContext(), "Не удалось получить миниатюру видео.", Toast.LENGTH_SHORT).show();
+                    return preview;
+                }
+            } else {
+                Toast.makeText(requireContext(), "Выбранный файл не является изображением или видео.", Toast.LENGTH_SHORT).show();
+                return preview;
+            }
+        }
+        return preview;
+    }
+
     // Метод для получения имени файла из Uri
     private String getFileName(Uri uri) {
         String result = null;
