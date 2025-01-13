@@ -73,6 +73,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         //открытие окна редактирования
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(inflater.getContext(), EditerActivity.class);
+            intent.putExtra("project_info", project);
             context.startActivity(intent);
         });
     }
