@@ -1,23 +1,24 @@
 package com.example.vibecut;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import java.util.ArrayList;
-import java.util.List;
+import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
 
 public class EditerActivity extends AppCompatActivity {
     private TextView nameProjectTextView;
-    private RecyclerView recyclerViewTimeline;
-    private TimelineAdapter timelineAdapter;
-    private ProjectInfo projectInfo;
-    private List<MediaFile> mediaFiles; // Список медиафайлов
+    private RecyclerView recyclerView;
+    private ProjectInfo projectInfo;//текущий  проект
+    private List<MediaFile> MediaFiles;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +26,7 @@ public class EditerActivity extends AppCompatActivity {
         setContentView(R.layout.editer_activity);
 
         if (getIntent() != null && getIntent().hasExtra("project_info")) {
-            projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
+            ProjectInfo projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
 
             // Инициализируем TextView
             nameProjectTextView = findViewById(R.id.nameProject);
@@ -35,23 +36,23 @@ public class EditerActivity extends AppCompatActivity {
                 nameProjectTextView.setText(projectInfo.getName());
             }
         }
-        // Инициализация RecyclerView
-        recyclerViewTimeline = findViewById(R.id.recyclerViewTimeline);
 
-        // Инициализация списка медиафайлов
-        mediaFiles = new ArrayList<>();
-        mediaFiles.addAll(projectInfo.getProjectFiles());
-        // Инициализация адаптера
-        timelineAdapter = new TimelineAdapter(this, mediaFiles);
+        MediaFiles = projectInfo.getProjectFiles();
 
-        // Установка адаптера для RecyclerView
-        recyclerViewTimeline.setAdapter(timelineAdapter);
-
-        recyclerViewTimeline.setLayoutManager(new LinearLayoutManager(this));
+        if (MediaFiles != null && !MediaFiles.isEmpty()) {
+            MediaLineAdapter adapter = new MediaLineAdapter(this, MediaFiles);
+            recyclerView.setAdapter(adapter);
+        } else {
+            // Обработка случая, когда список пуст
+            // Например, можно скрыть RecyclerView и показать текст "Нет медиафайлов"
+            recyclerView.setVisibility(View.GONE);
+            // Здесь можно добавить TextView для отображения сообщения
+        }
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager); // Смена ориентации на горизонтальную
     }
 
     public void backClick(View view) {
         finish();
     }
-
 }
