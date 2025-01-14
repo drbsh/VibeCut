@@ -192,6 +192,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
+                tools:listitem="@layout/mediafile_lineitem"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:orientation="horizontal"/>
         </LinearLayout>

@@ -19,14 +19,15 @@ public class EditerActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ProjectInfo projectInfo;//текущий  проект
     private List<MediaFile> MediaFiles;
+    private MediaLineAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.editer_activity);
-
+        recyclerView = findViewById(R.id.recyclerViewTimeline);
         if (getIntent() != null && getIntent().hasExtra("project_info")) {
-            ProjectInfo projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
+            projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
 
             // Инициализируем TextView
             nameProjectTextView = findViewById(R.id.nameProject);
@@ -40,16 +41,14 @@ public class EditerActivity extends AppCompatActivity {
         MediaFiles = projectInfo.getProjectFiles();
 
         if (MediaFiles != null && !MediaFiles.isEmpty()) {
-            MediaLineAdapter adapter = new MediaLineAdapter(this, MediaFiles);
+            adapter = new MediaLineAdapter(this, MediaFiles);
             recyclerView.setAdapter(adapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+
         } else {
-            // Обработка случая, когда список пуст
-            // Например, можно скрыть RecyclerView и показать текст "Нет медиафайлов"
             recyclerView.setVisibility(View.GONE);
-            // Здесь можно добавить TextView для отображения сообщения
         }
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager); // Смена ориентации на горизонтальную
     }
 
     public void backClick(View view) {
