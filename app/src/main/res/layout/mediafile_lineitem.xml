@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="150dp"
+    android:layout_height="120dp"
+    android:background="@drawable/border_timeline_item">
+
+    <LinearLayout
+        android:id="@+id/item_timeline"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/MediaLineItem"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:layout_marginTop="9.3dp"
+            android:layout_marginBottom="9.3dp"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
