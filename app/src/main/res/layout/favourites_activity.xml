@@ -7,12 +7,14 @@
     tools:context=".FavouritesActivity">
     <!--Вся страница в LinearLayout-->
     <LinearLayout
+        android:id="@+id/mainLayout1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/gradient_main"
         android:orientation="vertical">
         <!--хеддер-->
         <RelativeLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@color/backgroundHeaderMain">
@@ -32,6 +34,7 @@
                 android:contentDescription="Назад"/>
 
             <TextView
+                android:id="@+id/titleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:fontFamily="@font/islandmoments_regular"

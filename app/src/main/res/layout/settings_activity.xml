@@ -7,12 +7,14 @@
     tools:context=".SettingsActivity">
     <!--Вся страница в LinearLayout-->
     <LinearLayout
+        android:id="@+id/main1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/gradient_main"
         android:orientation="vertical">
         <!--хеддер-->
         <RelativeLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@color/backgroundHeaderMain">
@@ -21,17 +23,19 @@
                 android:id="@+id/backButton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:adjustViewBounds="true"
-                android:layout_marginStart="18dp"
-                android:background="@android:color/transparent"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:onClick="backClick"
-                android:src="@drawable/back"
+                android:layout_marginStart="18dp"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:contentDescription="Назад"
+                android:onClick="backClick1"
                 android:scaleType="fitCenter"
-                android:contentDescription="Назад"/>
+                android:src="@drawable/back"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <TextView
+                android:id="@+id/titleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:fontFamily="@font/islandmoments_regular"
@@ -59,6 +63,105 @@
         <!--ЗДЕСЬ ПОЛЯ НАСТРОЕК, думаю можно обычным listview или че там
         чтоб не париться с новым адаптером
         все равно полей не овер много будет-->
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/rounded_button_background"
+            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"> <!-- Центрируем по вертикали -->
+
+                <TextView
+                    android:id="@+id/black_theme"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                android:text="Темная тема"
+                    android:fontFamily="@font/lemonmilkrusbylyajka"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/change_theme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"/>
+
+            <!-- Настройка: Уведомления -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/notifications"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Уведомления"
+                    android:fontFamily="@font/lemonmilkrusbylyajka"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/change_notifications"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"/>
+            </LinearLayout>
+
+            <!-- Отступ между настройками -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"/>
+            <!-- Настройка: Уведомления -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/notifications2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Уведомления"
+                    android:fontFamily="@font/lemonmilkrusbylyajka"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"/>
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/change_notifications2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"/>
+            </LinearLayout>
+
+            <!-- Отступ между настройками -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp"/>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

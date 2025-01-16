@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
     <!--Вся страница в LinearLayout-->
     <LinearLayout
+        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/gradient_main"
@@ -15,6 +16,7 @@
         android:weightSum="1">
         <!--хеддер-->
         <LinearLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:background="@color/backgroundHeaderMain"
@@ -22,6 +24,7 @@
             android:orientation="horizontal">
 
             <ImageButton
+                android:id="@+id/button_favourites"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -30,9 +33,11 @@
                 android:background="@android:color/transparent"
                 android:onClick="openFavouritesClick"
                 android:src="@drawable/favourites_icon"
+                app:tint="@color/black"
                 android:contentDescription="Избранное"/>
 
             <TextView
+                android:id="@+id/titleTextView"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
@@ -43,6 +48,7 @@
                 android:textSize="50sp" />
 
             <ImageButton
+                android:id="@+id/button_settings"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -51,6 +57,7 @@
                 android:background="@android:color/transparent"
                 android:onClick="openSettingsClick"
                 android:src="@drawable/settings_icon"
+                app:tint="@color/black"
                 android:contentDescription="Настройки"/>
         </LinearLayout>
         <!-- Белая линия -->
