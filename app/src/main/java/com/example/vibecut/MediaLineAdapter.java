@@ -2,10 +2,13 @@ package com.example.vibecut;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,6 +40,8 @@ public class MediaLineAdapter extends RecyclerView.Adapter<MediaLineAdapter.View
         Glide.with(holder.itemView.getContext())
                 .load(previewUri)
                 .into(holder.previewImageView);
+
+
     }
 
     @Override
@@ -46,7 +51,6 @@ public class MediaLineAdapter extends RecyclerView.Adapter<MediaLineAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView previewImageView;
-
         public ViewHolder(View view) {
             super(view);
             previewImageView = view.findViewById(R.id.MediaLineItem);
