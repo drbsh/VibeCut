@@ -194,7 +194,8 @@
                 android:layout_gravity="center"
                 tools:listitem="@layout/mediafile_lineitem"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:orientation="horizontal"/>
+                android:orientation="horizontal"
+                android:scrollbars="vertical"/>
         </LinearLayout>
 
         <LinearLayout
