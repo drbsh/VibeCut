@@ -79,6 +79,9 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
                         float dx = e.getX() - initialX;
                         int newWidth = (int) (layoutManager.getDecoratedMeasuredWidth(touchedView) + dx);
 
+                        // Добавляем ограничение минимальной ширины
+                        newWidth = Math.max(100, newWidth);
+
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) touchedView.getLayoutParams();
                         params.width = newWidth;
                         touchedView.setLayoutParams(params);
