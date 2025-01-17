@@ -1,8 +1,11 @@
 package com.example.vibecut;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -18,23 +21,64 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.LinearLayout;
 
-public class MainActivity extends AppCompatActivity implements ProjectDialog.ProjectDialogListener {
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+
+
+public class MainActivity extends BaseThemes implements ProjectDialog.ProjectDialogListener {
     private RecyclerView listProjectsView;
     private ProjectAdapter projectAdapter;
     private static List<ProjectInfo> projectList;
     private File projectFolder;
+    private LinearLayout mainLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        createProjectFolder();
+
+        mainLayout = findViewById(R.id.mainLayout); // Убедитесь, что у вас есть LinearLayout с этим ID в activity_main.xml
+
+        // Загрузка сохраненного состояния темы
+        SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
+        boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
+        updateTheme(isDarkTheme);
+    }
+
+    private void updateTheme(boolean isDarkTheme) {
+        if (isDarkTheme) {
+            mainLayout.setBackgroundResource(R.drawable.gradient_black);
+            findViewById(R.id.headerLayout).setBackgroundColor(getResources().getColor(R.color.black2));
+            ((TextView) findViewById(R.id.titleTextView)).setTextColor(getResources().getColor(R.color.backgroundHeaderMain));
+
+            // Измените tint для кнопок на backgroundHeaderMain
+            ImageButton favouritesButton = findViewById(R.id.button_favourites);
+            ImageButton settingsButton = findViewById(R.id.button_settings);
+            favouritesButton.setColorFilter(getResources().getColor(R.color.backgroundHeaderMain), PorterDuff.Mode.SRC_IN);
+            settingsButton.setColorFilter(getResources().getColor(R.color.backgroundHeaderMain), PorterDuff.Mode.SRC_IN);
+        } else {
+            mainLayout.setBackgroundResource(R.drawable.gradient_main);
+            findViewById(R.id.headerLayout).setBackgroundColor(getResources().getColor(R.color.backgroundHeaderMain));
+            ((TextView) findViewById(R.id.titleTextView)).setTextColor(getResources().getColor(R.color.black));
+
+            // Измените tint для кнопок на черный
+            ImageButton favouritesButton = findViewById(R.id.button_favourites);
+            ImageButton settingsButton = findViewById(R.id.button_settings);
+            favouritesButton.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
+            settingsButton.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
+        }
+
+
 
         listProjectsView = findViewById(R.id.listProjectsView);
         projectList = new ArrayList<>();
 
+        createProjectFolder();
         updateProjectList();
 
 
@@ -55,8 +99,10 @@ public class MainActivity extends AppCompatActivity implements ProjectDialog.Pro
     @Override
     protected void onResume() {
         super.onResume();
-        updateProjectList();
-        projectAdapter.notifyDataSetChanged();
+        // Проверка состояния темы и обновление, если необходимо
+        SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
+        boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
+        setTheme(isDarkTheme ? R.style.DarkBackground : R.style.LightBackground);
     }
 
     //создание папки для проектов
