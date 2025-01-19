@@ -1,0 +1,6 @@
+<resources>
+    <style name="CustomScrollBar" parent="Widget.AppCompat.ScrollView">
+        <item name="android:scrollbarThumbVertical">@color/your_thumb_color</item>
+        <item name="android:scrollbarTrackVertical">@color/your_track_color</item>
+    </style>
+</resources>

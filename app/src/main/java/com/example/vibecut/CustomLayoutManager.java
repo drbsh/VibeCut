@@ -1,11 +1,16 @@
 package com.example.vibecut;
 
+import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
 
 public class CustomLayoutManager extends RecyclerView.LayoutManager {
+    private static final String TAG = "CustomLayoutManager"; // Тег для логов
     private int countMedia;
+    private int totalContentWidth;
+
     public CustomLayoutManager(int countMedia){
         this.countMedia = countMedia;
     }
@@ -13,20 +18,29 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         detachAndScrapAttachedViews(recycler);
+        totalContentWidth = 0;
         int itemCount = getItemCount();
-        int x = 0; // Начальное положение по горизонтали
+        int x = getPaddingLeft(); // Начинаем с левого отступа
+
+        Log.d(TAG, "onLayoutChildren: started, itemCount=" + itemCount);
 
         for (int i = 0; i < itemCount; i++) {
             View view = recycler.getViewForPosition(i);
             addView(view);
-            measureChildWithMargins(view, 0, 0); // Измеряем элемент
-            int width = getDecoratedMeasuredWidth(view); // Получаем ширину элемента
-            int height = getDecoratedMeasuredHeight(view); // Получаем высоту элемента
-            layoutDecorated(view, x, 0, x + width, height); // Располагаем элемент
-            x += width + 10; // Обновляем позицию для следующего элемента, добавляя отступ 10
-        }
-    }
+            measureChildWithMargins(view, 0, 0);
+            int width = getDecoratedMeasuredWidth(view);
+            int height = getDecoratedMeasuredHeight(view);
 
+            if (view.getVisibility() == View.VISIBLE) {
+                layoutDecorated(view, x, getPaddingTop(), x + width, getPaddingTop() + height);
+                x += width + 10; // Отступ между элементами
+                totalContentWidth += width + 10;
+                Log.d(TAG, "onLayoutChildren: Item " + i + ", left=" + x + ", width=" + width);
+            }
+        }
+
+        Log.d(TAG, "onLayoutChildren: finished, totalContentWidth=" + totalContentWidth);
+    }
 
     @Override
     public boolean canScrollHorizontally() {
@@ -35,8 +49,43 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
 
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        offsetChildrenHorizontal(-dx);
-        return dx;
+        int scrollAmount = dx;
+        int currentOffset = 0; // Начальное смещение 0
+
+        // Ограничение прокрутки:
+        int leftLimit = -getPaddingLeft() - 300;
+        int rightLimit = totalContentWidth - getWidth() + getPaddingRight() + 300;
+
+        //  Вместо getDecoratedLeft(getChildAt(0)) используем текущее смещение
+        currentOffset = getHorizontalScrollOffset();
+
+        if (currentOffset + dx < leftLimit) {
+            scrollAmount = leftLimit - currentOffset;
+        } else if (currentOffset + dx > rightLimit) {
+            scrollAmount = rightLimit - currentOffset;
+        }
+
+        offsetChildrenHorizontal(-scrollAmount);
+
+        Log.d(TAG, "scrollHorizontallyBy: dx=" + dx + ", scrollAmount=" + scrollAmount + ", currentOffset=" + currentOffset);
+        Log.d(TAG, "scrollHorizontallyBy: leftLimit=" + leftLimit + ", rightLimit=" + rightLimit);
+
+        // Более точный расчет положения скроллбара
+        float scrollbarPosition = (float) Math.max(0, currentOffset + getPaddingLeft()) / Math.max(1, totalContentWidth) * 100; // Избегаем деления на ноль
+        Log.d(TAG, "scrollHorizontallyBy: scrollbarPosition (approx) = " + scrollbarPosition + "%");
+
+        return scrollAmount;
+    }
+
+
+    // ... остальной код ...
+
+    //Получение текущего горизонтального смещения
+    private int getHorizontalScrollOffset() {
+        if (getChildCount() > 0) {
+            return -getDecoratedLeft(getChildAt(0));
+        }
+        return 0;
     }
 
     @Override
@@ -49,57 +98,4 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
         return countMedia;
     }
 
-    public static class ItemTouchListener implements RecyclerView.OnItemTouchListener {
-        private final CustomLayoutManager layoutManager;
-        private float initialX;
-        private View touchedView;
-
-        public ItemTouchListener(CustomLayoutManager layoutManager) {
-            this.layoutManager = layoutManager;
-        }
-
-        @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-            if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                View childView = rv.findChildViewUnder(e.getX(), e.getY());
-                if (childView != null) {
-                    touchedView = childView;
-                    initialX = e.getX();
-                    return true; // Перехватываем событие
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-            if (touchedView != null) {
-                switch (e.getAction()) {
-                    case MotionEvent.ACTION_MOVE:
-                        float dx = e.getX() - initialX;
-                        int newWidth = (int) (layoutManager.getDecoratedMeasuredWidth(touchedView) + dx);
-
-                        // Добавляем ограничение минимальной ширины
-                        newWidth = Math.max(100, newWidth);
-
-                        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) touchedView.getLayoutParams();
-                        params.width = newWidth;
-                        touchedView.setLayoutParams(params);
-                        layoutManager.requestLayout();
-                        initialX = e.getX();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        touchedView = null;
-                        break;
-                }
-            }
-        }
-
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-            //  Необязательно
-        }
-    }
 }

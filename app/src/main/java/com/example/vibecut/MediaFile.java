@@ -3,18 +3,22 @@ package com.example.vibecut;
 import android.net.Uri;
 
 import java.io.Serializable;
+import java.time.LocalTime;
 
 public class MediaFile implements Serializable {
     private String nameFile;
     private String previewMedia; // Изменено на String
     private String pathToFile; // Изменено на String
-
+    private LocalTime duration;
+    private String typeMedia;
     public MediaFile() {}
 
-    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile) {
+    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, LocalTime duration, String typeMedia) {
         this.nameFile = nameFile;
         this.previewMedia = previewMedia.toString(); // Сериализация Uri в строку
         this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
+        this.duration = duration;
+        this.typeMedia = typeMedia;
     }
 
     public String getNameFile() {
@@ -39,5 +43,21 @@ public class MediaFile implements Serializable {
 
     public void setPathToFile(Uri pathToFile) {
         this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
+    }
+
+    public LocalTime getDuration() {
+        return duration;
+    }
+
+    public void setDuration(LocalTime duration) {
+        this.duration = duration;
+    }
+
+    public String getTypeMedia() {
+        return typeMedia;
+    }
+
+    public void setTypeMedia(String typeMedia) {
+        this.typeMedia = typeMedia;
     }
 }
