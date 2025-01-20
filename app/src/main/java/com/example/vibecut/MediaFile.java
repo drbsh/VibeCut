@@ -4,8 +4,10 @@ import android.net.Uri;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.UUID;
 
 public class MediaFile implements Serializable {
+    private String idFile;
     private String nameFile;
     private String previewMedia; // Изменено на String
     private String pathToFile; // Изменено на String
@@ -14,6 +16,7 @@ public class MediaFile implements Serializable {
     public MediaFile() {}
 
     public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, LocalTime duration, String typeMedia) {
+        this.idFile = UUID.randomUUID().toString(); //рандом id
         this.nameFile = nameFile;
         this.previewMedia = previewMedia.toString(); // Сериализация Uri в строку
         this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
@@ -59,5 +62,13 @@ public class MediaFile implements Serializable {
 
     public void setTypeMedia(String typeMedia) {
         this.typeMedia = typeMedia;
+    }
+
+    public String getIdFile() {
+        return idFile;
+    }
+
+    public void setIdFile(String idFile) {
+        this.idFile = idFile;
     }
 }

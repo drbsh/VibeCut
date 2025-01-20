@@ -99,6 +99,8 @@ public class MainActivity extends BaseThemes implements ProjectDialog.ProjectDia
     @Override
     protected void onResume() {
         super.onResume();
+        updateProjectList();
+        projectAdapter.notifyDataSetChanged();
         // Проверка состояния темы и обновление, если необходимо
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
