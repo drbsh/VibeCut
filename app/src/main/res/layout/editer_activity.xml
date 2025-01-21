@@ -77,6 +77,7 @@
             android:weightSum="5">
             <ImageButton
                 android:id="@+id/button_folder_project"
+                android:onClick="showProjectFiles"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
@@ -85,6 +86,7 @@
 
             <ImageButton
                 android:id="@+id/add_file"
+                android:onClick="addProjectFiles"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
@@ -187,17 +189,13 @@
             android:layout_height="0dp"
             android:layout_weight="0.223"
             android:background="@color/timeline">
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewTimeline"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
-                tools:listitem="@layout/mediafile_lineitem"
                 android:orientation="horizontal"
-                android:scrollbars="horizontal"
-                android:scrollbarSize="10dp"
-                android:scrollbarStyle="outsideOverlay"/>
+                android:scrollbars="vertical"/>
         </LinearLayout>
 
         <LinearLayout
