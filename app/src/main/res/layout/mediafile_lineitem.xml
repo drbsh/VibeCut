@@ -1,15 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<com.example.vibecut.CustomMediaLineLayout
     android:id="@+id/relativeLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="150dp"
-    android:layout_height="120dp"
-    android:background="@drawable/border_timeline_item">
-        <ImageView
-            android:id="@+id/MediaLineItem"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:scaleType="fitCenter"
-            android:layout_marginTop="9.3dp"
-            android:layout_marginBottom="9.3dp"/>
-</LinearLayout>
+    android:layout_height="120dp" >
+        <View android:id="@+id/start_medialine_item" android:background="@drawable/timestart" android:layout_width="10dp" android:layout_height="match_parent"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/stroke_medialine_item"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:foregroundGravity="center">
+
+
+                <ImageView
+                    android:id="@+id/MediaLineItem"
+                    android:layout_width="wrap_content"
+                    android:minWidth="100dp"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitCenter"
+                    android:layout_gravity="center"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="9.3dp"
+                    android:layout_marginBottom="9.3dp"/>
+        </RelativeLayout>
+        <View
+            android:id="@+id/end_medialine_item"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/timeend"
+            android:layout_alignParentEnd="true"
+            />
+</com.example.vibecut.CustomMediaLineLayout>

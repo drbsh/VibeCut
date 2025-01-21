@@ -51,6 +51,7 @@ public class MediaLineAdapter extends RecyclerView.Adapter<MediaLineAdapter.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView previewImageView;
+
         public ViewHolder(View view) {
             super(view);
             previewImageView = view.findViewById(R.id.MediaLineItem);

@@ -187,15 +187,17 @@
             android:layout_height="0dp"
             android:layout_weight="0.223"
             android:background="@color/timeline">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewTimeline"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
                 tools:listitem="@layout/mediafile_lineitem"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 android:orientation="horizontal"
-                android:scrollbars="vertical"/>
+                android:scrollbars="horizontal"
+                android:scrollbarSize="10dp"
+                android:scrollbarStyle="outsideOverlay"/>
         </LinearLayout>
 
         <LinearLayout

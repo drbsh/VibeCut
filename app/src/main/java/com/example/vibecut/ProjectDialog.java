@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -190,8 +191,21 @@ public class ProjectDialog extends DialogFragment {
         String fileName = getFileName(selectedMediaUri);
         String mimeType = requireContext().getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
-
-        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri);
+        String typeMedia = "";
+        LocalTime duration = LocalTime.of(0,0);
+        if (mimeType.startsWith("image/")) {
+            typeMedia = "img";
+            duration = LocalTime.of(0, 3);
+        } else if (mimeType.startsWith("video/")){
+            typeMedia = "video";
+            try {
+                duration = getVideoDuration(selectedMediaUri);
+            } catch (IOException e) {
+                e.printStackTrace(); // Логируем ошибку
+                Toast.makeText(requireContext(), "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
         // Добавляем MediaFile в проект
         projectInfo.addMediaFile(mediaFile);
         // Добавляем MediaFile в список
@@ -277,5 +291,15 @@ public class ProjectDialog extends DialogFragment {
         Bitmap bitmap = retriever.getFrameAtTime(0); // Получаем первый кадр
         retriever.release();
         return savePreviewToFolderProject(projectInfo.getName(), bitmap, FilenameUtils.removeExtension(getFileName(uri)));
+    }
+    private LocalTime getVideoDuration(Uri videoUri) throws IOException {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(requireContext(), videoUri);
+        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        long durationInMillis = Long.parseLong(time);
+        retriever.release();
+
+        // Преобразуем длительность в LocalTime
+        return LocalTime.ofNanoOfDay(durationInMillis * 1_000_000);
     }
 }
