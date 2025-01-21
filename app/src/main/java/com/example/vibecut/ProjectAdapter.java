@@ -24,22 +24,38 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     private final LayoutInflater inflater;
     private List<ProjectInfo> projects;
     private final Context context;
+    private boolean isDarkTheme;
+
 
     public ProjectAdapter(Context context, List<ProjectInfo> projects) {
         this.context = context;
         this.projects = projects;
         this.inflater = LayoutInflater.from(context);
+        this.isDarkTheme = isDarkTheme;
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.project_view_item, parent, false);
         return new ViewHolder(view);
+
     }
     @Override
     public void onBindViewHolder(ProjectAdapter.ViewHolder holder, int position) {
         ProjectInfo project = projects.get(position);
         if (project != null)
         {
+            if (isDarkTheme) {
+                holder.itemView.setBackgroundResource(R.drawable.rounded_corners_item_project_dark);
+                holder.nameView.setTextColor(context.getResources().getColor(R.color.white)); // Цвет текста для темной темы
+                holder.durationView.setTextColor(context.getResources().getColor(R.color.white)); // Цвет текста для длительности
+                holder.dateView.setTextColor(context.getResources().getColor(R.color.white)); // Цвет текста для даты
+            } else {
+                holder.itemView.setBackgroundResource(R.drawable.rounded_corners_item_project);
+                holder.nameView.setTextColor(context.getResources().getColor(R.color.black)); // Цвет текста для светлой темы
+                holder.durationView.setTextColor(context.getResources().getColor(R.color.black)); // Цвет текста для длительности
+                holder.dateView.setTextColor(context.getResources().getColor(R.color.black)); // Цвет текста для даты
+            }
+
             Glide.with(holder.itemView.getContext())
                     .load(project.getPreview())
                     .into(holder.previewView);//ставим предпросмотр Uri
@@ -76,6 +92,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
             intent.putExtra("project_info", project);
             context.startActivity(intent);
         });
+    }
+    public void setDarkTheme(boolean isDarkTheme) {
+        this.isDarkTheme = isDarkTheme;
+        notifyDataSetChanged();
     }
 
     @Override

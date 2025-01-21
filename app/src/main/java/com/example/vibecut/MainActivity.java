@@ -1,6 +1,10 @@
 package com.example.vibecut;
 
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -44,12 +49,40 @@ public class MainActivity extends BaseThemes implements ProjectDialog.ProjectDia
 
         mainLayout = findViewById(R.id.mainLayout); // Убедитесь, что у вас есть LinearLayout с этим ID в activity_main.xml
 
+        // Инициализация списка проектов и адаптера
+        listProjectsView = findViewById(R.id.listProjectsView);
+        projectList = new ArrayList<>();
+        projectAdapter = new ProjectAdapter(this, projectList);
+        listProjectsView.setAdapter(projectAdapter);
+        listProjectsView.setLayoutManager(new LinearLayoutManager(this));
+
         // Загрузка сохраненного состояния темы
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
-        updateTheme(isDarkTheme);
+        updateTheme(isDarkTheme); // Теперь projectAdapter уже инициализирован
+
+        createProjectFolder();
+        updateProjectList();
     }
 
+    private BroadcastReceiver themeChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean isDarkTheme = intent.getBooleanExtra("isDarkTheme", false);
+            updateTheme(isDarkTheme);
+            projectAdapter.setDarkTheme(isDarkTheme); // Обновите адаптер
+            projectAdapter.notifyDataSetChanged(); // Убедитесь, что адаптер обновляет отображение
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Регистрация приемника
+        LocalBroadcastManager.getInstance(this).registerReceiver(themeChangeReceiver, new IntentFilter("themeChanged"));
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private void updateTheme(boolean isDarkTheme) {
         if (isDarkTheme) {
             mainLayout.setBackgroundResource(R.drawable.gradient_black);
@@ -72,8 +105,9 @@ public class MainActivity extends BaseThemes implements ProjectDialog.ProjectDia
             favouritesButton.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
             settingsButton.setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.SRC_IN);
         }
-
-
+        // Обновите состояние темы в адаптере
+        projectAdapter.setDarkTheme(isDarkTheme);
+        projectAdapter.notifyDataSetChanged(); // Убедитесь, что адаптер обновляет отображение
 
         listProjectsView = findViewById(R.id.listProjectsView);
         projectList = new ArrayList<>();
@@ -91,6 +125,7 @@ public class MainActivity extends BaseThemes implements ProjectDialog.ProjectDia
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+
         });
 
     }
