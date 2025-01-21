@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 public class SettingsActivity extends BaseThemes {
@@ -38,12 +39,9 @@ public class SettingsActivity extends BaseThemes {
 
             // Обновление темы
             updateTheme(isChecked);
-
-            // Отправка Intent для обновления MainActivity
-            Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish(); // Закрываем текущую активность
+            Intent intent = new Intent("themeChanged");
+            intent.putExtra("isDarkTheme", isChecked);
+            LocalBroadcastManager.getInstance(SettingsActivity.this).sendBroadcast(intent);
 
         });
     }

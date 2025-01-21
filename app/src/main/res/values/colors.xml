@@ -4,6 +4,7 @@
     <color name="black2">#252525</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#dee2e5</color>
+    <color name="gray2">#4E4E4E</color>
     <color name="backgroundHeaderMain">#AFC8EF</color>
     <color name="timeline">#393939</color>
 </resources>
