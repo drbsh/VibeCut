@@ -2,6 +2,9 @@ package com.example.vibecut;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
+
+import android.content.ClipData;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 public class EditerActivity extends AppCompatActivity {
+    private static final int PICK_MEDIA_REQUEST = 1;
     private TextView nameProjectTextView;
     private RecyclerView recyclerView;
     private ProjectInfo projectInfo;//текущий  проект
@@ -110,6 +114,8 @@ public class EditerActivity extends AppCompatActivity {
         popupWindow.showAsDropDown(view, 0, 0);
     }
 
+    public void addProjectFiles(View view){
 
+    }
 }
 

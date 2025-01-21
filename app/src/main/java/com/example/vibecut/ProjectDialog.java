@@ -302,4 +302,5 @@ public class ProjectDialog extends DialogFragment {
         // Преобразуем длительность в LocalTime
         return LocalTime.ofNanoOfDay(durationInMillis * 1_000_000);
     }
+
 }
