@@ -111,9 +111,5 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
         return new RecyclerView.LayoutParams(RecyclerView.LayoutParams.WRAP_CONTENT, RecyclerView.LayoutParams.WRAP_CONTENT);
     }
 
-    @Override
-    public int getItemCount() {
-        return countMedia;
-    }
 
 }

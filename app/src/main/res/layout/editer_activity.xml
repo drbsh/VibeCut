@@ -13,6 +13,7 @@
         android:weightSum="1.075">
         <!--хеддер-->
         <LinearLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.064"
@@ -33,6 +34,7 @@
                 android:contentDescription="Назад"/>
 
             <TextView
+                android:id="@+id/titleTextView"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_weight="1"
@@ -42,6 +44,7 @@
                 android:textColor="@color/black"
                 android:textSize="50sp" />
             <ImageButton
+                android:id="@+id/save_button"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_gravity="center"
@@ -53,6 +56,7 @@
                 android:scaleType="fitCenter"
                 android:contentDescription="Сохранить"/>
             <ImageButton
+                android:id="@+id/export_button"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_gravity="center"
@@ -62,6 +66,7 @@
                 android:onClick="openSettingsClick"
                 android:src="@drawable/export"
                 android:scaleType="fitCenter"
+                android:backgroundTint="@color/black"
                 android:contentDescription="Экспорт"/>
         </LinearLayout>
         <!-- Белая линия -->
@@ -85,6 +90,7 @@
 
             <ImageButton
                 android:id="@+id/add_file"
+                android:onClick="addProjectFiles"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
@@ -195,9 +201,7 @@
                 android:layout_gravity="center"
                 tools:listitem="@layout/mediafile_lineitem"
                 android:orientation="horizontal"
-                android:scrollbars="horizontal"
-                android:scrollbarSize="10dp"
-                android:scrollbarStyle="outsideOverlay"/>
+                android:scrollbars="vertical"/>
         </LinearLayout>
 
         <LinearLayout

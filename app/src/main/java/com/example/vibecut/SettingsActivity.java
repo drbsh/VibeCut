@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 public class SettingsActivity extends BaseThemes {
@@ -38,29 +39,32 @@ public class SettingsActivity extends BaseThemes {
 
             // Обновление темы
             updateTheme(isChecked);
-
-            // Отправка Intent для обновления MainActivity
-            Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish(); // Закрываем текущую активность
+            Intent intent = new Intent("themeChanged");
+            intent.putExtra("isDarkTheme", isChecked);
+            LocalBroadcastManager.getInstance(SettingsActivity.this).sendBroadcast(intent);
 
         });
     }
 
     private void updateTheme(boolean isDarkTheme) {
         if (isDarkTheme) {
-            mainLayout.setBackgroundResource(R.drawable.gradient_black);
-            // Установите цвет хедера для темной темы
-            findViewById(R.id.headerLayout).setBackgroundColor(getResources().getColor(R.color.black2));
-            // Измените цвет текста на backgroundHeaderMain
-            ((TextView) findViewById(R.id.titleTextView)).setTextColor(getResources().getColor(R.color.backgroundHeaderMain));
+            mainLayout.setBackgroundResource(R.drawable.gradient_black); // Установите фон для темной темы
+            findViewById(R.id.headerLayout).setBackgroundColor(getResources().getColor(R.color.black2)); // Цвет хедера для темной темы
+            ((TextView) findViewById(R.id.titleTextView)).setTextColor(getResources().getColor(R.color.backgroundHeaderMain)); // Цвет текста для темной темы
+            ((TextView) findViewById(R.id.black_theme)).setTextColor(getResources().getColor(R.color.white));
+            ((TextView) findViewById(R.id.notifications)).setTextColor(getResources().getColor(R.color.white));
+            ((TextView) findViewById(R.id.notifications2)).setTextColor(getResources().getColor(R.color.white));
+            // Установите фон для блока настроек
+            findViewById(R.id.settings_switch).setBackgroundResource(R.drawable.rounded_button_background_dark);
         } else {
-            mainLayout.setBackgroundResource(R.drawable.gradient_main);
-            // Установите цвет хедера для светлой темы
-            findViewById(R.id.headerLayout).setBackgroundColor(getResources().getColor(R.color.backgroundHeaderMain));
-            // Измените цвет текста на черный
-            ((TextView) findViewById(R.id.titleTextView)).setTextColor(getResources().getColor(R.color.black));
+            mainLayout.setBackgroundResource(R.drawable.gradient_main); // Установите фон для светлой темы
+            findViewById(R.id.headerLayout).setBackgroundColor(getResources().getColor(R.color.backgroundHeaderMain)); // Цвет хедера для светлой темы
+            ((TextView) findViewById(R.id.titleTextView)).setTextColor(getResources().getColor(R.color.black)); // Цвет текста для светлой темы
+            ((TextView) findViewById(R.id.black_theme)).setTextColor(getResources().getColor(R.color.black));
+            ((TextView) findViewById(R.id.notifications)).setTextColor(getResources().getColor(R.color.black));
+            ((TextView) findViewById(R.id.notifications2)).setTextColor(getResources().getColor(R.color.black));
+            // Установите фон для блока настроек
+            findViewById(R.id.settings_switch).setBackgroundResource(R.drawable.rounded_button_background);
         }
     }
     // Метод для обработки нажатия кнопки "Назад"

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style android:name="GradientMainBackground">
+        <item android:name="android:background">@drawable/gradient_main
+        </item>
+    </style>
+
+    <style android:name="GradientBlackBackground">
+        <item android:name="android:background">@drawable/gradient_black
+        </item>
+    </style>
+</resources>
