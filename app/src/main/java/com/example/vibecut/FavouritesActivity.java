@@ -45,7 +45,7 @@ public class FavouritesActivity extends BaseThemes {
         }
 
         listFavouritesProjectsView = findViewById(R.id.listFavouritesProjectsView);
-        projectAdapter = new ProjectAdapter(this, projectFavouritesList);
+        projectAdapter = new ProjectAdapter(this, projectFavouritesList, isDarkTheme);
         listFavouritesProjectsView.setAdapter(projectAdapter);
         listFavouritesProjectsView.setLayoutManager(new LinearLayoutManager(this));
 

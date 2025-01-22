@@ -1,96 +1,114 @@
 package com.example.vibecut;
 
-import static android.app.Activity.RESULT_OK;
+    import static android.app.Activity.RESULT_OK;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.ClipData;
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.os.Bundle;
-import android.provider.OpenableColumns;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.Toast;
+    import android.app.AlertDialog;
+    import android.app.Dialog;
+    import android.content.ClipData;
+    import android.content.Context;
+    import android.content.Intent;
+    import android.content.SharedPreferences;
+    import android.database.Cursor;
+    import android.graphics.Bitmap;
+    import android.graphics.BitmapFactory;
+    import android.media.MediaMetadataRetriever;
+    import android.net.Uri;
+    import android.os.Bundle;
+    import android.provider.OpenableColumns;
+    import android.view.View;
+    import android.widget.Button;
+    import android.widget.EditText;
+    import android.widget.ImageButton;
+    import android.widget.TextView;
+    import android.widget.Toast;
 
-import androidx.fragment.app.DialogFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+    import androidx.fragment.app.DialogFragment;
+    import androidx.recyclerview.widget.LinearLayoutManager;
+    import androidx.recyclerview.widget.RecyclerView;
 
-import org.apache.commons.io.FilenameUtils;
+    import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+    import java.io.File;
+    import java.io.FileOutputStream;
+    import java.io.IOException;
+    import java.io.InputStream;
+    import java.time.LocalDateTime;
+    import java.time.LocalTime;
+    import java.util.ArrayList;
+    import java.util.List;
 
-public class ProjectDialog extends DialogFragment {
-    private RecyclerView listMediaView;
-    private MediaAdapter mediaAdapter;
+    public class ProjectDialog extends DialogFragment {
+        private RecyclerView listMediaView;
+        private MediaAdapter mediaAdapter;
 
-    private ProjectInfo projectInfo;
-    private File projectFolder;
-    private EditText nameProject;
-    private ProjectDialogListener listener;
-    private List<MediaFile> mediaFiles = new ArrayList<MediaFile>(); // Список для хранения выбранных медиафайлов
-    private Context context;
-    private static final int PICK_MEDIA_REQUEST = 1;
+        private ProjectInfo projectInfo;
+        private File projectFolder;
+        private EditText nameProject;
+        private ProjectDialogListener listener;
+        private List<MediaFile> mediaFiles = new ArrayList<MediaFile>(); // Список для хранения выбранных медиафайлов
+        private Context context;
+        private static final int PICK_MEDIA_REQUEST = 1;
+        private boolean isDarkTheme;
 
 
-    public interface ProjectDialogListener {
-        void onProjectSaved(ProjectInfo projectInfo);
-    }
-
-    public ProjectDialog(File projectFolder, ProjectInfo projectInfo) {
-        this.projectFolder = projectFolder;
-        this.projectInfo = projectInfo;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        super.onAttach(context);
-        // Проверяем, реализует ли контекст интерфейс ProjectDialogListener
-        if (context instanceof ProjectDialogListener) {
-            listener = (ProjectDialogListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " должен реализовать ProjectDialogListener");
+        public interface ProjectDialogListener {
+            void onProjectSaved(ProjectInfo projectInfo);
         }
-    }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        public ProjectDialog(File projectFolder, ProjectInfo projectInfo, boolean isDarkTheme) {
+            this.projectFolder = projectFolder;
+            this.projectInfo = projectInfo;
+            this.isDarkTheme = isDarkTheme;
+        }
 
-        View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_project, null);
+        @Override
+        public void onAttach(Context context) {
+            this.context = context;
+            super.onAttach(context);
+            // Проверяем, реализует ли контекст интерфейс ProjectDialogListener
+            if (context instanceof ProjectDialogListener) {
+                listener = (ProjectDialogListener) context;
+            } else {
+                throw new RuntimeException(context.toString() + " должен реализовать ProjectDialogListener");
+            }
+        }
+        private void updateTheme(View view, Boolean isDarkTheme){
+            if (isDarkTheme) {
+                view.setBackgroundColor(getResources().getColor(R.color.gray2)); // Темный фон
+            } else {
+                view.setBackgroundColor(getResources().getColor(R.color.white)); // Светлый фон
+            }
+        }
 
-        listMediaView = view.findViewById(R.id.listMedia);
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        mediaAdapter = new MediaAdapter(context, mediaFiles);
-        listMediaView.setAdapter(mediaAdapter);
-        listMediaView.setLayoutManager(new LinearLayoutManager(context));
+            View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_project, null);
 
-        builder.setView(view);
 
-        // Инициализация полей ввода
-        nameProject = view.findViewById(R.id.projectName);
-        View addMedia = view.findViewById(R.id.selectMediaButton);
-        View saveButton = view.findViewById(R.id.saveProjectButton);
-        ImageButton favouriteButton = view.findViewById(R.id.change_favourite);
 
-        //текущее знач
-        nameProject.setText(projectInfo.getName());
+            View linlay = view.findViewById(R.id.dialog_project);
+
+            listMediaView = view.findViewById(R.id.listMedia);
+
+            mediaAdapter = new MediaAdapter(context, mediaFiles);
+            listMediaView.setAdapter(mediaAdapter);
+            listMediaView.setLayoutManager(new LinearLayoutManager(context));
+
+            builder.setView(view);
+            nameProject = view.findViewById(R.id.projectName);
+            View addMedia = view.findViewById(R.id.selectMediaButton);
+            View saveButton = view.findViewById(R.id.saveProjectButton);
+            ImageButton favouriteButton = view.findViewById(R.id.change_favourite);
+
+            //текущее знач
+
+
+
+            // Вызовите updateTheme для установки начальной темы
+            updateTheme(linlay, isDarkTheme);
+            // Инициализация полей ввода
 
         addMedia.setOnClickListener(v -> {
             File folder = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getIdProj());

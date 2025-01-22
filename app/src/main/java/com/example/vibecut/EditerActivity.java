@@ -71,17 +71,14 @@ public class EditerActivity extends AppCompatActivity {
             headerLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.black2));
             titleTextView.setTextColor(getResources().getColor(R.color.backgroundHeaderMain));
             saveButton.setImageResource(R.drawable.save_dark); // Устанавливаем темную иконку
-            exportButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.backgroundHeaderMain)); // Устанавливаем tint для кнопки "Экспорт"
+            exportButton.setImageResource(R.drawable.export_dark); // Устанавливаем tint для кнопки "Экспорт"
         } else {
             headerLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.backgroundHeaderMain));
             titleTextView.setTextColor(getResources().getColor(R.color.black));
             saveButton.setImageResource(R.drawable.save); // Устанавливаем светлую иконку
-            exportButton.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.black));
+            exportButton.setImageResource(R.drawable.export);
         }
     }
-
-
-
 
     public void backClick(View view) {
         finish();

@@ -27,7 +27,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     private boolean isDarkTheme;
 
 
-    public ProjectAdapter(Context context, List<ProjectInfo> projects) {
+    public ProjectAdapter(Context context, List<ProjectInfo> projects, boolean isDarkTheme) {
         this.context = context;
         this.projects = projects;
         this.inflater = LayoutInflater.from(context);
