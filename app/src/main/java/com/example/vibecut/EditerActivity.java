@@ -44,9 +44,8 @@ public class EditerActivity extends AppCompatActivity {
         MediaFiles = projectInfo.getProjectFiles();
         CustomLayoutManager layoutManager = new CustomLayoutManager(MediaFiles.size());
         recyclerView.setLayoutManager(layoutManager);
-        MediaLineAdapter adapter = new MediaLineAdapter(this, MediaFiles);
+        MediaLineAdapter adapter = new MediaLineAdapter(this, MediaFiles, layoutManager);
         recyclerView.setAdapter(adapter);
-
 
     }
 
@@ -54,7 +53,5 @@ public class EditerActivity extends AppCompatActivity {
         finish();
     }
 
-//    public RecyclerView getRecyclerView() {
-//        return recyclerView;
-//    }
 }
+

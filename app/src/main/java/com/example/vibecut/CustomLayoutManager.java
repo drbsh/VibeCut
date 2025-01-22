@@ -3,13 +3,20 @@ package com.example.vibecut;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.View;
+
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.MotionEvent;
 
 public class CustomLayoutManager extends RecyclerView.LayoutManager {
+    public static final int MIN_WIDTH = 100;
     private static final String TAG = "CustomLayoutManager"; // Тег для логов
     private int countMedia;
     private int totalContentWidth;
+    private int scrollOffset = 0;
+    private boolean isResizing = false;
+    private int totalContentWidthWithoutMargins = 0;
+
 
     public CustomLayoutManager(int countMedia){
         this.countMedia = countMedia;
@@ -18,11 +25,10 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         detachAndScrapAttachedViews(recycler);
+        totalContentWidthWithoutMargins = 0;
         totalContentWidth = 0;
         int itemCount = getItemCount();
-        int x = getPaddingLeft(); // Начинаем с левого отступа
-
-        Log.d(TAG, "onLayoutChildren: started, itemCount=" + itemCount);
+        int x = getPaddingLeft();
 
         for (int i = 0; i < itemCount; i++) {
             View view = recycler.getViewForPosition(i);
@@ -33,13 +39,12 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
 
             if (view.getVisibility() == View.VISIBLE) {
                 layoutDecorated(view, x, getPaddingTop(), x + width, getPaddingTop() + height);
-                x += width + 10; // Отступ между элементами
+                x += width + 10;
                 totalContentWidth += width + 10;
-                Log.d(TAG, "onLayoutChildren: Item " + i + ", left=" + x + ", width=" + width);
+                totalContentWidthWithoutMargins += width;
             }
         }
-
-        Log.d(TAG, "onLayoutChildren: finished, totalContentWidth=" + totalContentWidth);
+        scrollOffset = getHorizontalScrollOffset();
     }
 
     @Override
@@ -50,14 +55,10 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
     @Override
     public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler, RecyclerView.State state) {
         int scrollAmount = dx;
-        int currentOffset = 0; // Начальное смещение 0
+        int currentOffset = scrollOffset; // Используем отслеживаемое смещение прокрутки
 
-        // Ограничение прокрутки:
-        int leftLimit = -getPaddingLeft() - 300;
-        int rightLimit = totalContentWidth - getWidth() + getPaddingRight() + 300;
-
-        //  Вместо getDecoratedLeft(getChildAt(0)) используем текущее смещение
-        currentOffset = getHorizontalScrollOffset();
+        int leftLimit = -getPaddingLeft() - 300; // Добавлено дополнительное пространство для предотвращения скачков
+        int rightLimit = totalContentWidth - getWidth() + getPaddingRight() + 300; // Добавлено дополнительное пространство
 
         if (currentOffset + dx < leftLimit) {
             scrollAmount = leftLimit - currentOffset;
@@ -66,6 +67,7 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
         }
 
         offsetChildrenHorizontal(-scrollAmount);
+        scrollOffset += scrollAmount;
 
         Log.d(TAG, "scrollHorizontallyBy: dx=" + dx + ", scrollAmount=" + scrollAmount + ", currentOffset=" + currentOffset);
         Log.d(TAG, "scrollHorizontallyBy: leftLimit=" + leftLimit + ", rightLimit=" + rightLimit);
@@ -78,8 +80,24 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
     }
 
 
-    // ... остальной код ...
+    public void resizeItem(CustomMediaLineLayout view, int newWidth) {
+        int index = getPosition(view);
+        if (index == RecyclerView.NO_POSITION) return;
 
+        int oldWidth = getDecoratedMeasuredWidth(view);
+        int widthDifference = newWidth - oldWidth;
+        totalContentWidthWithoutMargins += widthDifference;
+        totalContentWidth += widthDifference + (widthDifference > 0 ? 10 : -10);
+
+        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) view.getLayoutParams();
+        params.width = newWidth;
+        view.setLayoutParams(params);
+
+
+        offsetChildrenHorizontal(widthDifference); // Adjust the positions of subsequent items
+        scrollOffset += widthDifference; // Adjust the scroll offset
+        requestLayout();
+    }
     //Получение текущего горизонтального смещения
     private int getHorizontalScrollOffset() {
         if (getChildCount() > 0) {

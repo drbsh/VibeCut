@@ -1,61 +1,55 @@
 package com.example.vibecut;
 
+import static com.example.vibecut.CustomLayoutManager.MIN_WIDTH;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 public class CustomMediaLineLayout extends RelativeLayout {
-    private View startHandle;
-    private View endHandle;
+private float initialX;
+private int initialWidth;
+private CustomLayoutManager layoutManager;
+private OnWidthChangeListener listener;
 
-    private float initialX;
-    private float initialWidth;
-
+    public interface OnWidthChangeListener {
+        void onWidthChanged(CustomMediaLineLayout view, int newWidth);
+    }
+    public void setOnWidthChangeListener(OnWidthChangeListener listener) {
+        this.listener = listener;
+    }
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
     }
 
-    private void init() {
-        // Инициализация ваших элементов
-        startHandle = (View) findViewById(R.id.start_medialine_item);// возвращает null
-        endHandle = findViewById(R.id.end_medialine_item); // возвращает null не надит по id
+    public void setLayoutManager(CustomLayoutManager layoutManager) {
+        this.layoutManager = layoutManager;
     }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                // Запоминаем начальные координаты и ширину
                 initialX = event.getX();
                 initialWidth = getWidth();
+                getParent().requestDisallowInterceptTouchEvent(true);
                 break;
-
             case MotionEvent.ACTION_MOVE:
-                float deltaX = event.getX() - initialX;
-
-                // Проверяем, на какой рамке было нажатие
-                if (event.getX() < startHandle.getX() + startHandle.getWidth()) { // ЗДЕСЬ ОШИБКА
-                    // Растягиваем с левой стороны
-                    float newWidth = initialWidth - deltaX;
-                    if (newWidth > 100) {
-                        setLayoutParams(new RelativeLayout.LayoutParams((int) newWidth, getHeight()));
-                    }
-                } else if (event.getX() > endHandle.getX()) {
-                    // Растягиваем с правой стороны
-                    float newWidth = initialWidth + deltaX;
-                    if (newWidth > 100) {
-                        setLayoutParams(new RelativeLayout.LayoutParams((int) newWidth, getHeight()));
-                    }
+                float dx = event.getX() - initialX;
+                int newWidth = initialWidth + (int) dx;
+                newWidth = Math.max(MIN_WIDTH, newWidth);
+                if (listener != null) {
+                    listener.onWidthChanged(this, newWidth); // Notify the listener
                 }
                 break;
-
             case MotionEvent.ACTION_UP:
-                // Завершаем обработку
+            case MotionEvent.ACTION_CANCEL:
+                getParent().requestDisallowInterceptTouchEvent(false);
                 break;
         }
         return true;
