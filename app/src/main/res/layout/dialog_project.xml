@@ -68,10 +68,11 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/rounded_button_background"
-        android:backgroundTint="@color/grey"
+
         android:layout_marginTop="16dp">
         <TextView
             android:text="Выбрать медиафайлы"
+            android:id="@+id/selectMediaText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fontFamily="@font/lemonmilkrusbylyajka"
@@ -84,9 +85,9 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/rounded_button_background"
-        android:backgroundTint="@color/grey"
         android:layout_marginTop="10dp">
         <TextView
+            android:id="@+id/saveProjectText"
             android:text="Сохранить"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -13,7 +13,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 public class SettingsActivity extends BaseThemes {
-
     private LinearLayout mainLayout;
     private SwitchCompat changeThemeSwitch;
 

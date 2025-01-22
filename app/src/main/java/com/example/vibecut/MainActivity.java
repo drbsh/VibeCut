@@ -84,6 +84,7 @@
         }
 
         private void updateTheme(boolean isDarkTheme) {
+            this.isDarkTheme = isDarkTheme;
             if (isDarkTheme) {
                 mainLayout.setBackgroundResource(R.drawable.gradient_black);
                 findViewById(R.id.headerLayout).setBackgroundColor(getResources().getColor(R.color.black2));

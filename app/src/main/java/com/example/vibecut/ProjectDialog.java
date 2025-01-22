@@ -8,9 +8,11 @@ package com.example.vibecut;
     import android.content.Context;
     import android.content.Intent;
     import android.content.SharedPreferences;
+    import android.content.res.ColorStateList;
     import android.database.Cursor;
     import android.graphics.Bitmap;
     import android.graphics.BitmapFactory;
+    import android.graphics.drawable.GradientDrawable;
     import android.media.MediaMetadataRetriever;
     import android.net.Uri;
     import android.os.Bundle;
@@ -19,9 +21,13 @@ package com.example.vibecut;
     import android.widget.Button;
     import android.widget.EditText;
     import android.widget.ImageButton;
+    import android.widget.LinearLayout;
+    import android.widget.RelativeLayout;
     import android.widget.TextView;
     import android.widget.Toast;
 
+    import androidx.core.content.ContextCompat;
+    import androidx.core.content.res.ResourcesCompat;
     import androidx.fragment.app.DialogFragment;
     import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
@@ -72,11 +78,34 @@ package com.example.vibecut;
                 throw new RuntimeException(context.toString() + " должен реализовать ProjectDialogListener");
             }
         }
-        private void updateTheme(View view, Boolean isDarkTheme){
+        private void updateTheme(View view, Boolean isDarkTheme) {
+            LinearLayout linearLayout = view.findViewById(R.id.dialog_project);
+            TextView nameMedia = view.findViewById(R.id.nameMedia);
+            EditText projectName = view.findViewById(R.id.projectName);
+            TextView mediaFilesLabel = view.findViewById(R.id.mediaFilesLabel);
+            RelativeLayout selectMediaButton = view.findViewById(R.id.selectMediaButton);
+            RelativeLayout saveProjectButton = view.findViewById(R.id.saveProjectButton);
+            TextView saveProjectText = view.findViewById(R.id.saveProjectText);
+            TextView selectMediaText = view.findViewById(R.id.selectMediaText);
+
             if (isDarkTheme) {
-                view.setBackgroundColor(getResources().getColor(R.color.gray2)); // Темный фон
+                linearLayout.setBackgroundResource(R.drawable.layout_project_dialog_background_black);
+                nameMedia.setTextColor(ContextCompat.getColor(view.getContext(), R.color.white));
+                projectName.setHintTextColor(ContextCompat.getColor(view.getContext(), R.color.black));
+                mediaFilesLabel.setTextColor(ContextCompat.getColor(view.getContext(), R.color.white));
+                selectMediaButton.setBackgroundResource(R.drawable.rounded_button_background_dark);
+                saveProjectButton.setBackgroundResource(R.drawable.rounded_button_background_dark);
+                saveProjectText.setTextColor(ContextCompat.getColor(view.getContext(), R.color.white));
+                selectMediaText.setTextColor(ContextCompat.getColor(view.getContext(), R.color.white));
             } else {
-                view.setBackgroundColor(getResources().getColor(R.color.white)); // Светлый фон
+                linearLayout.setBackgroundResource(R.drawable.layout_project_dialog_background);
+                nameMedia.setTextColor(ContextCompat.getColor(view.getContext(), R.color.black));
+                projectName.setHintTextColor(ContextCompat.getColor(view.getContext(), R.color.gray2));
+                mediaFilesLabel.setTextColor(ContextCompat.getColor(view.getContext(), R.color.black));
+                selectMediaButton.setBackgroundResource(R.drawable.rounded_button_background);
+                saveProjectButton.setBackgroundResource(R.drawable.rounded_button_background);
+                saveProjectText.setTextColor(ContextCompat.getColor(view.getContext(), R.color.black));
+                selectMediaText.setTextColor(ContextCompat.getColor(view.getContext(), R.color.black));
             }
         }
 
@@ -88,7 +117,7 @@ package com.example.vibecut;
 
 
 
-            View linlay = view.findViewById(R.id.dialog_project);
+
 
             listMediaView = view.findViewById(R.id.listMedia);
 
@@ -107,7 +136,7 @@ package com.example.vibecut;
 
 
             // Вызовите updateTheme для установки начальной темы
-            updateTheme(linlay, isDarkTheme);
+            updateTheme(view, isDarkTheme);
             // Инициализация полей ввода
 
         addMedia.setOnClickListener(v -> {
