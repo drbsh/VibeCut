@@ -82,6 +82,7 @@
             android:weightSum="5">
             <ImageButton
                 android:id="@+id/button_folder_project"
+                android:onClick="showProjectFiles"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
