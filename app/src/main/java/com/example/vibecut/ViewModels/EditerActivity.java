@@ -1,10 +1,8 @@
-package com.example.vibecut;
+package com.example.vibecut.ViewModels;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 
-import android.content.ClipData;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +18,13 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.vibecut.CustomizeProject.CustomLayoutManager;
+import com.example.vibecut.JSONHelper;
+import com.example.vibecut.Models.MediaFile;
+import com.example.vibecut.Adapters.MediaLineAdapter;
+import com.example.vibecut.Models.ProjectInfo;
+import com.example.vibecut.R;
 
 import java.util.List;
 

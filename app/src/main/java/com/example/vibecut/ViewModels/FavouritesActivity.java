@@ -1,4 +1,4 @@
-package com.example.vibecut;
+package com.example.vibecut.ViewModels;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -7,10 +7,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.vibecut.CustomizeProject.BaseThemes;
+import com.example.vibecut.Adapters.ProjectAdapter;
+import com.example.vibecut.Models.ProjectInfo;
+import com.example.vibecut.R;
 
 import java.util.ArrayList;
 import java.util.List;

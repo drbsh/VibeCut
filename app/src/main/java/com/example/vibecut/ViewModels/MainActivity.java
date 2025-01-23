@@ -1,6 +1,5 @@
-    package com.example.vibecut;
+    package com.example.vibecut.ViewModels;
 
-    import android.annotation.SuppressLint;
     import android.content.BroadcastReceiver;
     import android.content.Context;
     import android.content.Intent;
@@ -15,7 +14,6 @@
     import java.io.File;
 
     import androidx.activity.EdgeToEdge;
-    import androidx.appcompat.app.AppCompatActivity;
     import androidx.core.graphics.Insets;
     import androidx.core.view.ViewCompat;
     import androidx.core.view.WindowInsetsCompat;
@@ -27,11 +25,13 @@
     import java.util.ArrayList;
     import java.util.List;
     import android.content.SharedPreferences;
-    import android.os.Bundle;
     import android.widget.LinearLayout;
 
-    import androidx.appcompat.app.AppCompatActivity;
-    import androidx.appcompat.widget.SwitchCompat;
+    import com.example.vibecut.CustomizeProject.BaseThemes;
+    import com.example.vibecut.JSONHelper;
+    import com.example.vibecut.Adapters.ProjectAdapter;
+    import com.example.vibecut.Models.ProjectInfo;
+    import com.example.vibecut.R;
 
 
     public class MainActivity extends BaseThemes implements ProjectDialog.ProjectDialogListener {

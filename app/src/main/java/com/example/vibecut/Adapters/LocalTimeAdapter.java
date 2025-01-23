@@ -1,4 +1,4 @@
-package com.example.vibecut;
+package com.example.vibecut.Adapters;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;

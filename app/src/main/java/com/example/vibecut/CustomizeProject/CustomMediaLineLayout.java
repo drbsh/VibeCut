@@ -1,14 +1,11 @@
-package com.example.vibecut;
+package com.example.vibecut.CustomizeProject;
 
-import static com.example.vibecut.CustomLayoutManager.MIN_WIDTH;
+import static com.example.vibecut.CustomizeProject.CustomLayoutManager.MIN_WIDTH;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.RelativeLayout;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 public class CustomMediaLineLayout extends RelativeLayout {
 private float initialX;

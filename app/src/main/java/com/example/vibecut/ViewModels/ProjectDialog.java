@@ -1,4 +1,4 @@
-package com.example.vibecut;
+package com.example.vibecut.ViewModels;
 
     import static android.app.Activity.RESULT_OK;
 
@@ -25,6 +25,11 @@ package com.example.vibecut;
     import androidx.fragment.app.DialogFragment;
     import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
+
+    import com.example.vibecut.Adapters.MediaAdapter;
+    import com.example.vibecut.Models.MediaFile;
+    import com.example.vibecut.Models.ProjectInfo;
+    import com.example.vibecut.R;
 
     import org.apache.commons.io.FilenameUtils;
 

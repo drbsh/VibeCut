@@ -1,12 +1,9 @@
-package com.example.vibecut;
+package com.example.vibecut.CustomizeProject;
 
-import android.graphics.Rect;
 import android.util.Log;
 import android.view.View;
 
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.MotionEvent;
 
 public class CustomLayoutManager extends RecyclerView.LayoutManager {
     public static final int MIN_WIDTH = 100;

@@ -1,4 +1,4 @@
-package com.example.vibecut;
+package com.example.vibecut.Adapters;
 
 import android.net.Uri;
 import com.google.gson.JsonElement;

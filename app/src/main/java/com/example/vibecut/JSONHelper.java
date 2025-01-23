@@ -4,6 +4,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.vibecut.Adapters.LocalDateTimeAdapter;
+import com.example.vibecut.Adapters.LocalTimeAdapter;
+import com.example.vibecut.Adapters.UriAdapter;
+import com.example.vibecut.Models.ProjectInfo;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -15,14 +19,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 public class JSONHelper {
 
     private static final String DIRECTORY_NAME = "VibeCutProjects";
     private static final String TAG = "JSONHelper"; // Добавили тег для логов
 
-    static boolean exportToJSON(Context context, ProjectInfo projectInfo) {
+    public static boolean exportToJSON(Context context, ProjectInfo projectInfo) {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(LocalTime.class, new LocalTimeAdapter())
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
@@ -47,7 +50,7 @@ public class JSONHelper {
         }
     }
 
-    static ProjectInfo importFromJSON(Context context, String filePath) {
+    public static ProjectInfo importFromJSON(Context context, String filePath) {
         File file = new File(filePath);
         if (!file.exists()) {
             Log.e(TAG, "Файл не существует: " + filePath);

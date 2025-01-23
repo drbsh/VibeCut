@@ -1,4 +1,4 @@
-package com.example.vibecut;
+package com.example.vibecut.Models;
 
 import android.net.Uri;
 

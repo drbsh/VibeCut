@@ -1,4 +1,4 @@
-package com.example.vibecut;
+package com.example.vibecut.Adapters;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.vibecut.Models.MediaFile;
+import com.example.vibecut.R;
 
 import java.util.List;
 

@@ -1,8 +1,10 @@
-package com.example.vibecut;
+package com.example.vibecut.CustomizeProject;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.vibecut.R;
 
 public class BaseThemes extends AppCompatActivity {
 

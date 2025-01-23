@@ -1,10 +1,7 @@
-package com.example.vibecut;
+package com.example.vibecut.Models;
 
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 
-import java.io.File;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
