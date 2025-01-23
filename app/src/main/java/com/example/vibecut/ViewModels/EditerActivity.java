@@ -70,9 +70,9 @@ public class EditerActivity extends AppCompatActivity {
 
         MediaFiles = projectInfo.getProjectFiles();
         layoutManager = new CustomLayoutManager(MediaFiles.size());
+        adapter = new MediaLineAdapter(this, MediaFiles, layoutManager); // Создаем адаптер
+        layoutManager.setAdapter(adapter); // Устанавливаем адаптер в layoutManager
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new MediaLineAdapter(this, MediaFiles, layoutManager);
-        MediaLineAdapter adapter = new MediaLineAdapter(this, MediaFiles, layoutManager);
         recyclerView.setAdapter(adapter);
 
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
