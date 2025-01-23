@@ -37,6 +37,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -198,7 +199,7 @@ public class EditerActivity extends AppCompatActivity {
         String mimeType = getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
-        LocalTime duration = LocalTime.of(0,0);
+        LocalTime duration = LocalTime.of(0,0, 0, 0);
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
             duration = LocalTime.of(0, 3);

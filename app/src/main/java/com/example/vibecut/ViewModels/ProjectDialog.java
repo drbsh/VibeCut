@@ -112,11 +112,6 @@ package com.example.vibecut.ViewModels;
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
             View view = getActivity().getLayoutInflater().inflate(R.layout.dialog_project, null);
-
-
-
-
-
             listMediaView = view.findViewById(R.id.listMedia);
 
             mediaAdapter = new MediaAdapter(context, mediaFiles);
@@ -237,10 +232,10 @@ package com.example.vibecut.ViewModels;
         String mimeType = requireContext().getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
-        LocalTime duration = LocalTime.of(0,0);
+        LocalTime duration = LocalTime.of(0,0, 0, 0);
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
-            duration = LocalTime.of(0, 3);
+            duration = LocalTime.of(0, 0,3,0);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             try {
