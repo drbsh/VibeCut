@@ -187,23 +187,46 @@
 
             </LinearLayout>
         </LinearLayout>
-
-        <!--Таймлайн-->
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.257"
-            android:background="@color/timeline">
+            android:layout_weight="0.25">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/timeline">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewTimeline"
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:layout_gravity="center"
-                tools:listitem="@layout/mediafile_lineitem"
-                android:orientation="horizontal"
-                android:scrollbars="vertical"/>
-        </LinearLayout>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerViewVideoTimeline"
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:layout_gravity="center"
+                            tools:listitem="@layout/mediafile_lineitem"
+                            android:orientation="horizontal"
+                            android:scrollbars="vertical"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/timeline">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/recyclerViewSoundTimeline"
+                            android:layout_width="match_parent"
+                            android:layout_height="140dp"
+                            android:layout_gravity="center"
+                            tools:listitem="@layout/mediafile_lineitem"
+                            android:orientation="horizontal"
+                            android:scrollbars="vertical"/>
+                    </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+        <!--Таймлайн-->
+
 
         <LinearLayout
             android:layout_width="match_parent"

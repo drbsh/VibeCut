@@ -5,17 +5,26 @@ import static com.example.vibecut.CustomizeProject.CustomLayoutManager.MIN_WIDTH
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.example.vibecut.R;
 
 public class CustomMediaLineLayout extends RelativeLayout {
 private float initialX;
+private float initialY;
+
 private int initialWidth;
 private int flagStartOrEnd = 0;
 private CustomLayoutManager layoutManager;
 private OnWidthChangeListener listener;
+private View startHandle;
+private View endHandle;
+private boolean isHandleVisible = false;
+private static final int SWIPE_THRESHOLD = 10;
+private boolean isScrolling = false;
 
     public interface OnWidthChangeListener {
         void onWidthChanged(CustomMediaLineLayout view, int newWidth);
@@ -30,6 +39,19 @@ private OnWidthChangeListener listener;
     public void setLayoutManager(CustomLayoutManager layoutManager) {
         this.layoutManager = layoutManager;
     }
+    public void init() {
+        // Инициализация рамок
+        startHandle = findViewById(R.id.start_medialine_item);
+        endHandle = findViewById(R.id.end_medialine_item);
+        setHandlesVisibility(false); // Скрыть рамки по умолчанию
+    }
+
+    private void setHandlesVisibility(boolean visible) {
+        int visibility = visible ? VISIBLE : GONE;
+        startHandle.setVisibility(visibility);
+        endHandle.setVisibility(visibility);
+        isHandleVisible = visible;
+    }
 
 
     @Override
@@ -39,21 +61,37 @@ private OnWidthChangeListener listener;
             case MotionEvent.ACTION_DOWN:
                 initialX = event.getX();
                 initialWidth = getWidth();
+                getParent().requestDisallowInterceptTouchEvent(true);
 
                 if (isTouchingStartHandle(event)) {
-                    getParent().requestDisallowInterceptTouchEvent(true);
                     flagStartOrEnd = 1;
                 }
                 else if(isTouchingEndHandle(event))
                 {
-                    getParent().requestDisallowInterceptTouchEvent(true);
                     flagStartOrEnd = 2;
                 }
-                else flagStartOrEnd = 0; // Обработка на какую из рамок нажал пользователь или вообще не нажимал
+                else
+                {
+                    //setHandlesVisibility(false); // при начале касания если вдруг пользователь скролит скрываем на всякий случай рамки
+                    flagStartOrEnd = 0; // Обработка на какую из рамок нажал пользователь или вообще не нажимал
+
+                }
 
                 break;
             case MotionEvent.ACTION_MOVE:
                 float dx = event.getX() - initialX;
+                float dy = event.getY() - initialY;
+                if (!isScrolling && flagStartOrEnd == 0) { // Логика определения скролит ли пользователь или нет
+                    if (Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(dy) > SWIPE_THRESHOLD) {
+                        isScrolling = true; // Начинаем прокрутку
+                        getParent().requestDisallowInterceptTouchEvent(false); // Разрешаем прокрутку
+                        Log.d("Прокрутка", "Прокрутка разрешена для ScrollBar");
+                        return false; // Возвращаем false, чтобы разрешить прокрутку родителю
+                    } else {
+                        setHandlesVisibility(true);
+                        return true; // Возвращаем true, чтобы обработать касание
+                    }
+                }
 
                 // Определите, за какую рамку тянет пользователь
                 if (flagStartOrEnd == 1) {

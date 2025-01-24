@@ -19,7 +19,6 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
 
     public CustomLayoutManager(int countMedia){
         this.countMedia = countMedia;
-        this.adapter = adapter;
     }
     public void setAdapter(MediaLineAdapter adapter) {
         this.adapter = adapter;
@@ -37,6 +36,8 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
 
         for (int i = 0; i < itemCount; i++) {
             View view = recycler.getViewForPosition(i);
+            CustomMediaLineLayout tempCust = (CustomMediaLineLayout) view;
+            tempCust.init();
             addView(view);
             measureChildWithMargins(view, 0, 0);
             int width = getDecoratedMeasuredWidth(view);

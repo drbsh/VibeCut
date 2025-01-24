@@ -54,7 +54,7 @@ public class EditerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.editer_activity);
-        recyclerView = findViewById(R.id.recyclerViewTimeline);
+        recyclerView = findViewById(R.id.recyclerViewVideoTimeline);
 
         if (getIntent() != null && getIntent().hasExtra("project_info")) {
             projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
