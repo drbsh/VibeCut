@@ -70,6 +70,7 @@ public class EditerActivity extends AppCompatActivity {
 
         MediaFiles = projectInfo.getProjectFiles();
         layoutManager = new CustomLayoutManager(MediaFiles.size());
+//        layoutManager.setRecyclerView(recyclerView);
         adapter = new MediaLineAdapter(this, MediaFiles, layoutManager); // Создаем адаптер
         layoutManager.setAdapter(adapter); // Устанавливаем адаптер в layoutManager
         recyclerView.setLayoutManager(layoutManager);

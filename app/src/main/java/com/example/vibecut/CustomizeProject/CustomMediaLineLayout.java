@@ -17,13 +17,12 @@ private float initialX;
 private float initialY;
 
 private int initialWidth;
-private int flagStartOrEnd = 0;
+private short flagStartOrEnd = 0;
 private CustomLayoutManager layoutManager;
 private OnWidthChangeListener listener;
 private View startHandle;
 private View endHandle;
 private boolean isHandleVisible = false;
-private static final int SWIPE_THRESHOLD = 10;
 private boolean isScrolling = false;
 
     public interface OnWidthChangeListener {
@@ -43,14 +42,16 @@ private boolean isScrolling = false;
         // Инициализация рамок
         startHandle = findViewById(R.id.start_medialine_item);
         endHandle = findViewById(R.id.end_medialine_item);
-        setHandlesVisibility(false); // Скрыть рамки по умолчанию
+        setHandlesVisibility(isHandleVisible); // Скрыть рамки по умолчанию
+
     }
 
-    private void setHandlesVisibility(boolean visible) {
-        int visibility = visible ? VISIBLE : GONE;
+    public void setHandlesVisibility(boolean visible) {
+        int visibility = visible ? View.VISIBLE : View.GONE;
         startHandle.setVisibility(visibility);
         endHandle.setVisibility(visibility);
         isHandleVisible = visible;
+        requestLayout();
     }
 
 
@@ -72,7 +73,6 @@ private boolean isScrolling = false;
                 }
                 else
                 {
-                    //setHandlesVisibility(false); // при начале касания если вдруг пользователь скролит скрываем на всякий случай рамки
                     flagStartOrEnd = 0; // Обработка на какую из рамок нажал пользователь или вообще не нажимал
 
                 }
@@ -80,18 +80,8 @@ private boolean isScrolling = false;
                 break;
             case MotionEvent.ACTION_MOVE:
                 float dx = event.getX() - initialX;
-                float dy = event.getY() - initialY;
-                if (!isScrolling && flagStartOrEnd == 0) { // Логика определения скролит ли пользователь или нет
-                    if (Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(dy) > SWIPE_THRESHOLD) {
-                        isScrolling = true; // Начинаем прокрутку
-                        getParent().requestDisallowInterceptTouchEvent(false); // Разрешаем прокрутку
-                        Log.d("Прокрутка", "Прокрутка разрешена для ScrollBar");
-                        return false; // Возвращаем false, чтобы разрешить прокрутку родителю
-                    } else {
-                        setHandlesVisibility(true);
-                        return true; // Возвращаем true, чтобы обработать касание
-                    }
-                }
+                isScrolling = true; //определяет то что пользователь начал движение пальцем
+
 
                 // Определите, за какую рамку тянет пользователь
                 if (flagStartOrEnd == 1) {
@@ -105,6 +95,8 @@ private boolean isScrolling = false;
                     newWidth = Math.max(MIN_WIDTH, newWidth);
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
                     layoutManager.resizeItem(this, newWidth); // Вызов метода resizeItem из CustomLayoutManager
+                } else {
+                    getParent().requestDisallowInterceptTouchEvent(false);
                 }
 
                 // Обновляем listener только если ширина изменилась
@@ -114,6 +106,14 @@ private boolean isScrolling = false;
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+                if(flagStartOrEnd == 0 && isScrolling == false){
+                    setHandlesVisibility(true);
+                    layoutManager.requestLayout();
+                    requestLayout();
+                    layoutManager.updateHandlesVisibility(this);
+
+                }
+                isScrolling = false; // возвращаем в значение по дефолту
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
                 getParent().requestDisallowInterceptTouchEvent(false);
                 break;
@@ -123,8 +123,11 @@ private boolean isScrolling = false;
 
     // Метод для проверки, касается ли пользователь левой рамки
     private boolean isTouchingStartHandle(MotionEvent event) {
+        if (startHandle.getVisibility() != View.VISIBLE) {
+            return false; // Если элемент не видим, возвращаем false
+        }
         int[] location = new int[2];
-        findViewById(R.id.start_medialine_item).getLocationOnScreen(location);
+        startHandle.getLocationInWindow(location);
         float touchX = event.getRawX();
         boolean isTouching = touchX >= location[0] && touchX <= location[0] + dpToPx(10); // 10 - ширина рамки
         Log.d("TouchEvent", "isTouchingStartHandle: " + isTouching);
@@ -133,8 +136,11 @@ private boolean isScrolling = false;
 
     // Метод для проверки, касается ли пользователь правой рамки
     private boolean isTouchingEndHandle(MotionEvent event) {
+        if (endHandle.getVisibility() != View.VISIBLE) {
+            return false; // Если элемент не видим, возвращаем false
+        }
         int[] location = new int[2];
-        findViewById(R.id.end_medialine_item).getLocationOnScreen(location);
+        endHandle.getLocationInWindow(location);
         float touchX = event.getRawX();
         boolean isTouching = touchX >= location[0] && touchX <= location[0] + dpToPx(10); // 10 - ширина рамки
         Log.d("TouchEvent", "isTouchingEndHandle: " + isTouching);

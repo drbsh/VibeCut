@@ -1,11 +1,15 @@
 package com.example.vibecut.CustomizeProject;
 
+import static android.view.View.VISIBLE;
+
+
 import android.util.Log;
 import android.view.View;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vibecut.Adapters.MediaLineAdapter;
+import com.example.vibecut.R;
 
 public class CustomLayoutManager extends RecyclerView.LayoutManager {
     private MediaLineAdapter adapter;
@@ -15,14 +19,24 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
     private int totalContentWidth;
     private int scrollOffset = 0;
     private int totalContentWidthWithoutMargins = 0;
+    private CustomMediaLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
+//    private RecyclerView recyclerView;
 
-
+    public void updateHandlesVisibility(CustomMediaLineLayout newLayout) {
+        if (currentVisibleHandlesLayout != null && currentVisibleHandlesLayout != newLayout) {
+            currentVisibleHandlesLayout.setHandlesVisibility(false); // Скрываем рамки у предыдущего элемента
+        }
+        currentVisibleHandlesLayout = newLayout; // Обновляем текущий элемент
+    }
     public CustomLayoutManager(int countMedia){
         this.countMedia = countMedia;
     }
     public void setAdapter(MediaLineAdapter adapter) {
         this.adapter = adapter;
     }
+//    public void setRecyclerView(RecyclerView recyclerView) {
+//        this.recyclerView = recyclerView;
+//    }
 
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -38,17 +52,20 @@ public class CustomLayoutManager extends RecyclerView.LayoutManager {
             View view = recycler.getViewForPosition(i);
             CustomMediaLineLayout tempCust = (CustomMediaLineLayout) view;
             tempCust.init();
+            if(currentVisibleHandlesLayout != tempCust){
+                tempCust.setHandlesVisibility(false);
+            }
             addView(view);
             measureChildWithMargins(view, 0, 0);
             int width = getDecoratedMeasuredWidth(view);
             int height = getDecoratedMeasuredHeight(view);
 
-            if (view.getVisibility() == View.VISIBLE) {
+            Log.d("CustomLayoutManager", "Layoutting view: " + view + " width: " + width + " height: " + height);
+
                 layoutDecorated(view, x, getPaddingTop(), x + width, getPaddingTop() + height);
                 x += width + 10;
                 totalContentWidth += width + 10;
                 totalContentWidthWithoutMargins += width;
-            }
         }
 
         // Восстанавливаем положение прокрутки
