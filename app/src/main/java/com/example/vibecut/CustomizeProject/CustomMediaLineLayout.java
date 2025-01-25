@@ -33,8 +33,15 @@ public class CustomMediaLineLayout extends RelativeLayout {
     private CustomLayoutManager layoutManager;
     private boolean isHandleVisible = false;
     private boolean isScrolling = false;
-    private MediaFile mediaFile;
+    private static MediaFile mediaFile;
 
+    public MediaFile getMediaFile() {
+        return mediaFile;
+    }
+
+    public void setMediaFile(MediaFile mediaFile) {
+        this.mediaFile = mediaFile;
+    }
     public void setLayoutManager(CustomLayoutManager layoutManager){
         this.layoutManager = layoutManager;
     }
@@ -63,22 +70,20 @@ public class CustomMediaLineLayout extends RelativeLayout {
         isHandleVisible = visible;
         requestLayout();
     }
+
     public void getLayoutManager(){
         EditerActivity editerActivity = new EditerActivity() ;
         this.layoutManager = EditerActivity.layoutManager;
     }
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true; // Проверка на идентичность
-        else return false; // Проверка на null и тип
-    }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
         init(); // Инициализация после завершения инфляции
         getLayoutManager();
-        mediaFile = layoutManager.getMediaFileFromContext(this);
+        //mediaFile = layoutManager.getMediaFileFromContext(this);
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         Log.d("CustomMediaLineLayout", "onTouchEvent called");

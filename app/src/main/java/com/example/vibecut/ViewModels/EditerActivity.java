@@ -329,5 +329,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         LocalTime newDuration = LocalTime.of(hours, minutes, seconds, millis * 1000 * 1000);
         mediaFile.setDuration(newDuration);
         Toast.makeText(this, "Время изменено: " + mediaFile.getDuration(), Toast.LENGTH_SHORT).show();
+        projectInfo.updateMediafile(mediaFile);
+        JSONHelper.exportToJSON(this, projectInfo);
     }
 }

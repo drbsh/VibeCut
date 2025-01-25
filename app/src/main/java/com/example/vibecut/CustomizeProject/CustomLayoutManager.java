@@ -36,7 +36,7 @@ public class CustomLayoutManager {
         currentVisibleHandlesLayout = newLayout; // Обновляем текущий элемент
     }
 
-    public MediaFile getMediaFileFromContext(CustomMediaLineLayout customMediaLineLayout){
+    /*public MediaFile getMediaFileFromContext(CustomMediaLineLayout customMediaLineLayout){
         for (int i = 0; i < mediaLineContainer.getChildCount(); i++) {
             View child = mediaLineContainer.getChildAt(i);
 
@@ -52,5 +52,5 @@ public class CustomLayoutManager {
             }
         }
         return null;
-    }
+    }*/
 }

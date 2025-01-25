@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ProjectInfo implements Serializable {
@@ -94,21 +95,13 @@ public class ProjectInfo implements Serializable {
         return projectFiles;
     }
 
-    /*public File getFileProject() {
-        return fileProject;
+    public void updateMediafile(MediaFile newFile) {
+        for (int i = 0; i < projectFiles.size(); i++) {
+            if (Objects.equals(projectFiles.get(i).getIdFile(), newFile.getIdFile())) {
+                projectFiles.set(i, newFile);
+                return;
+            }
+        }
     }
 
-    public void setFileProject(File fileProject) {
-        this.fileProject = fileProject;
-    }
-
-    //метод для установки пути
-    public void setFileProjectPath(String filePath) {
-        this.fileProject = new File(filePath);
-    }
-
-    //метод для получения пути
-    public String getFileProjectPath() {
-        return fileProject != null ? fileProject.getAbsolutePath() : null;
-    }*/
 }
