@@ -75,6 +75,7 @@
         private void AddImem(MediaFile mediaFile, Boolean isFirst, Boolean isEnd){
             CustomMediaLineLayout customMediaLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
             InflateToCustomMediaLineLayout(customMediaLineLayout);
+            customMediaLineLayout.setMediaFile(mediaFile); // Важное изменение: устанавливаем MediaFile
             pullingInfoCustomLayout(mediaFile, customMediaLineLayout);
             customMediaLineLayout.setLayoutManager(layoutManager);
             mediaLineContainer.addView(customMediaLineLayout);
@@ -108,8 +109,6 @@
         }
 
 
-
-
         public void onBindViewHolder(CustomMediaLineLayout customMediaLineLayout) {
             TextView itemDuration = customMediaLineLayout.findViewById(R.id.item_duration);
             ImageView mediaLineItem = customMediaLineLayout.findViewById(R.id.MediaLineItem);
@@ -126,8 +125,6 @@
                     .load(previewUri)
                     .into(mediaLineItem);
         }
-
-
 
         public void notifyItemRemoved(int index) {
             if (index >= 0 && index < mediaFiles.size()) {
