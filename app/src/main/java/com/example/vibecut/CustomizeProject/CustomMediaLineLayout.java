@@ -9,30 +9,38 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
+import com.example.vibecut.ViewModels.TimePickerDialog;
 
 import java.util.List;
 
 public class CustomMediaLineLayout extends RelativeLayout {
-private float initialX;
-private float initialY;
+    private float initialX;
+    private float initialY;
 
-private int initialWidth;
-private short flagStartOrEnd = 0;
-private OnWidthChangeListener listener;
-private View startHandle;
-private View endHandle;
-private CustomLayoutManager layoutManager;
-private boolean isHandleVisible = false;
-private boolean isScrolling = false;
-private List<MediaFile> mediaFiles;
+    private int initialWidth;
+    private short flagStartOrEnd = 0;
+    private OnWidthChangeListener listener;
+    private View startHandle;
+    private View endHandle;
+    private TextView duration;
+    private CustomLayoutManager layoutManager;
+    private boolean isHandleVisible = false;
+    private boolean isScrolling = false;
+    private List<MediaFile> mediaFiles;
 
-public void setLayoutManager(CustomLayoutManager layoutManager){
-    this.layoutManager = layoutManager;
-}
+    //???
+    private MediaFile mediaFile;
+
+    public void setLayoutManager(CustomLayoutManager layoutManager){
+        this.layoutManager = layoutManager;
+    }
 
     public void getmedia(List<MediaFile> mediaFiles) {
         this.mediaFiles = mediaFiles;
@@ -49,6 +57,7 @@ public void setLayoutManager(CustomLayoutManager layoutManager){
     public void init() {
         startHandle = findViewById(R.id.start_medialine_item);
         endHandle = findViewById(R.id.end_medialine_item);
+        duration = findViewById(R.id.item_duration);
         setHandlesVisibility(isHandleVisible); // Скрыть рамки по умолчанию
 
     }
@@ -57,6 +66,7 @@ public void setLayoutManager(CustomLayoutManager layoutManager){
         int visibility = visible ? View.VISIBLE : View.GONE;
         startHandle.setVisibility(visibility);
         endHandle.setVisibility(visibility);
+        duration.setVisibility(visibility);
         isHandleVisible = visible;
         requestLayout();
     }
@@ -90,10 +100,12 @@ public void setLayoutManager(CustomLayoutManager layoutManager){
                 {
                     flagStartOrEnd = 2;
                 }
+                else if(isTouchingDuration(event)){
+                    flagStartOrEnd = 3;
+                }
                 else
                 {
-                    flagStartOrEnd = 0; // Обработка на какую из рамок нажал пользователь или вообще не нажимал
-
+                    flagStartOrEnd = 0; // Обработка на какую из рамок нажал пользователь или длительность или вообще не нажимал
                 }
 
                 break;
@@ -125,11 +137,14 @@ public void setLayoutManager(CustomLayoutManager layoutManager){
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if(flagStartOrEnd == 0 && isScrolling == false){
+                if((flagStartOrEnd == 0  || flagStartOrEnd == 3) && !isScrolling){
+                    if(flagStartOrEnd == 3){
+                        // Запускаем диалоговое окно для редактирования времени
+                        showTimePickerDialog(mediaFile);
+                    }
                     setHandlesVisibility(true);
                     requestLayout();
                     CustomLayoutManager.updateHandlesVisibility(this);
-
                 }
                 isScrolling = false; // возвращаем в значение по дефолту
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
@@ -171,9 +186,45 @@ public void setLayoutManager(CustomLayoutManager layoutManager){
         Log.d("TouchEvent", "isTouchingEndHandle: " + isTouching);
         return isTouching;
     }
+    // Метод для проверки, касается ли пользователь строки длительности
+    private boolean isTouchingDuration(MotionEvent event) {
+        if (duration.getVisibility() != View.VISIBLE) {
+            return false; // Если элемент не видим, возвращаем false
+        }
+        int[] location = new int[2];
+        duration.getLocationInWindow(location);
+        float touchX = event.getRawX();
+        float touchY = event.getRawY();
+
+        // Проверяем, находится ли касание в пределах ширины и высоты элемента duration
+        boolean isTouching = touchX >= location[0] && touchX <= location[0] + duration.getWidth() &&
+                touchY >= location[1] && touchY <= location[1] + duration.getHeight();
+
+        Log.d("TouchEvent", "isTouchingDuration: " + isTouching);
+        return isTouching;
+    }
 
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+
+    private void showTimePickerDialog(MediaFile currentMediaFile) {
+        // Получаем текущие значения времени
+        List<Integer> currentTime = getCurrentDuration(duration.getText().toString());
+
+        // Создаем экземпляр TimePickerDialog
+        TimePickerDialog timePickerDialog = new TimePickerDialog(currentTime, currentMediaFile);
+
+        // Показываем диалог
+        timePickerDialog.show(((AppCompatActivity) getContext()).getSupportFragmentManager(), "timePicker");
+    }
+    private List<Integer> getCurrentDuration(String durationString){
+        String[] parts = durationString.split(":");
+        int hours = Integer.parseInt(parts[0]);
+        int minutes = Integer.parseInt(parts[1]);
+        int seconds = Integer.parseInt(parts[2]);
+        int millis = Integer.parseInt(parts[3]);
+        return List.of(hours, minutes, seconds, millis);
     }
 
 }

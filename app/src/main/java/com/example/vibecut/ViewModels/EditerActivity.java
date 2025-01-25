@@ -13,6 +13,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -44,8 +45,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.time.format.DateTimeFormatter;
 
-public class EditerActivity extends AppCompatActivity {
+public class EditerActivity extends AppCompatActivity implements TimePickerDialog.TimePickerDialogListener {
     private static final int PICK_MEDIA_REQUEST = 1;
     private TextView nameProjectTextView;
     private HorizontalScrollView horizontalScrollView;
@@ -88,7 +90,7 @@ public class EditerActivity extends AppCompatActivity {
         adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, layoutManager, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
-        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, layoutManager, this);
+        //MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, layoutManager, this);
         // УБЕРИ ЭТУ СТРОКУ ЧТОБЫ СККРЫТЬ НИЖНИЙ РЯД
 
 
@@ -321,5 +323,11 @@ public class EditerActivity extends AppCompatActivity {
 
         // Преобразуем длительность в LocalTime
         return LocalTime.ofNanoOfDay(durationInMillis * 1_000_000);
+    }
+    @Override
+    public void onTimeSaved(int hours, int minutes, int seconds, int millis, MediaFile mediaFile) {
+        LocalTime newDuration = LocalTime.of(hours, minutes, seconds, millis * 1000 * 1000);
+        mediaFile.setDuration(newDuration);
+        Toast.makeText(this, "Время изменено: " + mediaFile.getDuration(), Toast.LENGTH_SHORT).show();
     }
 }
