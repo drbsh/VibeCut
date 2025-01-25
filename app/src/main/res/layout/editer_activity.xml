@@ -191,39 +191,28 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.25">
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/timeline">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recyclerViewVideoTimeline"
+                        <com.example.vibecut.CustomizeProject.CustomHorizontalScrollView
+                            android:id="@+id/scroll_all_media_line"
                             android:layout_width="match_parent"
-                            android:layout_height="140dp"
-                            android:layout_gravity="center"
-                            tools:listitem="@layout/mediafile_lineitem"
-                            android:orientation="horizontal"
-                            android:scrollbars="vertical"/>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/timeline">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recyclerViewSoundTimeline"
-                            android:layout_width="match_parent"
-                            android:layout_height="140dp"
-                            android:layout_gravity="center"
-                            tools:listitem="@layout/mediafile_lineitem"
-                            android:orientation="horizontal"
-                            android:scrollbars="vertical"/>
-                    </LinearLayout>
-            </LinearLayout>
+                            android:layout_height="wrap_content">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical">
+                                    <LinearLayout
+                                        android:id="@+id/media_line_container"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal">
+                                    </LinearLayout>
+                                <LinearLayout
+                                    android:id="@+id/audio_line_container"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+                                </LinearLayout>
+                            </LinearLayout>
+                        </com.example.vibecut.CustomizeProject.CustomHorizontalScrollView>
         </ScrollView>
         <!--Таймлайн-->
 

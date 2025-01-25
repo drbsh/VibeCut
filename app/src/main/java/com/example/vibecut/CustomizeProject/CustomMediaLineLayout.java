@@ -10,7 +10,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.R;
+import com.example.vibecut.ViewModels.EditerActivity;
+
+import java.util.List;
 
 public class CustomMediaLineLayout extends RelativeLayout {
 private float initialX;
@@ -18,28 +22,31 @@ private float initialY;
 
 private int initialWidth;
 private short flagStartOrEnd = 0;
-private CustomLayoutManager layoutManager;
 private OnWidthChangeListener listener;
 private View startHandle;
 private View endHandle;
+private CustomLayoutManager layoutManager;
 private boolean isHandleVisible = false;
 private boolean isScrolling = false;
+private List<MediaFile> mediaFiles;
 
+public void setLayoutManager(CustomLayoutManager layoutManager){
+    this.layoutManager = layoutManager;
+}
+
+    public void getmedia(List<MediaFile> mediaFiles) {
+        this.mediaFiles = mediaFiles;
+    }
     public interface OnWidthChangeListener {
         void onWidthChanged(CustomMediaLineLayout view, int newWidth);
     }
-    public void setOnWidthChangeListener(OnWidthChangeListener listener) {
-        this.listener = listener;
-    }
+
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public void setLayoutManager(CustomLayoutManager layoutManager) {
-        this.layoutManager = layoutManager;
-    }
+
     public void init() {
-        // Инициализация рамок
         startHandle = findViewById(R.id.start_medialine_item);
         endHandle = findViewById(R.id.end_medialine_item);
         setHandlesVisibility(isHandleVisible); // Скрыть рамки по умолчанию
@@ -53,16 +60,28 @@ private boolean isScrolling = false;
         isHandleVisible = visible;
         requestLayout();
     }
-
+    public void getLayoutManager(){
+        EditerActivity editerActivity = new EditerActivity() ;
+        this.layoutManager = editerActivity.layoutManager;
+    }
 
     @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+        init(); // Инициализация после завершения инфляции
+        getLayoutManager();
+    }
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
+        Log.d("CustomMediaLineLayout", "onTouchEvent called");
+        Log.d("CustomMediaLineLayout", "startHandle: " + startHandle + ", endHandle: " + endHandle);
+        Log.d("CustomMediaLineLayout", "layoutManager: " + layoutManager + ", isHandleVisible: " + isHandleVisible);
         int newWidth = initialWidth; // Инициализируем newWidth значением initialWidth
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 initialX = event.getX();
                 initialWidth = getWidth();
-                getParent().requestDisallowInterceptTouchEvent(true);
+                getParent().requestDisallowInterceptTouchEvent(true); // <<<<---------------- ЗАМЕНА НА SCROLLVIEW
 
                 if (isTouchingStartHandle(event)) {
                     flagStartOrEnd = 1;
@@ -88,15 +107,15 @@ private boolean isScrolling = false;
                     // Растягиваем с левой стороны
                     newWidth = initialWidth - (int) dx; // Уменьшаем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
-                    layoutManager.resizeItem(this, newWidth); // Вызов метода resizeItem из CustomLayoutManager
+                    resizeItem(newWidth); // Вызов метода resizeItem из CustomLayoutManager
                 } else if (flagStartOrEnd == 2) {
                     // Растягиваем с правой стороны
                     newWidth = initialWidth + (int) dx; // Увеличиваем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
-                    layoutManager.resizeItem(this, newWidth); // Вызов метода resizeItem из CustomLayoutManager
+                    resizeItem(newWidth); // Вызов метода resizeItem из CustomLayoutManager
                 } else {
-                    getParent().requestDisallowInterceptTouchEvent(false);
+                    getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
                 }
 
                 // Обновляем listener только если ширина изменилась
@@ -108,17 +127,23 @@ private boolean isScrolling = false;
             case MotionEvent.ACTION_CANCEL:
                 if(flagStartOrEnd == 0 && isScrolling == false){
                     setHandlesVisibility(true);
-                    layoutManager.requestLayout();
                     requestLayout();
-                    layoutManager.updateHandlesVisibility(this);
+                    CustomLayoutManager.updateHandlesVisibility(this);
 
                 }
                 isScrolling = false; // возвращаем в значение по дефолту
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
-                getParent().requestDisallowInterceptTouchEvent(false);
+                getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
                 break;
         }
         return true;
+    }
+    private void resizeItem(int newWidth) {
+        // Устанавливаем новую ширину для текущего объекта
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
+        params.width = newWidth;
+        this.setLayoutParams(params);
+        this.requestLayout(); // Запрашиваем повторное размещение
     }
 
     // Метод для проверки, касается ли пользователь левой рамки

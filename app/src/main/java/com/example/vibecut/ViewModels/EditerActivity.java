@@ -14,10 +14,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vibecut.CustomizeProject.CustomLayoutManager;
+import com.example.vibecut.CustomizeProject.CustomMediaLineLayout;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Adapters.MediaLineAdapter;
@@ -44,17 +48,28 @@ import java.util.List;
 public class EditerActivity extends AppCompatActivity {
     private static final int PICK_MEDIA_REQUEST = 1;
     private TextView nameProjectTextView;
-    private RecyclerView recyclerView;
+    private HorizontalScrollView horizontalScrollView;
     private ProjectInfo projectInfo;//текущий  проект
     private List<MediaFile> MediaFiles;
     private MediaLineAdapter adapter;
-    private CustomLayoutManager layoutManager;
+    public static CustomLayoutManager layoutManager;
+    private LinearLayout mediaLineContainer;
+    private LinearLayout audioLineContainer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.editer_activity);
-        recyclerView = findViewById(R.id.recyclerViewVideoTimeline);
+
+        horizontalScrollView = findViewById(R.id.scroll_all_media_line);
+
+
+        mediaLineContainer = findViewById(R.id.media_line_container);
+        audioLineContainer = findViewById(R.id.audio_line_container);
+
+
+
+//        recyclerView = findViewById(R.id.recyclerViewVideoTimeline);
 
         if (getIntent() != null && getIntent().hasExtra("project_info")) {
             projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
@@ -69,12 +84,13 @@ public class EditerActivity extends AppCompatActivity {
         }
 
         MediaFiles = projectInfo.getProjectFiles();
-        layoutManager = new CustomLayoutManager(MediaFiles.size());
-//        layoutManager.setRecyclerView(recyclerView);
-        adapter = new MediaLineAdapter(this, MediaFiles, layoutManager); // Создаем адаптер
-        layoutManager.setAdapter(adapter); // Устанавливаем адаптер в layoutManager
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+        layoutManager = new CustomLayoutManager();
+        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, layoutManager, this); // Создаем адаптер
+
+        // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
+        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, layoutManager, this);
+        // УБЕРИ ЭТУ СТРОКУ ЧТОБЫ СККРЫТЬ НИЖНИЙ РЯД
+
 
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
@@ -131,8 +147,6 @@ public class EditerActivity extends AppCompatActivity {
             button.setOnClickListener(v -> {
                 int index = MediaFiles.indexOf(file); // Находим индекс файла
                 if (index != -1) {
-                    MediaFiles.remove(index);
-
                     adapter.notifyItemRemoved(index); // Уведомляем адаптер об удалении
                     boolean success = JSONHelper.exportToJSON(this, projectInfo); // Сохраняем изменения
                     if (success) {
@@ -215,8 +229,7 @@ public class EditerActivity extends AppCompatActivity {
         }
         MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
         // Добавляем MediaFile в проект
-        projectInfo.addMediaFile(mediaFile);
-        // Уведомляем адаптер об изменении данных
+        MediaFiles.add(mediaFile);// Уведомляем адаптер об изменении данных
         adapter.notifyItemInserted(MediaFiles.size() - 1);
         JSONHelper.exportToJSON(this, projectInfo);
     }
