@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -53,10 +54,14 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     private HorizontalScrollView horizontalScrollView;
     private ProjectInfo projectInfo;//текущий  проект
     private List<MediaFile> MediaFiles;
-    private MediaLineAdapter adapter;
+    private static MediaLineAdapter adapter;
     public static CustomLayoutManager layoutManager;
-    private LinearLayout mediaLineContainer;
-    private LinearLayout audioLineContainer;
+    private RelativeLayout mediaLineContainer;
+    private RelativeLayout audioLineContainer;
+
+    public static MediaLineAdapter getAdapter() {
+        return adapter;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +92,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
         MediaFiles = projectInfo.getProjectFiles();
         layoutManager = new CustomLayoutManager(MediaFiles, mediaLineContainer);
+        layoutManager.setHorizontalScrollView(horizontalScrollView);
         adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManager, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
@@ -331,5 +337,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         projectInfo.updateMediafile(mediaFile);
         JSONHelper.exportToJSON(this, projectInfo);
     }
+
+
 
 }

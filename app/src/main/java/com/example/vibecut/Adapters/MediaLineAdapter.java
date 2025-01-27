@@ -3,7 +3,9 @@
     import android.content.Context;
     import android.net.Uri;
     import android.view.LayoutInflater;
+    import android.view.View;
     import android.view.ViewGroup;
+    import android.widget.FrameLayout;
     import android.widget.ImageView;
     import android.widget.LinearLayout;
     import android.widget.RelativeLayout;
@@ -27,14 +29,21 @@
         private MediaFile mediaFile;
         private CustomLayoutManager layoutManager;
         private ProjectInfo projectInfo;
-        private List<MediaFile> mediaFiles;
+        private static List<MediaFile> mediaFiles;
         private List<Integer> mediaFileWidths;
         private LayoutInflater inflater;
-        private LinearLayout mediaLineContainer;
+        private RelativeLayout mediaLineContainer;
         private Context context;
         private AppCompatActivity activity;
         private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
 
+        public void updateWithSwitchPositions(CustomMediaLineLayout customMediaLineLayout, int targetPosition) {
+            int currentPosition  = customMediaLineLayout.getOriginalPosition();
+            MediaFile file = mediaFiles.get(currentPosition);
+            mediaFiles.set(currentPosition, mediaFiles.get(targetPosition));
+            mediaFiles.set(targetPosition, file);
+            populateMediaItems();
+        }
 
 
         public void InflateToCustomMediaLineLayout(CustomMediaLineLayout customMediaLineLayout) {
@@ -57,7 +66,7 @@
             }
         }
 
-        public MediaLineAdapter(LinearLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, CustomLayoutManager layoutManager, Context context, AppCompatActivity activity) {
+        public MediaLineAdapter(RelativeLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, CustomLayoutManager layoutManager, Context context, AppCompatActivity activity) {
             this.mediaLineContainer = mediaLineContainer;
             this.mediaFiles = mediaFiles;
             this.layoutManager = layoutManager;
@@ -72,17 +81,19 @@
         }
 
         private void populateMediaItems() {
+            CustomLayoutManager.id = 0;
+            CustomMediaLineLayout previous = null;
+
             mediaLineContainer.removeAllViews(); // Очистка контейнера перед добавлением новых элементов
             for (int i = 0; i < mediaFiles.size(); i++) {
                 MediaFile mediaFile = mediaFiles.get(i);
-
                 boolean isFirst = (i == 0);// Проверка, является ли элемент первым или последним
                 boolean isEnd = (i == mediaFiles.size() - 1);
-                AddImem(mediaFile, isFirst, isEnd);// Добавляем элемент
+                previous = AddImem(mediaFile, isFirst, isEnd, previous);// Добавляем элемент
             }
         }
 
-        private void AddImem(MediaFile mediaFile, Boolean isFirst, Boolean isEnd) {
+        private CustomMediaLineLayout AddImem(MediaFile mediaFile, Boolean isFirst, Boolean isEnd, CustomMediaLineLayout previous) {
             CustomMediaLineLayout customMediaLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
             InflateToCustomMediaLineLayout(customMediaLineLayout);
             customMediaLineLayout.setMediaFile(mediaFile); // Важное изменение: устанавливаем MediaFile
@@ -90,23 +101,31 @@
             customMediaLineLayout.setLayoutManager(layoutManager);
             mediaLineContainer.addView(customMediaLineLayout);
             // Устанавливаем отступы
+            customMediaLineLayout.setId(View.generateViewId());
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT
             );
-
-            if (isFirst) {
-                // Устанавливаем отступ слева в 150dp для первого элемента
-                int leftMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
-                params.setMargins(leftMargin, 0, 10, 0); // Отступ слева
-            } else if (isEnd) {
-                // Устанавливаем отступ справа в 150dp для остальных элементов
-                int rightMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
-                params.setMargins(0, 0, rightMargin, 0); // Отступ справа
+            if (previous == null) {
+                // Если это первый элемент, устанавливаем его к левому краю родительского контейнера
+                params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             } else {
-                // Устанавливаем отступ снизу в 10dp для остальных элементов
-                params.setMargins(0, 0, 10, 0); // Отступ справа
+                // Если это не первый элемент, размещаем его справа от предыдущего
+                params.addRule(RelativeLayout.RIGHT_OF, previous.getId());
             }
+
+//            if (isFirst) {
+//                // Устанавливаем отступ слева в 150dp для первого элемента
+//                int leftMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
+//                params.setMargins(leftMargin, 0, 10, 0); // Отступ слева
+//            } else if (isEnd) {
+//                // Устанавливаем отступ справа в 150dp для остальных элементов
+//                int rightMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
+//                params.setMargins(0, 0, rightMargin, 0); // Отступ справа
+//            } else {
+//                // Устанавливаем отступ снизу в 10dp для остальных элементов
+//                params.setMargins(0, 0, 10, 0); // Отступ справа
+//            }
 
             customMediaLineLayout.setLayoutParams(params);
 
@@ -116,6 +135,7 @@
                 parent.removeView(customMediaLineLayout); // Удаляем из родителя, если он есть
             }
             mediaLineContainer.addView(customMediaLineLayout);
+            return customMediaLineLayout;
         }
 
 
@@ -163,6 +183,7 @@
 
             populateMediaItems();
         }
+
         private List<Integer> getCurrentDuration(String durationString){
             String[] parts = durationString.split(":");
             int hours = Integer.parseInt(parts[0]);

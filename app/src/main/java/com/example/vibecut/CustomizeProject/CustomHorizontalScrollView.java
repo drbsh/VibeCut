@@ -20,6 +20,7 @@ public class CustomHorizontalScrollView extends HorizontalScrollView {
     public CustomHorizontalScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
+
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
