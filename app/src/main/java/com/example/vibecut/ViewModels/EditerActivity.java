@@ -87,7 +87,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
         MediaFiles = projectInfo.getProjectFiles();
         layoutManager = new CustomLayoutManager(MediaFiles, mediaLineContainer);
-        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, layoutManager, this); // Создаем адаптер
+        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, layoutManager, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
         //MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, layoutManager, this);

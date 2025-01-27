@@ -17,6 +17,7 @@
 
     import androidx.annotation.NonNull;
     import androidx.appcompat.app.AlertDialog;
+    import androidx.appcompat.app.AppCompatActivity;
     import androidx.recyclerview.widget.RecyclerView;
 
     import com.bumptech.glide.Glide;
@@ -24,6 +25,7 @@
     import com.example.vibecut.CustomizeProject.CustomMediaLineLayout;
     import com.example.vibecut.Models.MediaFile;
     import com.example.vibecut.R;
+    import com.example.vibecut.ViewModels.TimePickerDialog;
 
     import java.time.LocalTime;
     import java.time.format.DateTimeFormatter;
@@ -31,7 +33,7 @@
     import java.util.Collections;
     import java.util.List;
 
-    public class MediaLineAdapter  {
+    public class MediaLineAdapter {
         private MediaFile mediaFile;
         private CustomLayoutManager layoutManager;
 
@@ -40,26 +42,24 @@
         private LayoutInflater inflater;
         private LinearLayout mediaLineContainer;
         private Context context;
-
+        private AppCompatActivity activity;
         private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
 
-        public void InflateToCustomMediaLineLayout( CustomMediaLineLayout customMediaLineLayout) {
+        public void InflateToCustomMediaLineLayout(CustomMediaLineLayout customMediaLineLayout) {
             LayoutInflater.from(customMediaLineLayout.getContext()).inflate(R.layout.mediafile_lineitem, customMediaLineLayout, true);
         }
 
-        public MediaLineAdapter(LinearLayout mediaLineContainer, List<MediaFile> mediaFiles, CustomLayoutManager layoutManager, Context context) {
+        public MediaLineAdapter(LinearLayout mediaLineContainer, List<MediaFile> mediaFiles, CustomLayoutManager layoutManager, Context context, AppCompatActivity activity) {
             this.mediaLineContainer = mediaLineContainer;
             this.mediaFiles = mediaFiles;
             this.layoutManager = layoutManager;
             this.context = context;
-
+            this.activity = activity;
             populateMediaItems(); // Заполнение контейнера элементами
         }
 
         public void pullingInfoCustomLayout(MediaFile mediaFile, CustomMediaLineLayout newcustomMediaLineLayout) {
-            this.mediaFile = mediaFile;
-            CustomMediaLineLayout customMediaLineLayout = newcustomMediaLineLayout;
-            onBindViewHolder(customMediaLineLayout);
+            onBindViewHolder(mediaFile, newcustomMediaLineLayout);
         }
 
         private void populateMediaItems() {
@@ -72,7 +72,8 @@
                 AddImem(mediaFile, isFirst, isEnd);// Добавляем элемент
             }
         }
-        private void AddImem(MediaFile mediaFile, Boolean isFirst, Boolean isEnd){
+
+        private void AddImem(MediaFile mediaFile, Boolean isFirst, Boolean isEnd) {
             CustomMediaLineLayout customMediaLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
             InflateToCustomMediaLineLayout(customMediaLineLayout);
             customMediaLineLayout.setMediaFile(mediaFile); // Важное изменение: устанавливаем MediaFile
@@ -93,7 +94,7 @@
                 // Устанавливаем отступ справа в 150dp для остальных элементов
                 int rightMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
                 params.setMargins(0, 0, rightMargin, 0); // Отступ справа
-            }else{
+            } else {
                 // Устанавливаем отступ снизу в 10dp для остальных элементов
                 params.setMargins(0, 0, 10, 0); // Отступ справа
             }
@@ -109,7 +110,7 @@
         }
 
 
-        public void onBindViewHolder(CustomMediaLineLayout customMediaLineLayout) {
+        public void onBindViewHolder(MediaFile mediaFile, CustomMediaLineLayout customMediaLineLayout) {
             TextView itemDuration = customMediaLineLayout.findViewById(R.id.item_duration);
             ImageView mediaLineItem = customMediaLineLayout.findViewById(R.id.MediaLineItem);
 
@@ -124,8 +125,19 @@
             Glide.with(customMediaLineLayout.getContext())
                     .load(previewUri)
                     .into(mediaLineItem);
-        }
 
+            // Устанавливаем обработчик нажатия
+            itemDuration.setOnClickListener(v -> {
+                List<Integer> currentTime = getCurrentDuration(duration);
+
+                // Создаем экземпляр TimePickerDialog
+                TimePickerDialog timePickerDialog = new TimePickerDialog(currentTime, mediaFile);
+
+                // Показываем диалог
+                timePickerDialog.show(activity.getSupportFragmentManager(), "timePicker");
+            });
+
+        }
         public void notifyItemRemoved(int index) {
             if (index >= 0 && index < mediaFiles.size()) {
                 mediaFiles.remove(index); // Удаляем элемент из списка
@@ -135,84 +147,19 @@
         }
 
         public void notifyItemInserted(int index) {
-                // Создаем новый элемент MediaFile (или получаем его из другого источника)
-                MediaFile newMediaFile = mediaFiles.get(index); // Получаем элемент из списка
+            // Создаем новый элемент MediaFile (или получаем его из другого источника)
+            MediaFile newMediaFile = mediaFiles.get(index); // Получаем элемент из списка
 
-                populateMediaItems();
-
+            populateMediaItems();
         }
+        private List<Integer> getCurrentDuration(String durationString){
+            String[] parts = durationString.split(":");
+            int hours = Integer.parseInt(parts[0]);
+            int minutes = Integer.parseInt(parts[1]);
+            int seconds = Integer.parseInt(parts[2]);
+            int millis = Integer.parseInt(parts[3]);
+            return List.of(hours, minutes, seconds, millis);
+        }
+    }
 
-
-//    public int getItemCount() {
-//        return mediaFiles.size();
-//    }
-//    public static class ViewHolder extends RecyclerView.ViewHolder {
-//        public TextView itemDuration;
-//        public ImageView previewImageView;
-//        public CustomMediaLineLayout customMediaLineLayout;
-//
-//        public ViewHolder(View itemView, MediaLineAdapter adapter) {
-//            super(itemView);
-//            previewImageView = itemView.findViewById(R.id.MediaLineItem);
-//            itemDuration = itemView.findViewById(R.id.item_duration);
-//            customMediaLineLayout = (CustomMediaLineLayout) itemView;
-//            customMediaLineLayout.setLayoutManager(adapter.layoutManager); // Set layoutManager
-//            customMediaLineLayout.setOnWidthChangeListener((view, newWidth) -> adapter.layoutManager.resizeItem(view, newWidth));
-//
-//            itemDuration.setOnClickListener(v -> {
-//                // Создаем EditText для ввода длительности
-//                EditText input = new EditText(v.getContext());
-//                input.setHint("HH:mm:ss:SSS"); // Подсказка для ввода
-//
-//                // Создаем AlertDialog
-//                new AlertDialog.Builder(v.getContext())
-//                        .setTitle("Введите длительность")
-//                        .setMessage("Введите длительность в формате HH:mm:ss:SSS")
-//                        .setView(input)
-//                        .setPositiveButton("OK", (dialog, which) -> {
-//                            String durationInput = input.getText().toString();
-//                            if (isValidDuration(durationInput)) {
-//                                Toast.makeText(v.getContext(), durationInput, Toast.LENGTH_SHORT).show();
-//                            } else {
-//                                Toast.makeText(v.getContext(), "Некорректный формат", Toast.LENGTH_SHORT).show();
-//                            }
-//                        })
-//                        .setNegativeButton("Отмена", (dialog, which) -> dialog.cancel())
-//                        .show();
-//            });
-//        }
-//        private boolean isValidDuration(String duration) {
-//            // Регулярное выражение для проверки формата HH:mm:ss:SSS
-//            String regex = "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d):([0-9]{3})$";
-//            return duration.matches(regex);
-//        }
-//    }
-
-}
-//    private List<MediaFile> mediaFiles; // Список медиафайлов
-//    private LinearLayout mediaLineContainer; // Ссылка на LinearLayout
-//
-//    public MediaLineAdapter(LinearLayout mediaLineContainer, List<MediaFile> mediaFiles) {
-//        this.mediaLineContainer = mediaLineContainer;
-//        this.mediaFiles = mediaFiles;
-//    }
-//
-//    public void updateViews() {
-//        mediaLineContainer.removeAllViews(); // Очистите контейнер перед добавлением новых элементов
-//
-//        for (MediaFile mediaFile : mediaFiles) {
-//            CustomMediaLineLayout customLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
-//            customLayout.getmedia(mediaFiles);
-//            customLayout.setmedia(customLayout.getId(R.id.MediaLineItem));
-//            customLayout.setLayoutParams(new LinearLayout.LayoutParams(
-//                    LinearLayout.LayoutParams.WRAP_CONTENT,
-//                    LinearLayout.LayoutParams.MATCH_PARENT)); // Высота - match_parent для горизонтального расположения
-//
-//            // Здесь вы можете установить данные в customLayout, например:
-//            // customLayout.setData(mediaFile);
-//
-//            mediaLineContainer.addView(customLayout);
-//        }
-//    }
-//}
 
