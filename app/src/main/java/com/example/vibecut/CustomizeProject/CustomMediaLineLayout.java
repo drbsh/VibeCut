@@ -143,7 +143,7 @@ public class CustomMediaLineLayout extends RelativeLayout {
                 if((flagStartOrEnd == 0  || flagStartOrEnd == 3) && !isScrolling){
                     if(flagStartOrEnd == 3){
                         // Запускаем диалоговое окно для редактирования времени
-                        showTimePickerDialog(mediaFile);
+                        //showTimePickerDialog(mediaFile);
                     }
                     setHandlesVisibility(true);
                     requestLayout();
@@ -211,12 +211,12 @@ public class CustomMediaLineLayout extends RelativeLayout {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
-    private void showTimePickerDialog(MediaFile currentMediaFile) {
+    /*private void showTimePickerDialog(MediaFile currentMediaFile) {
         // Получаем текущие значения времени
         List<Integer> currentTime = getCurrentDuration(duration.getText().toString());
 
         // Создаем экземпляр TimePickerDialog
-        TimePickerDialog timePickerDialog = new TimePickerDialog(currentTime, currentMediaFile);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(currentTime);
 
         // Показываем диалог
         timePickerDialog.show(((AppCompatActivity) getContext()).getSupportFragmentManager(), "timePicker");
@@ -228,6 +228,6 @@ public class CustomMediaLineLayout extends RelativeLayout {
         int seconds = Integer.parseInt(parts[2]);
         int millis = Integer.parseInt(parts[3]);
         return List.of(hours, minutes, seconds, millis);
-    }
+    }*/
 
 }

@@ -14,21 +14,44 @@ import androidx.fragment.app.DialogFragment;
 import com.example.vibecut.CustomizeProject.CustomTimePicker;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.R;
-
+import java.time.LocalTime;
 import java.util.List;
 
-public class TimePickerDialog extends DialogFragment {
+public class TimePickerDialog extends DialogFragment{
     private CustomTimePicker customTimePicker;
     private Context context;
     private TimePickerDialogListener listener;
+    private OnTimeSetListener listener2;
     private MediaFile mediaFile;
     private List<Integer> times;
+
+    public interface OnTimeSetListener {
+        void onTimeSet();
+    }
+
+
+    public void setOnTimeSetListener(OnTimeSetListener listener2) {
+        this.listener2 = listener2;
+    }
+
+    // Вызовите этот метод, когда время будет установлено
+    private void notifyTimeSet() {
+        if (listener2 != null) {
+            listener2.onTimeSet();
+        }
+    }
+    public void onTimeSaved(int hours, int minutes, int seconds, int millis, MediaFile mediaFile) {
+        if (listener != null) {
+            listener.onTimeSaved(hours, minutes, seconds, millis, mediaFile);
+        }
+    }
+
 
     public interface TimePickerDialogListener {
         void onTimeSaved(int hours, int minutes, int seconds, int millis, MediaFile mediaFile);
     }
 
-    public TimePickerDialog(List<Integer> times, MediaFile mediaFile){
+    public TimePickerDialog(List<Integer> times, MediaFile mediaFile) {
         this.times = times;
         this.mediaFile = mediaFile;
     }
@@ -76,6 +99,7 @@ public class TimePickerDialog extends DialogFragment {
             if (listener != null) {
                 listener.onTimeSaved(hours, minutes, seconds, millis, mediaFile);
             }
+            notifyTimeSet();
             dismiss(); // Закрываем диалог
         });
 

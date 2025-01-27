@@ -1,42 +1,32 @@
     package com.example.vibecut.Adapters;
 
-    import static android.view.View.inflate;
-    import static java.security.AccessController.getContext;
-
     import android.content.Context;
     import android.net.Uri;
     import android.view.LayoutInflater;
-    import android.view.View;
     import android.view.ViewGroup;
-    import android.widget.EditText;
     import android.widget.ImageView;
     import android.widget.LinearLayout;
     import android.widget.RelativeLayout;
     import android.widget.TextView;
-    import android.widget.Toast;
 
-    import androidx.annotation.NonNull;
-    import androidx.appcompat.app.AlertDialog;
     import androidx.appcompat.app.AppCompatActivity;
-    import androidx.recyclerview.widget.RecyclerView;
 
     import com.bumptech.glide.Glide;
     import com.example.vibecut.CustomizeProject.CustomLayoutManager;
     import com.example.vibecut.CustomizeProject.CustomMediaLineLayout;
     import com.example.vibecut.Models.MediaFile;
+    import com.example.vibecut.Models.ProjectInfo;
     import com.example.vibecut.R;
     import com.example.vibecut.ViewModels.TimePickerDialog;
 
     import java.time.LocalTime;
     import java.time.format.DateTimeFormatter;
-    import java.util.ArrayList;
-    import java.util.Collections;
     import java.util.List;
 
-    public class MediaLineAdapter {
+    public class MediaLineAdapter implements TimePickerDialog.OnTimeSetListener {
         private MediaFile mediaFile;
         private CustomLayoutManager layoutManager;
-
+        private ProjectInfo projectInfo;
         private List<MediaFile> mediaFiles;
         private List<Integer> mediaFileWidths;
         private LayoutInflater inflater;
@@ -45,14 +35,33 @@
         private AppCompatActivity activity;
         private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
 
+
+
         public void InflateToCustomMediaLineLayout(CustomMediaLineLayout customMediaLineLayout) {
             LayoutInflater.from(customMediaLineLayout.getContext()).inflate(R.layout.mediafile_lineitem, customMediaLineLayout, true);
         }
+        public interface OnTimeSetListener {
+            void onTimeSet(LocalTime time);
+        }
 
-        public MediaLineAdapter(LinearLayout mediaLineContainer, List<MediaFile> mediaFiles, CustomLayoutManager layoutManager, Context context, AppCompatActivity activity) {
+        private OnTimeSetListener listener;
+
+        public void setOnTimeSetListener(OnTimeSetListener listener) {
+            this.listener = listener;
+        }
+
+        // Вызовите этот метод, когда время будет установлено
+        private void notifyTimeSet(LocalTime time) {
+            if (listener != null) {
+                listener.onTimeSet(time);
+            }
+        }
+
+        public MediaLineAdapter(LinearLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, CustomLayoutManager layoutManager, Context context, AppCompatActivity activity) {
             this.mediaLineContainer = mediaLineContainer;
             this.mediaFiles = mediaFiles;
             this.layoutManager = layoutManager;
+            this.projectInfo = projectInfo;
             this.context = context;
             this.activity = activity;
             populateMediaItems(); // Заполнение контейнера элементами
@@ -135,6 +144,8 @@
 
                 // Показываем диалог
                 timePickerDialog.show(activity.getSupportFragmentManager(), "timePicker");
+                timePickerDialog.setOnTimeSetListener(this);
+
             });
 
         }
@@ -159,6 +170,11 @@
             int seconds = Integer.parseInt(parts[2]);
             int millis = Integer.parseInt(parts[3]);
             return List.of(hours, minutes, seconds, millis);
+        }
+        @Override
+        public void onTimeSet() {
+            this.mediaFiles = projectInfo.getProjectFiles();
+            populateMediaItems();
         }
     }
 

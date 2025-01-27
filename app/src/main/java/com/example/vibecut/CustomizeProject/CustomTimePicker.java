@@ -6,6 +6,7 @@ import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 
 import com.example.vibecut.R;
+import com.example.vibecut.ViewModels.TimePickerDialog;
 
 import java.util.List;
 
@@ -61,8 +62,8 @@ public class CustomTimePicker extends LinearLayout {
         npSeconds.setValue(times.get(2));
         npMillis.setValue(times.get(3));
     }
-
     public interface OnTimeChangedListener {
         void onTimeChanged(CustomTimePicker view, int hourOfDay, int minute, int second, int millis);
     }
+
 }

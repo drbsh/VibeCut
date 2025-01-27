@@ -87,7 +87,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
         MediaFiles = projectInfo.getProjectFiles();
         layoutManager = new CustomLayoutManager(MediaFiles, mediaLineContainer);
-        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, layoutManager, this, this); // Создаем адаптер
+        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManager, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
         //MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, layoutManager, this);
@@ -175,7 +175,6 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
     public void addProjectFiles(View view){
         pickMedia();
-
     }
     private void pickMedia() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -219,7 +218,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         LocalTime duration = LocalTime.of(0,0, 0, 0);
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
-            duration = LocalTime.of(0, 3);
+            duration = LocalTime.of(0, 0, 3, 0);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             try {
@@ -332,4 +331,5 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         projectInfo.updateMediafile(mediaFile);
         JSONHelper.exportToJSON(this, projectInfo);
     }
+
 }
