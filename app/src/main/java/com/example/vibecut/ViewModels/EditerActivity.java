@@ -91,7 +91,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         }
 
         MediaFiles = projectInfo.getProjectFiles();
-        layoutManager = new CustomLayoutManager(MediaFiles, mediaLineContainer);
+        layoutManager = new CustomLayoutManager(MediaFiles, mediaLineContainer, this);
         layoutManager.setHorizontalScrollView(horizontalScrollView);
         adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManager, this, this); // Создаем адаптер
 

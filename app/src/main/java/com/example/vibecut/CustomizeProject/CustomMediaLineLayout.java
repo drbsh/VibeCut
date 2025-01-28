@@ -1,10 +1,12 @@
 package com.example.vibecut.CustomizeProject;
 
+import static androidx.core.content.ContextCompat.getSystemService;
 import static com.example.vibecut.CustomizeProject.CustomLayoutManager.MIN_WIDTH;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +29,8 @@ import com.example.vibecut.ViewModels.TimePickerDialog;
 import java.util.List;
 
 public class CustomMediaLineLayout extends RelativeLayout {
+    private boolean flagVibrate = true;
+    private EditerActivity context;
     private float initialX;
     private float initialY;
     private float dX;
@@ -42,9 +46,9 @@ public class CustomMediaLineLayout extends RelativeLayout {
     private MediaFile mediaFile;
     private Runnable longPressRunnable;
     private Handler handler = new Handler();
-    private static final long LONG_PRESS_DURATION = 1000; // Время зажатия в миллисекундах
+    private static final long LONG_PRESS_DURATION = 500; // Время зажатия в миллисекундах
     private boolean isDragging = false;
-    private boolean flagDrag = false;
+    private boolean flagDrag = true;
     private RelativeLayout parentLayout;
     private int originalPosition; // Исходная позиция объекта
     private  int targetPosition = 0;
@@ -83,10 +87,14 @@ public class CustomMediaLineLayout extends RelativeLayout {
         originalPosition = CustomLayoutManager.getOriginalPosition(); // Обязательно вызываем раньше getMediasInLayouts() (описание почему так в классе)
         mediaFile = CustomLayoutManager.getMediasInLayouts();
         parentLayout = CustomLayoutManager.getParentLayout();
+        context = CustomLayoutManager.getEditerActivity();
 
         longPressRunnable = new Runnable() {
             @Override
-            public void run() {}
+            public void run() {
+                isDragging = true;
+
+            }
         };
 
     }
@@ -140,7 +148,12 @@ public class CustomMediaLineLayout extends RelativeLayout {
                 else
                 {
                     flagStartOrEnd = 0; // Обработка на какую из рамок нажал пользователь или длительность или вообще не нажимал
+                    if(handler.hasMessages(0) || isDragging) {
+                        flagDrag = true;
+                        isDragging = false;
+                    }
                     handler.postDelayed(longPressRunnable, LONG_PRESS_DURATION);
+
                 }
 
                 break;
@@ -148,24 +161,23 @@ public class CustomMediaLineLayout extends RelativeLayout {
                 isScrolling = true; //определяет то что пользователь начал движение пальцем
 
 
-                if (!isDragging && Math.abs(event.getRawX() - initialX) < 7 && !flagDrag) { // 10 - пороговое значение
-                    isDragging = true; // Устанавливаем флаг, что началось перетаскивание
-                    setAlpha(0.5f); // Устанавливаем прозрачность
-                    bringToFront(); // Выдвигаем элемент вверх по слоям
-                    requestLayout(); // Запрашиваем повторное размещение
-                }
 
 
-                if (!isDragging) {
-                    flagDrag = true;
-                    dX = event.getRawX() - initialX;
+
+
                     // Определите, за какую рамку тянет пользователь
                     if (flagStartOrEnd == 1) {
                         // Растягиваем с левой стороны
+                        flagDrag = true;
+                        isDragging = false;
+                        dX = event.getRawX() - initialX;
                         newWidth = initialWidth - (int) dX; // Уменьшаем ширину
                         newWidth = Math.max(MIN_WIDTH, newWidth);
                         resizeItem(newWidth); // Вызов метода resizeItem из CustomLayoutManager
                     } else if (flagStartOrEnd == 2) {
+                        flagDrag = true;
+                        isDragging = false;
+                        dX = event.getRawX() - initialX;
                         // Растягиваем с правой стороны
                         newWidth = initialWidth + (int) dX; // Увеличиваем ширину
                         newWidth = Math.max(MIN_WIDTH, newWidth);
@@ -174,9 +186,22 @@ public class CustomMediaLineLayout extends RelativeLayout {
                     } else if (!isDragging) {
                         getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
                     }
-                }
-                else {
+                if (isDragging) { // 10 - пороговое значение
+                    // Устанавливаем флаг, что началось перетаскивание
+                    flagDrag = false;
+                    setAlpha(0.5f); // Устанавливаем прозрачность
+                    requestLayout(); // Запрашиваем повторное размещение
 
+                }
+
+                if(isDragging) {
+                    if(flagVibrate){
+                        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                        if (vibrator != null) {
+                            vibrator.vibrate(300); // Вибрация на 500 миллисекунд
+                        }
+                        flagVibrate = false;
+                    }
                     setAlpha(0.5f);
                     float newXThanDragging = event.getRawX() + dX; // Используем rawX для абсолютной позиции
 
@@ -211,7 +236,7 @@ public class CustomMediaLineLayout extends RelativeLayout {
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                if(isDragging){
+                if(isDragging && !flagDrag){
                     isDragging = false;
                     handler.removeCallbacks(longPressRunnable);
                     setAlpha(1.0f); // Возвращаем прозрачность к норме
@@ -225,7 +250,8 @@ public class CustomMediaLineLayout extends RelativeLayout {
 
                     CustomLayoutManager.updateHandlesVisibility(this);
                 }
-                flagDrag = false;
+                flagVibrate = true;
+                isDragging = false;
                 isScrolling = false; // возвращаем в значение по дефолту
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
                 getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW

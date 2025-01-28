@@ -7,22 +7,31 @@ import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
 import com.example.vibecut.Models.MediaFile;
+import com.example.vibecut.ViewModels.EditerActivity;
 
 import java.util.List;
 
 public class CustomLayoutManager {
     public static final int MIN_WIDTH = 100;
     private static RelativeLayout mediaLineContainer;
+    private static EditerActivity context;
 
     public static int id;
     private HorizontalScrollView horizontalScrollView;
     private static List<MediaFile> MediaFiles;
     private static CustomMediaLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
 
-    public CustomLayoutManager(List<MediaFile> MediaFiles, RelativeLayout mediaLineContainer){
+    public CustomLayoutManager(List<MediaFile> MediaFiles, RelativeLayout mediaLineContainer, EditerActivity context){
+        this.context = context;
         this.MediaFiles = MediaFiles;
         this.mediaLineContainer = mediaLineContainer;
+        this.context = context;
     }
+
+    public static EditerActivity getEditerActivity() {
+        return context;
+    }
+
     public void setHorizontalScrollView(HorizontalScrollView horizontalScrollView){
         this.horizontalScrollView = horizontalScrollView;
     }
