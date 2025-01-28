@@ -2,22 +2,22 @@ package com.example.vibecut.ViewModels;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button; // Не забудьте импортировать Button
+import android.widget.TextView; // Используем TextView вместо Button
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import com.example.vibecut.CustomizeProject.CustomTimePicker;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.R;
-import java.time.LocalTime;
 import java.util.List;
 
-public class TimePickerDialog extends DialogFragment{
+public class TimePickerDialog extends DialogFragment {
     private CustomTimePicker customTimePicker;
     private Context context;
     private TimePickerDialogListener listener;
@@ -29,23 +29,21 @@ public class TimePickerDialog extends DialogFragment{
         void onTimeSet();
     }
 
-
     public void setOnTimeSetListener(OnTimeSetListener listener2) {
         this.listener2 = listener2;
     }
 
-    // Вызовите этот метод, когда время будет установлено
     private void notifyTimeSet() {
         if (listener2 != null) {
             listener2.onTimeSet();
         }
     }
+
     public void onTimeSaved(int hours, int minutes, int seconds, int millis, MediaFile mediaFile) {
         if (listener != null) {
             listener.onTimeSaved(hours, minutes, seconds, millis, mediaFile);
         }
     }
-
 
     public interface TimePickerDialogListener {
         void onTimeSaved(int hours, int minutes, int seconds, int millis, MediaFile mediaFile);
@@ -87,9 +85,36 @@ public class TimePickerDialog extends DialogFragment{
 
         customTimePicker = view.findViewById(R.id.custom_time_picker);
         customTimePicker.setTime(times);
-        Button buttonSave = view.findViewById(R.id.button_save);
-        Button buttonCancel = view.findViewById(R.id.button_cancel);
 
+        // Находим TextView вместо Button
+        TextView buttonSave = view.findViewById(R.id.selectMediaText); // Исправлено на правильный ID
+        TextView buttonCancel = view.findViewById(R.id.button_save);
+
+        // Получаем состояние темы из SharedPreferences
+        SharedPreferences preferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE);
+        boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
+
+        // Устанавливаем фон для диалогового окна
+        if (isDarkTheme) {
+            view.setBackgroundResource(R.drawable.layout_project_dialog_background_black);
+            buttonSave.setBackgroundResource(R.drawable.rounded_button_background_dark);
+            buttonCancel.setBackgroundResource(R.drawable.rounded_button_background_dark);
+            // Устанавливаем цвет текста на белый
+            buttonSave.setTextColor(getResources().getColor(R.color.white));
+            buttonCancel.setTextColor(getResources().getColor(R.color.white));
+        } else {
+            view.setBackgroundResource(R.drawable.layout_project_dialog_background); // Убедитесь, что у вас есть этот ресурс
+            buttonSave.setBackgroundResource(R.drawable.rounded_button_background);
+            buttonCancel.setBackgroundResource(R.drawable.rounded_button_background);
+
+            // Устанавливаем цвет текста на черный
+            buttonSave.setTextColor(getResources().getColor(R.color.black));
+            buttonCancel.setTextColor(getResources().getColor(R.color.black));
+        }
+        customTimePicker.updateTextColor(isDarkTheme);
+
+
+        // Обработка нажатия на "Сохранить"
         buttonSave.setOnClickListener(v -> {
             int hours = customTimePicker.getHours();
             int minutes = customTimePicker.getMinutes();
@@ -103,7 +128,8 @@ public class TimePickerDialog extends DialogFragment{
             dismiss(); // Закрываем диалог
         });
 
-        buttonCancel.setOnClickListener(v -> dismiss()); // Закрываем диалог при нажатии "Отмена"
+        // Обработка нажатия на "Отмена"
+        buttonCancel.setOnClickListener(v -> dismiss()); // Закрываем диалог
 
         return view;
     }

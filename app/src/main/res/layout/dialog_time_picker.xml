@@ -15,19 +15,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:layout_marginTop="16dp"
+        android:weightSum="2">
+        <RelativeLayout
+            android:id="@+id/selectMediaButton"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/project_dialog_rounded_button_background_gray"
+            android:layout_marginEnd="5dp">
 
-        <Button
-            android:id="@+id/button_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Сохранить" />
+            <TextView
+                android:text="Сохранить"
+                android:id="@+id/selectMediaText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/lemonmilkrusbylyajka"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="@color/black"/>
+        </RelativeLayout>
 
-        <Button
+        <RelativeLayout
             android:id="@+id/button_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Отмена"
-            android:layout_marginStart="8dp" />
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/project_dialog_rounded_button_background_gray"
+            android:layout_marginStart="5dp">
+
+            <TextView
+                android:id="@+id/button_save"
+                android:text="Отмена"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/lemonmilkrusbylyajka"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="@color/black"/>
+        </RelativeLayout>
     </LinearLayout>
 </LinearLayout>
