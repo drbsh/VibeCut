@@ -55,7 +55,8 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     private ProjectInfo projectInfo;//текущий  проект
     private List<MediaFile> MediaFiles;
     private static MediaLineAdapter adapter;
-    public static CustomLayoutManager layoutManager;
+    public static CustomLayoutManager layoutManagerMedia;
+    public static CustomLayoutManager layoutManagerAudio;
     private RelativeLayout mediaLineContainer;
     private RelativeLayout audioLineContainer;
 
@@ -91,12 +92,13 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         }
 
         MediaFiles = projectInfo.getProjectFiles();
-        layoutManager = new CustomLayoutManager(MediaFiles, mediaLineContainer, this);
-        layoutManager.setHorizontalScrollView(horizontalScrollView);
-        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManager, this, this); // Создаем адаптер
+        layoutManagerMedia = new CustomLayoutManager(MediaFiles, mediaLineContainer, this);
+        layoutManagerAudio = new CustomLayoutManager(MediaFiles, mediaLineContainer, this);
+        layoutManagerMedia.setHorizontalScrollView(horizontalScrollView);
+        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManagerMedia, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
-        //MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, layoutManager, this);
+        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
         // УБЕРИ ЭТУ СТРОКУ ЧТОБЫ СККРЫТЬ НИЖНИЙ РЯД
 
 

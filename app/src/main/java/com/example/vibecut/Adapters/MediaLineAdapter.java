@@ -30,7 +30,6 @@
         private CustomLayoutManager layoutManager;
         private ProjectInfo projectInfo;
         private static List<MediaFile> mediaFiles;
-        private List<Integer> mediaFileWidths;
         private LayoutInflater inflater;
         private RelativeLayout mediaLineContainer;
         private Context context;
@@ -98,7 +97,6 @@
             InflateToCustomMediaLineLayout(customMediaLineLayout);
             customMediaLineLayout.setMediaFile(mediaFile); // Важное изменение: устанавливаем MediaFile
             pullingInfoCustomLayout(mediaFile, customMediaLineLayout);
-            customMediaLineLayout.setLayoutManager(layoutManager);
             mediaLineContainer.addView(customMediaLineLayout);
             // Устанавливаем отступы
             customMediaLineLayout.setId(View.generateViewId());
