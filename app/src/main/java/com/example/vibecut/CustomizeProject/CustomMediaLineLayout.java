@@ -4,29 +4,14 @@ import static androidx.core.content.ContextCompat.getSystemService;
 import static com.example.vibecut.CustomizeProject.CustomLayoutManager.MIN_WIDTH;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.vibecut.Adapters.MediaLineAdapter;
-import com.example.vibecut.Models.MediaFile;
-import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
-import com.example.vibecut.ViewModels.TimePickerDialog;
-
-import java.util.List;
 
 public class CustomMediaLineLayout extends BaseLineLayout {
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
@@ -36,6 +21,7 @@ public class CustomMediaLineLayout extends BaseLineLayout {
     public int getOriginalPosition() {
         return originalPosition;
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 //        parentLayout = CustomLayoutManager.getParentLayout();
@@ -79,7 +65,8 @@ public class CustomMediaLineLayout extends BaseLineLayout {
                     dX = event.getRawX() - initialX;
                     newWidth = initialWidth - (int) dX; // Уменьшаем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
-                    resizeItem(newWidth); // Вызов метода resizeItem из CustomLayoutManager
+                    layoutManager.setWidth(newWidth, originalPosition);
+                    requestLayout();
                 } else if (flagStartOrEnd == 2) {
                     flagDrag = true;
                     isDragging = false;
@@ -88,7 +75,8 @@ public class CustomMediaLineLayout extends BaseLineLayout {
                     newWidth = initialWidth + (int) dX; // Увеличиваем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
-                    resizeItem(newWidth); // Вызов метода resizeItem из CustomLayoutManager
+                    layoutManager.setWidth(newWidth, originalPosition);
+                    requestLayout();
                 } else if (!isDragging) {
                     getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
                 }
@@ -151,7 +139,6 @@ public class CustomMediaLineLayout extends BaseLineLayout {
                 }
                 if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
-                    requestLayout();
 
                     CustomLayoutManager.updateHandlesVisibility(this);
                 }
@@ -160,6 +147,7 @@ public class CustomMediaLineLayout extends BaseLineLayout {
                 isScrolling = false; // возвращаем в значение по дефолту
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
                 getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
+                layoutManager.exportWidth();
                 break;
         }
         return true;

@@ -6,7 +6,9 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
+import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
+import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.ViewModels.EditerActivity;
 
 import java.util.List;
@@ -15,21 +17,28 @@ public class CustomLayoutManager {
     public static final int MIN_WIDTH = 100;
     private static RelativeLayout mediaLineContainer;
     private static EditerActivity context;
+    private ProjectInfo projectInfo;
 
     public static int id;
     private HorizontalScrollView horizontalScrollView;
     private static List<MediaFile> MediaFiles;
     private static CustomMediaLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
 
-    public CustomLayoutManager(List<MediaFile> MediaFiles, RelativeLayout mediaLineContainer, EditerActivity context){
+    public CustomLayoutManager(List<MediaFile> MediaFiles, RelativeLayout mediaLineContainer, EditerActivity context, ProjectInfo projectInfo){
         this.context = context;
         this.MediaFiles = MediaFiles;
         this.mediaLineContainer = mediaLineContainer;
         this.context = context;
+        this.projectInfo = projectInfo;
     }
+
 
     public static EditerActivity getEditerActivity() {
         return context;
+    }
+
+    public static int getwidthbypositionInit(int originalPosition) {
+        return MediaFiles.get(originalPosition).getWidthOnTimeline();
     }
 
     public void setHorizontalScrollView(HorizontalScrollView horizontalScrollView){
@@ -80,5 +89,13 @@ public class CustomLayoutManager {
                 // Вы можете также восстановить видимость, если это необходимо
             }
         }
+    }
+    public void setWidth(int width, int originCode) {
+        CustomMediaLineLayout layoutToChangeWidth = (CustomMediaLineLayout) mediaLineContainer.getChildAt(originCode);
+        layoutToChangeWidth.resizeItem(width);
+        MediaFiles.get(originCode).setWidthOnTimeline(width);
+    }
+    public void exportWidth(){
+        JSONHelper.exportToJSON(context, projectInfo);
     }
 }

@@ -53,7 +53,12 @@ public abstract class BaseLineLayout extends RelativeLayout {
         mediaFile = CustomLayoutManager.getMediasInLayouts();
         parentLayout = CustomLayoutManager.getParentLayout();
         context = CustomLayoutManager.getEditerActivity();
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                CustomLayoutManager.getwidthbypositionInit(originalPosition),
+                RelativeLayout.LayoutParams.WRAP_CONTENT
 
+        );
+        this.setLayoutParams(params);
         longPressRunnable = new Runnable() {
             @Override
             public void run() {
@@ -76,8 +81,16 @@ public abstract class BaseLineLayout extends RelativeLayout {
         super.onFinishInflate();
         init();
         getLayoutManager();
+        requestLayout();
     }
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int desiredWidth = mediaFile.getWidthOnTimeline();
 
+        int newWidthMeasureSpec = MeasureSpec.makeMeasureSpec(desiredWidth, MeasureSpec.EXACTLY);
+
+        super.onMeasure(newWidthMeasureSpec, heightMeasureSpec);
+    }
     protected void getLayoutManager() {
         EditerActivity editerActivity = new EditerActivity();
         this.layoutManager = EditerActivity.layoutManagerMedia;

@@ -112,6 +112,8 @@
                 params.addRule(RelativeLayout.RIGHT_OF, previous.getId());
             }
 
+
+
 //            if (isFirst) {
 //                // Устанавливаем отступ слева в 150dp для первого элемента
 //                int leftMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);

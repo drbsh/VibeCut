@@ -63,7 +63,9 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     public static MediaLineAdapter getAdapter() {
         return adapter;
     }
-
+    public ProjectInfo getProjectInfo(){
+            return projectInfo;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,8 +94,8 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         }
 
         MediaFiles = projectInfo.getProjectFiles();
-        layoutManagerMedia = new CustomLayoutManager(MediaFiles, mediaLineContainer, this);
-        layoutManagerAudio = new CustomLayoutManager(MediaFiles, mediaLineContainer, this);
+        layoutManagerMedia = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
+        layoutManagerAudio = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
         layoutManagerMedia.setHorizontalScrollView(horizontalScrollView);
         adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManagerMedia, this, this); // Создаем адаптер
 

@@ -13,6 +13,7 @@ public class MediaFile implements Serializable {
     private String pathToFile; // Изменено на String
     private LocalTime duration;
     private String typeMedia;
+    private int widthOnTimeline;
     public MediaFile() {}
 
     public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, LocalTime duration, String typeMedia) {
@@ -70,5 +71,13 @@ public class MediaFile implements Serializable {
 
     public void setIdFile(String idFile) {
         this.idFile = idFile;
+    }
+
+    public int getWidthOnTimeline() {
+        return widthOnTimeline;
+    }
+
+    public void setWidthOnTimeline(int widthOnTimeline) {
+        this.widthOnTimeline = widthOnTimeline;
     }
 }
