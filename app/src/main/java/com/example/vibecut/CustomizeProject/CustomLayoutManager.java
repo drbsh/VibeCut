@@ -22,7 +22,7 @@ public class CustomLayoutManager {
     public static int id;
     private HorizontalScrollView horizontalScrollView;
     private static List<MediaFile> MediaFiles;
-    private static CustomMediaLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
+    private static BaseLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
 
     public CustomLayoutManager(List<MediaFile> MediaFiles, RelativeLayout mediaLineContainer, EditerActivity context, ProjectInfo projectInfo){
         this.context = context;
@@ -49,7 +49,7 @@ public class CustomLayoutManager {
         return horizontalScrollView;
     }
 
-    public static void updateHandlesVisibility(CustomMediaLineLayout newLayout) {
+    public static void updateHandlesVisibility(BaseLineLayout newLayout) {
         if (currentVisibleHandlesLayout != null && currentVisibleHandlesLayout != newLayout) {
             currentVisibleHandlesLayout.setHandlesVisibility(false); // Скрываем рамки у предыдущего элемента
         }
@@ -67,33 +67,34 @@ public class CustomLayoutManager {
     }
 
 
-    public void detach(CustomMediaLineLayout customMediaLineLayout) {
-        // Отключаем взаимодействие с зависимыми элементами
-        for (int i = 0; i < mediaLineContainer.getChildCount(); i++) {
-            View child = mediaLineContainer.getChildAt(i);
-            if (child instanceof CustomMediaLineLayout && i != customMediaLineLayout.getOriginalPosition()) {
-                // Отключаем взаимодействие с другими элементами
-                child.setEnabled(false); // Отключаем элемент
-                // Вы можете также скрыть или изменить видимость, если это необходимо
-            }
-        }
-    }
-
-    public void restore(CustomMediaLineLayout customMediaLineLayout) {
-        // Восстанавливаем взаимодействие с зависимыми элементами
-        for (int i = 0; i < mediaLineContainer.getChildCount(); i++) {
-            View child = mediaLineContainer.getChildAt(i);
-            if (child instanceof CustomMediaLineLayout && i != customMediaLineLayout.getOriginalPosition()) {
-                // Восстанавливаем взаимодействие с другими элементами
-                child.setEnabled(true); // Включаем элемент
-                // Вы можете также восстановить видимость, если это необходимо
-            }
-        }
-    }
+//    public void detach(CustomMediaLineLayout customMediaLineLayout) {
+//        // Отключаем взаимодействие с зависимыми элементами
+//        for (int i = 0; i < mediaLineContainer.getChildCount(); i++) {
+//            View child = mediaLineContainer.getChildAt(i);
+//            if (child instanceof CustomMediaLineLayout && i != customMediaLineLayout.getOriginalPosition()) {
+//                // Отключаем взаимодействие с другими элементами
+//                child.setEnabled(false); // Отключаем элемент
+//                // Вы можете также скрыть или изменить видимость, если это необходимо
+//            }
+//        }
+//    }
+//
+//    public void restore(CustomMediaLineLayout customMediaLineLayout) {
+//        // Восстанавливаем взаимодействие с зависимыми элементами
+//        for (int i = 0; i < mediaLineContainer.getChildCount(); i++) {
+//            View child = mediaLineContainer.getChildAt(i);
+//            if (child instanceof CustomMediaLineLayout && i != customMediaLineLayout.getOriginalPosition()) {
+//                // Восстанавливаем взаимодействие с другими элементами
+//                child.setEnabled(true); // Включаем элемент
+//                // Вы можете также восстановить видимость, если это необходимо
+//            }
+//        }
+//    }
     public void setWidth(int width, int originCode) {
-        CustomMediaLineLayout layoutToChangeWidth = (CustomMediaLineLayout) mediaLineContainer.getChildAt(originCode);
+        BaseLineLayout layoutToChangeWidth = (BaseLineLayout) mediaLineContainer.getChildAt(originCode);
         layoutToChangeWidth.resizeItem(width);
         MediaFiles.get(originCode).setWidthOnTimeline(width);
+        projectInfo.setProjectFiles(MediaFiles);
     }
     public void exportWidth(){
         JSONHelper.exportToJSON(context, projectInfo);

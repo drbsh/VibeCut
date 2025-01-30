@@ -100,7 +100,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManagerMedia, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
-        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
+        //MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
         // УБЕРИ ЭТУ СТРОКУ ЧТОБЫ СККРЫТЬ НИЖНИЙ РЯД
 
 

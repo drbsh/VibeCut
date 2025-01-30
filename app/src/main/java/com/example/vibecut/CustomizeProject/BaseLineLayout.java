@@ -9,12 +9,10 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.vibecut.CustomizeProject.CustomLayoutManager;
 import com.example.vibecut.Models.MediaFile;
-import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
 
-public abstract class BaseLineLayout extends RelativeLayout {
+public abstract class BaseLineLayout extends RelativeLayout implements BaseLineLayoutInterface {
     protected boolean flagVibrate = true;
     protected EditerActivity context;
     protected float initialX;
@@ -40,60 +38,20 @@ public abstract class BaseLineLayout extends RelativeLayout {
 
     public BaseLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-
-    public void init() {
-        startHandle = findViewById(R.id.start_medialine_item);
-        endHandle = findViewById(R.id.end_medialine_item);
-        duration = findViewById(R.id.item_duration);
-        setHandlesVisibility(isHandleVisible); // Скрыть рамки по умолчанию
-
-        originalPosition = CustomLayoutManager.getOriginalPosition();
-        mediaFile = CustomLayoutManager.getMediasInLayouts();
-        parentLayout = CustomLayoutManager.getParentLayout();
-        context = CustomLayoutManager.getEditerActivity();
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                CustomLayoutManager.getwidthbypositionInit(originalPosition),
-                RelativeLayout.LayoutParams.WRAP_CONTENT
-
-        );
-        this.setLayoutParams(params);
-        longPressRunnable = new Runnable() {
-            @Override
-            public void run() {
-                isDragging = true;
-            }
-        };
-    }
-
-    public void setHandlesVisibility(boolean visible) {
-        int visibility = visible ? View.VISIBLE : View.GONE;
-        startHandle.setVisibility(visibility);
-        endHandle.setVisibility(visibility);
-        duration.setVisibility(visibility);
-        isHandleVisible = visible;
-        requestLayout();
+        this.context = (EditerActivity) context; // Привязываем контекст активности
     }
 
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        init();
-        getLayoutManager();
-        requestLayout();
+    public void setHandlesVisibility(boolean visible){
+            startHandle.setVisibility(visible ? View.VISIBLE : View.GONE);
+            endHandle.setVisibility(visible ? View.VISIBLE : View.GONE);
+        isHandleVisible = visible; // Обновляем состояние видимости
     }
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int desiredWidth = mediaFile.getWidthOnTimeline();
 
-        int newWidthMeasureSpec = MeasureSpec.makeMeasureSpec(desiredWidth, MeasureSpec.EXACTLY);
 
-        super.onMeasure(newWidthMeasureSpec, heightMeasureSpec);
-    }
+
     protected void getLayoutManager() {
-        EditerActivity editerActivity = new EditerActivity();
-        this.layoutManager = EditerActivity.layoutManagerMedia;
+        this.layoutManager = EditerActivity.layoutManagerMedia; // Получаем менеджер компоновки
     }
 
     @Override
@@ -101,15 +59,15 @@ public abstract class BaseLineLayout extends RelativeLayout {
         // Общий код для обработки touch events
         return true;
     }
-
-    protected void resizeItem(int newWidth) {
+    @Override
+    public void resizeItem(int newWidth) {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
         params.width = newWidth;
         this.setLayoutParams(params);
         this.requestLayout();
     }
-
-    protected boolean isTouchingStartHandle(MotionEvent event) {
+    @Override
+    public boolean isTouchingStartHandle(MotionEvent event) {
         if (startHandle.getVisibility() != View.VISIBLE) {
             return false;
         }
@@ -118,8 +76,8 @@ public abstract class BaseLineLayout extends RelativeLayout {
         float touchX = event.getRawX();
         return touchX >= location[0] && touchX <= location[0] + dpToPx(10);
     }
-
-    protected boolean isTouchingEndHandle(MotionEvent event) {
+    @Override
+    public boolean isTouchingEndHandle(MotionEvent event) {
         if (endHandle.getVisibility() != View.VISIBLE) {
             return false;
         }
@@ -128,36 +86,38 @@ public abstract class BaseLineLayout extends RelativeLayout {
         float touchX = event.getRawX();
         return touchX >= location[0] && touchX <= location[0] + dpToPx(10);
     }
-
-    protected int getTargetPosition(MotionEvent event) {
+    @Override
+    public int getTargetPosition(MotionEvent event) {
         float touchX = event.getRawX();
         for (int i = 0; i < parentLayout.getChildCount(); i++) {
             View child = parentLayout.getChildAt(i);
-            if (child != this) {
+            if (child != this) { // Игнорируем текущий элемент
                 int[] location = new int[2];
                 child.getLocationInWindow(location);
                 float childLeft = location[0];
                 float childRight = childLeft + child.getWidth();
+
+                // Проверяем, находится ли touchX в пределах ширины дочернего элемента
                 if (touchX >= childLeft && touchX <= childRight) {
-                    return i;
+                    return i; // Возвращаем индекс дочернего элемента
                 }
             }
         }
-        return -1;
+        return -1; // Если ничего не найдено, возвращаем -1
     }
-
-    protected void highlightTargetPosition(int position) {
+    @Override
+    public void highlightTargetPosition(int position) {
         for (int i = 0; i < parentLayout.getChildCount(); i++) {
             View child = parentLayout.getChildAt(i);
             if (i == position) {
-                child.setBackgroundColor(Color.LTGRAY);
+                child.setBackgroundColor(Color.LTGRAY); // Подсвечиваем целевую позицию
             } else {
-                child.setBackgroundColor(Color.TRANSPARENT);
+                child.setBackgroundColor(Color.TRANSPARENT); // Сбрасываем цвет для остальных
             }
         }
     }
-
-    protected void resetPosition() {
+    @Override
+    public void resetPosition() {
         int currentPosition = indexOfChild(this);
         if (currentPosition != originalPosition) {
             parentLayout.removeView(this);
@@ -166,16 +126,38 @@ public abstract class BaseLineLayout extends RelativeLayout {
             setY(0);
         }
     }
+    @Override
+    public int getOriginalPosition() {
+        return originalPosition;
+    }
 
     protected int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
+    public void setOriginalPosition(int position) {
+        this.originalPosition = position; // Устанавливаем исходную позицию
+    }
+
     public void setMediaFile(MediaFile mediaFile) {
-        this.mediaFile = mediaFile;
+        this.mediaFile = mediaFile; // Устанавливаем объект MediaFile
+    }
+
+    public void setParentLayout(RelativeLayout parentLayout) {
+        this.parentLayout = parentLayout; // Устанавливаем родительский контейнер
     }
 
     public interface OnWidthChangeListener {
-        void onWidthChanged(BaseLineLayout view, int newWidth);
+        void onWidthChanged(BaseLineLayout view, int newWidth); // Интерфейс для слушателя изменений ширины
+    }
+
+    public void setOnWidthChangeListener(OnWidthChangeListener listener) {
+        this.listener = listener; // Устанавливаем слушателя изменений ширины
+    }
+
+    protected void notifyWidthChanged(int newWidth) {
+        if (listener != null) {
+            listener.onWidthChanged(this, newWidth); // Уведомляем слушателя об изменении ширины
+        }
     }
 }

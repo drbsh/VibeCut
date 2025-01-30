@@ -7,7 +7,6 @@ import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
@@ -15,16 +14,15 @@ import com.example.vibecut.Adapters.MediaLineAdapter;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
 
-public class CustomMediaLineLayout extends BaseLineLayout  {
-
-    public CustomMediaLineLayout(Context context, AttributeSet attrs) {
+public class CustomAudioLineLayout extends BaseLineLayout {
+    public CustomAudioLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
     @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        init();
-        getLayoutManager();
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int desiredWidth = mediaFile != null ? mediaFile.getWidthOnTimeline() : 0;
+        int newWidthMeasureSpec = MeasureSpec.makeMeasureSpec(desiredWidth, MeasureSpec.EXACTLY);
+        super.onMeasure(newWidthMeasureSpec, heightMeasureSpec);
     }
     @Override
     public void init() {
@@ -37,13 +35,15 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
         mediaFile = CustomLayoutManager.getMediasInLayouts();
         parentLayout = CustomLayoutManager.getParentLayout();
         context = CustomLayoutManager.getEditerActivity();
+        if(mediaFile.getWidthOnTimeline() == 0) {
+            mediaFile.setWidthOnTimeline(dpToPx(200));
+        }
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                CustomLayoutManager.getwidthbypositionInit(originalPosition),
+                RelativeLayout.LayoutParams.WRAP_CONTENT
 
-        this.post(() -> {
-                    RelativeLayout.LayoutParams params = (LayoutParams) this.getLayoutParams();
-                    params.width = CustomLayoutManager.getwidthbypositionInit(originalPosition);
-                    this.setLayoutParams(params);
-                    requestLayout();
-                });
+        );
+        this.setLayoutParams(params);
         longPressRunnable = new Runnable() {
             @Override
             public void run() {
@@ -51,7 +51,6 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
             }
         };
     }
-
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -97,9 +96,6 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
                     newWidth = initialWidth - (int) dX; // Уменьшаем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
                     layoutManager.setWidth(newWidth, originalPosition);
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
-                    params.width = newWidth; // Изменяем только ширину
-                    this.setLayoutParams(params); // Применяем изменения
                     requestLayout();
                 } else if (flagStartOrEnd == 2) {
                     flagDrag = true;
@@ -110,9 +106,6 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
                     newWidth = Math.max(MIN_WIDTH, newWidth);
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
                     layoutManager.setWidth(newWidth, originalPosition);
-                    RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
-                    params.width = newWidth; // Изменяем только ширину
-                    this.setLayoutParams(params); // Применяем изменения
                     requestLayout();
                 } else if (!isDragging) {
                     getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
@@ -171,13 +164,13 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
                     handler.removeCallbacks(longPressRunnable);
                     setAlpha(1.0f); // Возвращаем прозрачность к норме
                     MediaLineAdapter adapter = EditerActivity.getAdapter();
-                    adapter.updateWithSwitchPositions(this, targetPosition);
+//                    adapter.updateWithSwitchPositions(this, targetPosition);
 
                 }
                 if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
 
-                    CustomLayoutManager.updateHandlesVisibility(this);
+//                    CustomLayoutManager.updateHandlesVisibility(this);
                 }
                 flagVibrate = true;
                 isDragging = false;
@@ -189,6 +182,4 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
         }
         return true;
     }
-
-
 }

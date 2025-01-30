@@ -4,16 +4,15 @@
     import android.net.Uri;
     import android.view.LayoutInflater;
     import android.view.View;
-    import android.view.ViewGroup;
-    import android.widget.FrameLayout;
     import android.widget.ImageView;
-    import android.widget.LinearLayout;
     import android.widget.RelativeLayout;
     import android.widget.TextView;
 
     import androidx.appcompat.app.AppCompatActivity;
 
     import com.bumptech.glide.Glide;
+    import com.example.vibecut.CustomizeProject.BaseLineLayout;
+    import com.example.vibecut.CustomizeProject.CustomAudioLineLayout;
     import com.example.vibecut.CustomizeProject.CustomLayoutManager;
     import com.example.vibecut.CustomizeProject.CustomMediaLineLayout;
     import com.example.vibecut.Models.MediaFile;
@@ -36,8 +35,8 @@
         private AppCompatActivity activity;
         private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
 
-        public void updateWithSwitchPositions(CustomMediaLineLayout customMediaLineLayout, int targetPosition) {
-            int currentPosition  = customMediaLineLayout.getOriginalPosition();
+        public void updateWithSwitchPositions(BaseLineLayout customLineLayout, int targetPosition) {
+            int currentPosition  = customLineLayout.getOriginalPosition();
             MediaFile file = mediaFiles.get(currentPosition);
             mediaFiles.set(currentPosition, mediaFiles.get(targetPosition));
             mediaFiles.set(targetPosition, file);
@@ -45,8 +44,8 @@
         }
 
 
-        public void InflateToCustomMediaLineLayout(CustomMediaLineLayout customMediaLineLayout) {
-            LayoutInflater.from(customMediaLineLayout.getContext()).inflate(R.layout.mediafile_lineitem, customMediaLineLayout, true);
+        public void InflateToCustomMediaLineLayout(BaseLineLayout customLineLayout) {
+            LayoutInflater.from(customLineLayout.getContext()).inflate(R.layout.mediafile_lineitem, customLineLayout, true);
         }
         public interface OnTimeSetListener {
             void onTimeSet(LocalTime time);
@@ -75,7 +74,7 @@
             populateMediaItems(); // Заполнение контейнера элементами
         }
 
-        public void pullingInfoCustomLayout(MediaFile mediaFile, CustomMediaLineLayout newcustomMediaLineLayout) {
+        public void pullingInfoCustomLayout(MediaFile mediaFile, BaseLineLayout newcustomMediaLineLayout) {
             onBindViewHolder(mediaFile, newcustomMediaLineLayout);
         }
 
@@ -95,7 +94,6 @@
         private CustomMediaLineLayout AddImem(MediaFile mediaFile, Boolean isFirst, Boolean isEnd, CustomMediaLineLayout previous) {
             CustomMediaLineLayout customMediaLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
             InflateToCustomMediaLineLayout(customMediaLineLayout);
-            customMediaLineLayout.setMediaFile(mediaFile); // Важное изменение: устанавливаем MediaFile
             pullingInfoCustomLayout(mediaFile, customMediaLineLayout);
             mediaLineContainer.addView(customMediaLineLayout);
             // Устанавливаем отступы
@@ -114,6 +112,7 @@
 
 
 
+
 //            if (isFirst) {
 //                // Устанавливаем отступ слева в 150dp для первого элемента
 //                int leftMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
@@ -128,18 +127,11 @@
 //            }
 
             customMediaLineLayout.setLayoutParams(params);
-
-            // Проверяем, есть ли у customMediaLineLayout родитель
-            ViewGroup parent = (ViewGroup) customMediaLineLayout.getParent();
-            if (parent != null) {
-                parent.removeView(customMediaLineLayout); // Удаляем из родителя, если он есть
-            }
-            mediaLineContainer.addView(customMediaLineLayout);
             return customMediaLineLayout;
         }
 
 
-        public void onBindViewHolder(MediaFile mediaFile, CustomMediaLineLayout customMediaLineLayout) {
+        public void onBindViewHolder(MediaFile mediaFile, BaseLineLayout customMediaLineLayout) {
             TextView itemDuration = customMediaLineLayout.findViewById(R.id.item_duration);
             ImageView mediaLineItem = customMediaLineLayout.findViewById(R.id.MediaLineItem);
 
