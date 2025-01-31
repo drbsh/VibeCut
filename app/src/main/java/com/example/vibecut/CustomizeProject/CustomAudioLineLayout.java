@@ -14,7 +14,7 @@ import com.example.vibecut.Adapters.MediaLineAdapter;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
 
-public class CustomAudioLineLayout extends BaseLineLayout {
+public class CustomAudioLineLayout extends BaseCustomLineLayout {
     public CustomAudioLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -164,13 +164,13 @@ public class CustomAudioLineLayout extends BaseLineLayout {
                     handler.removeCallbacks(longPressRunnable);
                     setAlpha(1.0f); // Возвращаем прозрачность к норме
                     MediaLineAdapter adapter = EditerActivity.getAdapter();
-//                    adapter.updateWithSwitchPositions(this, targetPosition);
+                    adapter.updateWithSwitchPositions(this, targetPosition);
 
                 }
                 if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
 
-//                    CustomLayoutManager.updateHandlesVisibility(this);
+                    CustomLayoutManager.updateHandlesVisibility(this);
                 }
                 flagVibrate = true;
                 isDragging = false;

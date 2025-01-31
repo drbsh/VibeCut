@@ -248,6 +248,7 @@ package com.example.vibecut.ViewModels;
         MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
         // Добавляем MediaFile в проект
         projectInfo.addMediaFile(mediaFile);
+        mediaFile.setWidthOnTimeline(100);
         // Добавляем MediaFile в список
         mediaFiles.add(mediaFile);
         // Уведомляем адаптер об изменении данных

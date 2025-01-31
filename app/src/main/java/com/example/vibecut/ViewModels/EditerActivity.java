@@ -13,25 +13,20 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.vibecut.CustomizeProject.CustomLayoutManager;
-import com.example.vibecut.CustomizeProject.CustomMediaLineLayout;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Adapters.MediaLineAdapter;
@@ -43,10 +38,8 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.time.format.DateTimeFormatter;
 
 public class EditerActivity extends AppCompatActivity implements TimePickerDialog.TimePickerDialogListener {
     private static final int PICK_MEDIA_REQUEST = 1;
@@ -100,7 +93,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManagerMedia, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
-        //MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
+//        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
         // УБЕРИ ЭТУ СТРОКУ ЧТОБЫ СККРЫТЬ НИЖНИЙ РЯД
 
 

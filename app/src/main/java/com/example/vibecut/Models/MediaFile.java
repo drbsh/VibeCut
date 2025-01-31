@@ -2,81 +2,23 @@ package com.example.vibecut.Models;
 
 import android.net.Uri;
 
-import java.io.Serializable;
 import java.time.LocalTime;
-import java.util.UUID;
 
-public class MediaFile implements Serializable {
-    private String idFile;
-    private String nameFile;
-    private String previewMedia; // Изменено на String
-    private String pathToFile; // Изменено на String
-    private LocalTime duration;
-    private String typeMedia;
-    private int widthOnTimeline;
+public class MediaFile extends BaseAudioFile {
+    private String previewMedia; // Уникальное поле для MediaFile
 
+    // Конструктор
     public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, LocalTime duration, String typeMedia) {
-        this.idFile = UUID.randomUUID().toString(); //рандом id
-        this.nameFile = nameFile;
-        this.previewMedia = previewMedia.toString(); // Сериализация Uri в строку
-        this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
-        this.duration = duration;
-        this.typeMedia = typeMedia;
+        super(nameFile, pathToFile, duration, typeMedia); // Вызов конструктора базового класса
+        this.previewMedia = previewMedia.toString(); // Инициализация уникального поля
     }
 
-    public String getNameFile() {
-        return nameFile;
-    }
-
-    public void setNameFile(String nameFile) {
-        this.nameFile = nameFile;
-    }
-
-    public Uri getPreviewUri() {
+    // Геттер и сеттер для previewMedia
+    public Uri getPreviewMedia() {
         return Uri.parse(previewMedia); // Десериализация строки в Uri
     }
 
-    public void setPreviewUri(Uri previewMedia) {
+    public void setPreviewMedia(Uri previewMedia) {
         this.previewMedia = previewMedia.toString(); // Сериализация Uri в строку
-    }
-
-    public Uri getPathToFile() {
-        return Uri.parse(pathToFile); // Десериализация строки в Uri
-    }
-
-    public void setPathToFile(Uri pathToFile) {
-        this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
-    }
-
-    public LocalTime getDuration() {
-        return duration;
-    }
-
-    public void setDuration(LocalTime duration) {
-        this.duration = duration;
-    }
-
-    public String getTypeMedia() {
-        return typeMedia;
-    }
-
-    public void setTypeMedia(String typeMedia) {
-        this.typeMedia = typeMedia;
-    }
-
-    public String getIdFile() {
-        return idFile;
-    }
-
-    public void setIdFile(String idFile) {
-        this.idFile = idFile;
-    }
-
-    public int getWidthOnTimeline() {
-        return widthOnTimeline;
-    }
-
-    public void setWidthOnTimeline(int widthOnTimeline) {
-        this.widthOnTimeline = widthOnTimeline;
     }
 }

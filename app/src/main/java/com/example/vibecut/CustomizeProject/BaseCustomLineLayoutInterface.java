@@ -2,7 +2,7 @@ package com.example.vibecut.CustomizeProject;
 
 import android.view.MotionEvent;
 
-public interface BaseLineLayoutInterface {
+public interface BaseCustomLineLayoutInterface {
     void init();
     void setHandlesVisibility(boolean visible);
     int getOriginalPosition();

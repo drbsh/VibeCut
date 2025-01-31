@@ -1,8 +1,6 @@
 package com.example.vibecut.CustomizeProject;
 
 
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
@@ -22,7 +20,7 @@ public class CustomLayoutManager {
     public static int id;
     private HorizontalScrollView horizontalScrollView;
     private static List<MediaFile> MediaFiles;
-    private static BaseLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
+    private static BaseCustomLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
 
     public CustomLayoutManager(List<MediaFile> MediaFiles, RelativeLayout mediaLineContainer, EditerActivity context, ProjectInfo projectInfo){
         this.context = context;
@@ -49,7 +47,7 @@ public class CustomLayoutManager {
         return horizontalScrollView;
     }
 
-    public static void updateHandlesVisibility(BaseLineLayout newLayout) {
+    public static void updateHandlesVisibility(BaseCustomLineLayout newLayout) {
         if (currentVisibleHandlesLayout != null && currentVisibleHandlesLayout != newLayout) {
             currentVisibleHandlesLayout.setHandlesVisibility(false); // Скрываем рамки у предыдущего элемента
         }
@@ -91,7 +89,7 @@ public class CustomLayoutManager {
 //        }
 //    }
     public void setWidth(int width, int originCode) {
-        BaseLineLayout layoutToChangeWidth = (BaseLineLayout) mediaLineContainer.getChildAt(originCode);
+        BaseCustomLineLayout layoutToChangeWidth = (BaseCustomLineLayout) mediaLineContainer.getChildAt(originCode);
         layoutToChangeWidth.resizeItem(width);
         MediaFiles.get(originCode).setWidthOnTimeline(width);
         projectInfo.setProjectFiles(MediaFiles);
@@ -99,4 +97,5 @@ public class CustomLayoutManager {
     public void exportWidth(){
         JSONHelper.exportToJSON(context, projectInfo);
     }
+
 }

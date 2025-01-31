@@ -35,7 +35,7 @@ public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.ViewHolder>{
     public void onBindViewHolder(MediaAdapter.ViewHolder holder, int position) {
         MediaFile mediaFile = mediaFiles.get(position);
         holder.nameMedia.setText(mediaFile.getNameFile());
-        Uri previewUri = mediaFile.getPreviewUri();
+        Uri previewUri = mediaFile.getPreviewMedia();
         Glide.with(holder.itemView.getContext())
                 .load(previewUri)
                 .into(holder.preview);

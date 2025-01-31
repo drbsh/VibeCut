@@ -6,36 +6,30 @@ import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.UUID;
 
-public class AudioFile implements Serializable {
+public abstract class BaseAudioFile implements Serializable {
     private String idFile;
     private String nameFile;
-    private String previewAudio; // Изменено на String
-    private String pathToFile; // Изменено на String
+    private String pathToFile;
     private LocalTime duration;
     private String typeMedia;
     private int widthOnTimeline;
-    public AudioFile(String nameFile, Uri previewAudio, Uri pathToFile, LocalTime duration, String typeMedia) {
-        this.idFile = UUID.randomUUID().toString(); //рандом id
+
+    // Конструктор для общих полей
+    public BaseAudioFile(String nameFile, Uri pathToFile, LocalTime duration, String typeMedia) {
+        this.idFile = UUID.randomUUID().toString(); // Рандомный ID
         this.nameFile = nameFile;
-        this.previewAudio = previewAudio.toString(); // Сериализация Uri в строку
         this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
         this.duration = duration;
         this.typeMedia = typeMedia;
     }
+
+    // Геттеры и сеттеры
     public String getNameFile() {
         return nameFile;
     }
 
     public void setNameFile(String nameFile) {
         this.nameFile = nameFile;
-    }
-
-    public Uri getPreviewUri() {
-        return Uri.parse(previewAudio); // Десериализация строки в Uri
-    }
-
-    public void setPreviewUri(Uri previewMedia) {
-        this.previewAudio = previewMedia.toString(); // Сериализация Uri в строку
     }
 
     public Uri getPathToFile() {

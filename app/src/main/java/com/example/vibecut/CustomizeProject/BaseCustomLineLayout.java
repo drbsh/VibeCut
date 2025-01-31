@@ -6,13 +6,14 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.ViewModels.EditerActivity;
 
-public abstract class BaseLineLayout extends RelativeLayout implements BaseLineLayoutInterface {
+public abstract class BaseCustomLineLayout extends RelativeLayout implements BaseCustomLineLayoutInterface {
     protected boolean flagVibrate = true;
     protected EditerActivity context;
     protected float initialX;
@@ -36,7 +37,7 @@ public abstract class BaseLineLayout extends RelativeLayout implements BaseLineL
     protected int originalPosition; // Исходная позиция объекта
     protected int targetPosition = 0;
 
-    public BaseLineLayout(Context context, AttributeSet attrs) {
+    public BaseCustomLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = (EditerActivity) context; // Привязываем контекст активности
     }
@@ -118,13 +119,24 @@ public abstract class BaseLineLayout extends RelativeLayout implements BaseLineL
     }
     @Override
     public void resetPosition() {
-        int currentPosition = indexOfChild(this);
-        if (currentPosition != originalPosition) {
-            parentLayout.removeView(this);
-            parentLayout.addView(this, originalPosition);
-            setX(0);
-            setY(0);
+
+        // Получаем текущего родителя
+        RelativeLayout parent = (RelativeLayout) getParent();
+        if (parent != null) {
+            // Удаляем элемент из текущего родителя
+            parent.removeView(this);
         }
+
+        // Добавляем элемент в оригинальный контейнер
+        if (parentLayout != null) {
+            parentLayout.addView(this, originalPosition);
+        }
+
+        // Устанавливаем оригинальную позицию
+        setX(originalPosition);
+
+        // Обновляем layout
+        requestLayout();
     }
     @Override
     public int getOriginalPosition() {
@@ -140,15 +152,11 @@ public abstract class BaseLineLayout extends RelativeLayout implements BaseLineL
     }
 
     public void setMediaFile(MediaFile mediaFile) {
-        this.mediaFile = mediaFile; // Устанавливаем объект MediaFile
     }
 
-    public void setParentLayout(RelativeLayout parentLayout) {
-        this.parentLayout = parentLayout; // Устанавливаем родительский контейнер
-    }
 
     public interface OnWidthChangeListener {
-        void onWidthChanged(BaseLineLayout view, int newWidth); // Интерфейс для слушателя изменений ширины
+        void onWidthChanged(BaseCustomLineLayout view, int newWidth); // Интерфейс для слушателя изменений ширины
     }
 
     public void setOnWidthChangeListener(OnWidthChangeListener listener) {

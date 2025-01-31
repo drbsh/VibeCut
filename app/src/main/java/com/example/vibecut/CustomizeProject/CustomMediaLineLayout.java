@@ -7,7 +7,6 @@ import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
@@ -15,7 +14,7 @@ import com.example.vibecut.Adapters.MediaLineAdapter;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
 
-public class CustomMediaLineLayout extends BaseLineLayout  {
+public class CustomMediaLineLayout extends BaseCustomLineLayout {
 
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -51,11 +50,9 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
             }
         };
     }
-
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//        parentLayout = CustomLayoutManager.getParentLayout();
+        parentLayout = CustomLayoutManager.getParentLayout();
         Log.d("CustomMediaLineLayout", "onTouchEvent called");
         Log.d("CustomMediaLineLayout", "startHandle: " + startHandle + ", endHandle: " + endHandle);
         Log.d("CustomMediaLineLayout", "layoutManager: " + layoutManager + ", isHandleVisible: " + isHandleVisible);
@@ -140,11 +137,8 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
                     setX(newXThanDragging); // Устанавливаем новое положение
 
                     targetPosition = getTargetPosition(event);
-                    if (targetPosition != -1) {
-                        highlightTargetPosition(targetPosition);
-                    } else {
-                        resetPosition();
-                    }
+                    highlightTargetPosition(targetPosition);
+
                 }
                 HorizontalScrollView horizontalScrollView = layoutManager.getHorizontalScrollView();
                 float touchX = event.getRawX();
@@ -167,6 +161,9 @@ public class CustomMediaLineLayout extends BaseLineLayout  {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if (isDragging && !flagDrag) {
+                    if (targetPosition == -1) {
+                        resetPosition();
+                    }
                     isDragging = false;
                     handler.removeCallbacks(longPressRunnable);
                     setAlpha(1.0f); // Возвращаем прозрачность к норме

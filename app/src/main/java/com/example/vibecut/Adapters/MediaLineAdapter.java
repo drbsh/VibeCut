@@ -11,8 +11,7 @@
     import androidx.appcompat.app.AppCompatActivity;
 
     import com.bumptech.glide.Glide;
-    import com.example.vibecut.CustomizeProject.BaseLineLayout;
-    import com.example.vibecut.CustomizeProject.CustomAudioLineLayout;
+    import com.example.vibecut.CustomizeProject.BaseCustomLineLayout;
     import com.example.vibecut.CustomizeProject.CustomLayoutManager;
     import com.example.vibecut.CustomizeProject.CustomMediaLineLayout;
     import com.example.vibecut.Models.MediaFile;
@@ -35,7 +34,7 @@
         private AppCompatActivity activity;
         private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
 
-        public void updateWithSwitchPositions(BaseLineLayout customLineLayout, int targetPosition) {
+        public void updateWithSwitchPositions(BaseCustomLineLayout customLineLayout, int targetPosition) {
             int currentPosition  = customLineLayout.getOriginalPosition();
             MediaFile file = mediaFiles.get(currentPosition);
             mediaFiles.set(currentPosition, mediaFiles.get(targetPosition));
@@ -44,7 +43,7 @@
         }
 
 
-        public void InflateToCustomMediaLineLayout(BaseLineLayout customLineLayout) {
+        public void InflateToCustomMediaLineLayout(BaseCustomLineLayout customLineLayout) {
             LayoutInflater.from(customLineLayout.getContext()).inflate(R.layout.mediafile_lineitem, customLineLayout, true);
         }
         public interface OnTimeSetListener {
@@ -74,30 +73,31 @@
             populateMediaItems(); // Заполнение контейнера элементами
         }
 
-        public void pullingInfoCustomLayout(MediaFile mediaFile, BaseLineLayout newcustomMediaLineLayout) {
+        public void pullingInfoCustomLayout(MediaFile mediaFile, BaseCustomLineLayout newcustomMediaLineLayout) {
             onBindViewHolder(mediaFile, newcustomMediaLineLayout);
         }
 
         private void populateMediaItems() {
             CustomLayoutManager.id = 0;
-            CustomMediaLineLayout previous = null;
+            BaseCustomLineLayout previous = null;
 
             mediaLineContainer.removeAllViews(); // Очистка контейнера перед добавлением новых элементов
             for (int i = 0; i < mediaFiles.size(); i++) {
                 MediaFile mediaFile = mediaFiles.get(i);
                 boolean isFirst = (i == 0);// Проверка, является ли элемент первым или последним
                 boolean isEnd = (i == mediaFiles.size() - 1);
-                previous = AddImem(mediaFile, isFirst, isEnd, previous);// Добавляем элемент
+                previous = AddItemMedia(mediaFile, isFirst, isEnd, previous);// Добавляем элемент
             }
         }
 
-        private CustomMediaLineLayout AddImem(MediaFile mediaFile, Boolean isFirst, Boolean isEnd, CustomMediaLineLayout previous) {
-            CustomMediaLineLayout customMediaLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
-            InflateToCustomMediaLineLayout(customMediaLineLayout);
-            pullingInfoCustomLayout(mediaFile, customMediaLineLayout);
-            mediaLineContainer.addView(customMediaLineLayout);
+
+        private CustomMediaLineLayout AddItemMedia(MediaFile mediaFile, Boolean isFirst, Boolean isEnd, BaseCustomLineLayout previous) {
+            CustomMediaLineLayout customLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
+            InflateToCustomMediaLineLayout(customLineLayout);
+            pullingInfoCustomLayout(mediaFile, customLineLayout);
+            mediaLineContainer.addView(customLineLayout);
             // Устанавливаем отступы
-            customMediaLineLayout.setId(View.generateViewId());
+            customLineLayout.setId(View.generateViewId());
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                     RelativeLayout.LayoutParams.WRAP_CONTENT,
                     RelativeLayout.LayoutParams.WRAP_CONTENT
@@ -113,25 +113,25 @@
 
 
 
-//            if (isFirst) {
-//                // Устанавливаем отступ слева в 150dp для первого элемента
-//                int leftMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
-//                params.setMargins(leftMargin, 0, 10, 0); // Отступ слева
-//            } else if (isEnd) {
-//                // Устанавливаем отступ справа в 150dp для остальных элементов
-//                int rightMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
-//                params.setMargins(0, 0, rightMargin, 0); // Отступ справа
-//            } else {
-//                // Устанавливаем отступ снизу в 10dp для остальных элементов
-//                params.setMargins(0, 0, 10, 0); // Отступ справа
-//            }
+            if (isFirst) {
+                // Устанавливаем отступ слева в 150dp для первого элемента
+                int leftMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
+                params.setMargins(leftMargin, 0, 10, 0); // Отступ слева
+            } else if (isEnd) {
+                // Устанавливаем отступ справа в 150dp для остальных элементов
+                int rightMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
+                params.setMargins(0, 0, rightMargin, 0); // Отступ справа
+            } else {
+                // Устанавливаем отступ снизу в 10dp для остальных элементов
+                params.setMargins(0, 0, 10, 0); // Отступ справа
+            }
 
-            customMediaLineLayout.setLayoutParams(params);
-            return customMediaLineLayout;
+            customLineLayout.setLayoutParams(params);
+            return customLineLayout;
         }
 
 
-        public void onBindViewHolder(MediaFile mediaFile, BaseLineLayout customMediaLineLayout) {
+        public void onBindViewHolder(MediaFile mediaFile, BaseCustomLineLayout customMediaLineLayout) {
             TextView itemDuration = customMediaLineLayout.findViewById(R.id.item_duration);
             ImageView mediaLineItem = customMediaLineLayout.findViewById(R.id.MediaLineItem);
 
@@ -142,7 +142,7 @@
             itemDuration.setText(duration);
 
             // Загружаем изображение с помощью Glide
-            Uri previewUri = mediaFile.getPreviewUri();
+            Uri previewUri = mediaFile.getPreviewMedia();
             Glide.with(customMediaLineLayout.getContext())
                     .load(previewUri)
                     .into(mediaLineItem);
