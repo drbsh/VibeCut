@@ -1,6 +1,7 @@
 package com.example.vibecut.CustomizeProject;
 
 
+import android.content.Context;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
@@ -16,17 +17,15 @@ public class CustomLayoutManager {
     private static RelativeLayout mediaLineContainer;
     private static EditerActivity context;
     private ProjectInfo projectInfo;
-
-    public static int id;
+    public static int idMediaItems;
     private HorizontalScrollView horizontalScrollView;
     private static List<MediaFile> MediaFiles;
     private static BaseCustomLineLayout currentVisibleHandlesLayout; // Поле для хранения текущего элемента с видимыми рамками
 
     public CustomLayoutManager(List<MediaFile> MediaFiles, RelativeLayout mediaLineContainer, EditerActivity context, ProjectInfo projectInfo){
-        this.context = context;
-        this.MediaFiles = MediaFiles;
-        this.mediaLineContainer = mediaLineContainer;
-        this.context = context;
+        CustomLayoutManager.MediaFiles = MediaFiles;
+        CustomLayoutManager.mediaLineContainer = mediaLineContainer;
+        CustomLayoutManager.context = context;
         this.projectInfo = projectInfo;
     }
 
@@ -35,7 +34,7 @@ public class CustomLayoutManager {
         return context;
     }
 
-    public static int getwidthbypositionInit(int originalPosition) {
+    public static int getWidthByPositionInit(int originalPosition) {
         return MediaFiles.get(originalPosition).getWidthOnTimeline();
     }
 
@@ -54,11 +53,11 @@ public class CustomLayoutManager {
         currentVisibleHandlesLayout = newLayout; // Обновляем текущий элемент
     }
 
-    public static int getOriginalPosition() {
-        return id;
+    public static int getOriginalPositionMedia() {
+        return idMediaItems;
     } // Должен вызываться до getMediasInLayouts чтобы к id не прибавлялась единица
     public static MediaFile getMediasInLayouts() {
-        return MediaFiles.get(id++);
+        return MediaFiles.get(idMediaItems++);
     }
     public static RelativeLayout getParentLayout() {
         return mediaLineContainer;
@@ -94,7 +93,7 @@ public class CustomLayoutManager {
         MediaFiles.get(originCode).setWidthOnTimeline(width);
         projectInfo.setProjectFiles(MediaFiles);
     }
-    public void exportWidth(){
+    public void exportWidth(Context context){
         JSONHelper.exportToJSON(context, projectInfo);
     }
 

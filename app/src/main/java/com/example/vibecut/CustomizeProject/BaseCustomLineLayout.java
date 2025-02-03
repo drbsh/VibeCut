@@ -1,12 +1,10 @@
 package com.example.vibecut.CustomizeProject;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -15,7 +13,7 @@ import com.example.vibecut.ViewModels.EditerActivity;
 
 public abstract class BaseCustomLineLayout extends RelativeLayout implements BaseCustomLineLayoutInterface {
     protected boolean flagVibrate = true;
-    protected EditerActivity context;
+    protected Context context;
     protected float initialX;
     protected float dX;
     protected int initialWidth;
@@ -87,57 +85,9 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
         float touchX = event.getRawX();
         return touchX >= location[0] && touchX <= location[0] + dpToPx(10);
     }
-    @Override
-    public int getTargetPosition(MotionEvent event) {
-        float touchX = event.getRawX();
-        for (int i = 0; i < parentLayout.getChildCount(); i++) {
-            View child = parentLayout.getChildAt(i);
-            if (child != this) { // Игнорируем текущий элемент
-                int[] location = new int[2];
-                child.getLocationInWindow(location);
-                float childLeft = location[0];
-                float childRight = childLeft + child.getWidth();
 
-                // Проверяем, находится ли touchX в пределах ширины дочернего элемента
-                if (touchX >= childLeft && touchX <= childRight) {
-                    return i; // Возвращаем индекс дочернего элемента
-                }
-            }
-        }
-        return -1; // Если ничего не найдено, возвращаем -1
-    }
-    @Override
-    public void highlightTargetPosition(int position) {
-        for (int i = 0; i < parentLayout.getChildCount(); i++) {
-            View child = parentLayout.getChildAt(i);
-            if (i == position) {
-                child.setBackgroundColor(Color.LTGRAY); // Подсвечиваем целевую позицию
-            } else {
-                child.setBackgroundColor(Color.TRANSPARENT); // Сбрасываем цвет для остальных
-            }
-        }
-    }
-    @Override
-    public void resetPosition() {
 
-        // Получаем текущего родителя
-        RelativeLayout parent = (RelativeLayout) getParent();
-        if (parent != null) {
-            // Удаляем элемент из текущего родителя
-            parent.removeView(this);
-        }
 
-        // Добавляем элемент в оригинальный контейнер
-        if (parentLayout != null) {
-            parentLayout.addView(this, originalPosition);
-        }
-
-        // Устанавливаем оригинальную позицию
-        setX(originalPosition);
-
-        // Обновляем layout
-        requestLayout();
-    }
     @Override
     public int getOriginalPosition() {
         return originalPosition;
@@ -152,8 +102,19 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     }
 
     public void setMediaFile(MediaFile mediaFile) {
+        this.mediaFile = mediaFile;
     }
 
+    public void setParentLayout(RelativeLayout parentLayout) {
+        this.parentLayout = parentLayout;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+    public void setLayoutManager(CustomLayoutManager layoutManager) {
+        this.layoutManager = layoutManager;
+    }
 
     public interface OnWidthChangeListener {
         void onWidthChanged(BaseCustomLineLayout view, int newWidth); // Интерфейс для слушателя изменений ширины

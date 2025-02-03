@@ -3,14 +3,18 @@ package com.example.vibecut.CustomizeProject;
 import static com.example.vibecut.CustomizeProject.CustomLayoutManager.MIN_WIDTH;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
 import com.example.vibecut.Adapters.MediaLineAdapter;
+import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
 
@@ -19,12 +23,8 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        init();
-        getLayoutManager();
-    }
+
+
     @Override
     public void init() {
         startHandle = findViewById(R.id.start_medialine_item);
@@ -32,17 +32,12 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
         duration = findViewById(R.id.item_duration);
         setHandlesVisibility(isHandleVisible); // Скрыть рамки по умолчанию
 
-        originalPosition = CustomLayoutManager.getOriginalPosition();
-        mediaFile = CustomLayoutManager.getMediasInLayouts();
-        parentLayout = CustomLayoutManager.getParentLayout();
-        context = CustomLayoutManager.getEditerActivity();
-
         this.post(() -> {
-                    RelativeLayout.LayoutParams params = (LayoutParams) this.getLayoutParams();
-                    params.width = CustomLayoutManager.getwidthbypositionInit(originalPosition);
-                    this.setLayoutParams(params);
-                    requestLayout();
-                });
+            RelativeLayout.LayoutParams params = (LayoutParams) this.getLayoutParams();
+            params.width = mediaFile.getWidthOnTimeline();
+            this.setLayoutParams(params);
+            requestLayout();
+        });
         longPressRunnable = new Runnable() {
             @Override
             public void run() {
@@ -50,9 +45,10 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
             }
         };
     }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        parentLayout = CustomLayoutManager.getParentLayout();
+        parentLayout = (RelativeLayout) getParent();
         Log.d("CustomMediaLineLayout", "onTouchEvent called");
         Log.d("CustomMediaLineLayout", "startHandle: " + startHandle + ", endHandle: " + endHandle);
         Log.d("CustomMediaLineLayout", "layoutManager: " + layoutManager + ", isHandleVisible: " + isHandleVisible);
@@ -64,7 +60,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 dX = getX() - initialX;
 
                 initialWidth = getWidth();
-                getParent().requestDisallowInterceptTouchEvent(true); // <<<<---------------- ЗАМЕНА НА SCROLLVIEW
+                parentLayout.requestDisallowInterceptTouchEvent(true); // <<<<---------------- ЗАМЕНА НА SCROLLVIEW
 
                 if (isTouchingStartHandle(event)) {
                     flagStartOrEnd = 1;
@@ -114,7 +110,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 } else if (!isDragging) {
                     getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
                 }
-                if (isDragging) { // 10 - пороговое значение
+                if (isDragging) {
                     // Устанавливаем флаг, что началось перетаскивание
                     flagDrag = false;
                     setAlpha(0.5f); // Устанавливаем прозрачность
@@ -126,18 +122,19 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     if (flagVibrate) {
                         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
                         if (vibrator != null) {
-                            vibrator.vibrate(300); // Вибрация на 500 миллисекунд
+                            vibrator.vibrate(150); // Вибрация на 500 миллисекунд
                         }
                         flagVibrate = false;
                     }
-                    setAlpha(0.5f);
                     float newXThanDragging = event.getRawX() + dX; // Используем rawX для абсолютной позиции
 
 
                     setX(newXThanDragging); // Устанавливаем новое положение
 
                     targetPosition = getTargetPosition(event);
-                    highlightTargetPosition(targetPosition);
+                    if (targetPosition != -1) {
+                        highlightTargetPosition(targetPosition);
+                    }
 
                 }
                 HorizontalScrollView horizontalScrollView = layoutManager.getHorizontalScrollView();
@@ -180,12 +177,66 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 isDragging = false;
                 isScrolling = false; // возвращаем в значение по дефолту
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
-                getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
-                layoutManager.exportWidth();
+                parentLayout.requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
+                layoutManager.exportWidth(context);
                 break;
         }
         return true;
     }
 
+    @Override
+    public int getTargetPosition(MotionEvent event) {
+        float touchX = event.getRawX();
+        for (int i = 0; i < parentLayout.getChildCount(); i++) {
+            View child = parentLayout.getChildAt(i);
+            if (child != this) { // Игнорируем текущий элемент
+                int[] location = new int[2];
+                child.getLocationInWindow(location);
+                float childLeft = location[0];
+                float childRight = childLeft + child.getWidth();
+
+                // Проверяем, находится ли touchX в пределах ширины дочернего элемента
+                if (touchX >= childLeft && touchX <= childRight) {
+                    return i; // Возвращаем индекс дочернего элемента
+                }
+            }
+        }
+        return -1; // Если ничего не найдено, возвращаем -1
+    }
+
+    @Override
+    public void highlightTargetPosition(int position) {
+        for (int i = 0; i < parentLayout.getChildCount(); i++) {
+            View child = parentLayout.getChildAt(i);
+            if (i == position) {
+                child.setBackgroundColor(Color.LTGRAY); // Подсвечиваем целевую позицию
+            } else {
+                child.setBackgroundColor(Color.TRANSPARENT); // Сбрасываем цвет для остальных
+            }
+        }
+    }
+
+    public void resetPosition() {
+        // Получаем текущего родителя
+        ViewGroup currentParent = (ViewGroup) getParent();
+
+        // Проверяем, есть ли родитель и совпадает ли он с parentLayout
+        if (currentParent != null && currentParent == parentLayout) {
+            // Удаляем элемент из текущего родителя
+            currentParent.removeView(this);
+        }
+
+        // Проверяем, что оригинальный контейнер не равен null
+        if (parentLayout != null) {
+            // Добавляем элемент в оригинальный контейнер
+            parentLayout.addView(this, originalPosition);
+        }
+
+        // Устанавливаем оригинальную позицию
+        setX(originalPosition);
+
+        // Обновляем layout
+        requestLayout();
+    }
 
 }

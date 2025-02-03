@@ -78,7 +78,7 @@
         }
 
         private void populateMediaItems() {
-            CustomLayoutManager.id = 0;
+            CustomLayoutManager.idMediaItems = 0;
             BaseCustomLineLayout previous = null;
 
             mediaLineContainer.removeAllViews(); // Очистка контейнера перед добавлением новых элементов
@@ -86,16 +86,27 @@
                 MediaFile mediaFile = mediaFiles.get(i);
                 boolean isFirst = (i == 0);// Проверка, является ли элемент первым или последним
                 boolean isEnd = (i == mediaFiles.size() - 1);
-                previous = AddItemMedia(mediaFile, isFirst, isEnd, previous);// Добавляем элемент
+                previous = AddItemMedia(i, mediaFile, isFirst, isEnd, previous);// Добавляем элемент
             }
         }
 
 
-        private CustomMediaLineLayout AddItemMedia(MediaFile mediaFile, Boolean isFirst, Boolean isEnd, BaseCustomLineLayout previous) {
+        private CustomMediaLineLayout AddItemMedia(int index, MediaFile mediaFile, Boolean isFirst, Boolean isEnd, BaseCustomLineLayout previous) {
             CustomMediaLineLayout customLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
             InflateToCustomMediaLineLayout(customLineLayout);
             pullingInfoCustomLayout(mediaFile, customLineLayout);
+
+            //Инициализация и установка значений
+            customLineLayout.init();
+            customLineLayout.setParentLayout(mediaLineContainer);
+            customLineLayout.setMediaFile(mediaFile);
+            customLineLayout.setContext(context);
+            customLineLayout.setParentLayout(mediaLineContainer);
+            customLineLayout.setLayoutManager(layoutManager);
+            customLineLayout.setOriginalPosition(index);
+
             mediaLineContainer.addView(customLineLayout);
+
             // Устанавливаем отступы
             customLineLayout.setId(View.generateViewId());
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
