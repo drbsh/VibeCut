@@ -3,19 +3,20 @@ package com.example.vibecut.Models;
 import android.net.Uri;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.UUID;
 
-public abstract class BaseAudioFile implements Serializable {
+public abstract class BaseFile implements Serializable {
     private String idFile;
     private String nameFile;
     private String pathToFile;
-    private LocalTime duration;
+    private Duration duration;
     private String typeMedia;
     private int widthOnTimeline;
 
     // Конструктор для общих полей
-    public BaseAudioFile(String nameFile, Uri pathToFile, LocalTime duration, String typeMedia) {
+    public BaseFile(String nameFile, Uri pathToFile, Duration duration, String typeMedia) {
         this.idFile = UUID.randomUUID().toString(); // Рандомный ID
         this.nameFile = nameFile;
         this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
@@ -40,11 +41,11 @@ public abstract class BaseAudioFile implements Serializable {
         this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
     }
 
-    public LocalTime getDuration() {
+    public Duration getDuration() {
         return duration;
     }
 
-    public void setDuration(LocalTime duration) {
+    public void setDuration(Duration duration) {
         this.duration = duration;
     }
 

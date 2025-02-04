@@ -36,6 +36,7 @@ package com.example.vibecut.ViewModels;
     import java.io.File;
     import java.io.FileOutputStream;
     import java.io.IOException;
+    import java.time.Duration;
     import java.time.LocalDateTime;
     import java.time.LocalTime;
     import java.util.ArrayList;
@@ -232,10 +233,10 @@ package com.example.vibecut.ViewModels;
         String mimeType = requireContext().getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
-        LocalTime duration = LocalTime.of(0,0, 0, 0);
+        Duration duration = Duration.ZERO;
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
-            duration = LocalTime.of(0, 0,3,0);
+            duration = Duration.ofSeconds(3);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             try {
@@ -333,15 +334,16 @@ package com.example.vibecut.ViewModels;
         retriever.release();
         return savePreviewToFolderProject(projectInfo.getName(), bitmap, FilenameUtils.removeExtension(getFileName(uri)));
     }
-    private LocalTime getVideoDuration(Uri videoUri) throws IOException {
+    private Duration getVideoDuration(Uri videoUri) throws IOException {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(requireContext(), videoUri);
-        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        long durationInMillis = Long.parseLong(time);
-        retriever.release();
+        try {
+            retriever.setDataSource(requireContext(), videoUri);
+            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            long durationInMillis = Long.parseLong(time);
 
-        // Преобразуем длительность в LocalTime
-        return LocalTime.ofNanoOfDay(durationInMillis * 1_000_000);
+            return Duration.ofMillis(durationInMillis);
+        } finally {
+            retriever.release();
+        }
     }
-
 }

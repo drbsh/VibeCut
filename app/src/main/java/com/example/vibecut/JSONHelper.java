@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.example.vibecut.Adapters.DurationAdapter;
 import com.example.vibecut.Adapters.LocalDateTimeAdapter;
 import com.example.vibecut.Adapters.LocalTimeAdapter;
 import com.example.vibecut.Adapters.UriAdapter;
@@ -17,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -30,6 +32,7 @@ public class JSONHelper {
                 .registerTypeAdapter(LocalTime.class, new LocalTimeAdapter())
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .registerTypeAdapter(Uri.class, new UriAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
         String jsonString = gson.toJson(projectInfo);
 
@@ -63,6 +66,7 @@ public class JSONHelper {
                     .registerTypeAdapter(LocalTime.class, new LocalTimeAdapter())
                     .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                     .registerTypeAdapter(Uri.class, new UriAdapter())
+                    .registerTypeAdapter(Duration.class, new DurationAdapter())
                     .create();
             return gson.fromJson(streamReader, ProjectInfo.class);
         } catch (IOException e) {

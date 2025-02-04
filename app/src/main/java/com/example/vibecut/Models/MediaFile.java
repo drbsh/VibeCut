@@ -2,13 +2,14 @@ package com.example.vibecut.Models;
 
 import android.net.Uri;
 
+import java.time.Duration;
 import java.time.LocalTime;
 
-public class MediaFile extends BaseAudioFile {
+public class MediaFile extends BaseFile {
     private String previewMedia; // Уникальное поле для MediaFile
 
     // Конструктор
-    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, LocalTime duration, String typeMedia) {
+    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, Duration duration, String typeMedia) {
         super(nameFile, pathToFile, duration, typeMedia); // Вызов конструктора базового класса
         this.previewMedia = previewMedia.toString(); // Инициализация уникального поля
     }

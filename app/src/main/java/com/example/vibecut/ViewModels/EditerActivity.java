@@ -38,6 +38,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -218,10 +219,10 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         String mimeType = getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
-        LocalTime duration = LocalTime.of(0,0, 0, 0);
+        Duration duration = Duration.ZERO;
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
-            duration = LocalTime.of(0, 0, 3, 0);
+            duration = Duration.ofSeconds(3);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             try {
@@ -316,24 +317,33 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         retriever.release();
         return savePreviewToFolderProject(projectInfo.getName(), bitmap, FilenameUtils.removeExtension(getFileName(uri)));
     }
-    private LocalTime getVideoDuration(Uri videoUri) throws IOException {
+    private Duration getVideoDuration(Uri videoUri) throws IOException {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(this, videoUri);
-        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        long durationInMillis = Long.parseLong(time);
-        retriever.release();
+        try {
+            retriever.setDataSource(this, videoUri);
+            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            long durationInMillis = Long.parseLong(time);
 
-        // Преобразуем длительность в LocalTime
-        return LocalTime.ofNanoOfDay(durationInMillis * 1_000_000);
+            return Duration.ofMillis(durationInMillis);
+        } finally {
+            retriever.release();
+        }
     }
     @Override
     public void onTimeSaved(int hours, int minutes, int seconds, int millis, MediaFile mediaFile) {
-        LocalTime newDuration = LocalTime.of(hours, minutes, seconds, millis * 1000 * 1000);
+        Duration newDuration = Duration.ofHours(hours)
+                .plusMinutes(minutes)
+                .plusSeconds(seconds)
+                .plusMillis(millis);
+
         mediaFile.setDuration(newDuration);
         Toast.makeText(this, "Время изменено: " + mediaFile.getDuration(), Toast.LENGTH_SHORT).show();
+
         projectInfo.updateMediafile(mediaFile);
+
         JSONHelper.exportToJSON(this, projectInfo);
     }
+
 
 
 

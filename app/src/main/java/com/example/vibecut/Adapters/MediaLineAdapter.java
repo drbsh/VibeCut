@@ -19,6 +19,7 @@
     import com.example.vibecut.R;
     import com.example.vibecut.ViewModels.TimePickerDialog;
 
+    import java.time.Duration;
     import java.time.LocalTime;
     import java.time.format.DateTimeFormatter;
     import java.util.List;
@@ -147,9 +148,9 @@
             ImageView mediaLineItem = customMediaLineLayout.findViewById(R.id.MediaLineItem);
 
             // Устанавливаем длительность
-            LocalTime durationTime = mediaFile.getDuration();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
-            String duration = durationTime.format(formatter);
+            Duration durationTime = mediaFile.getDuration();
+            CountTimeAndWidth countTimeAndWidth = new CountTimeAndWidth(context);
+            String duration = countTimeAndWidth.formatDurationToString(durationTime);
             itemDuration.setText(duration);
 
             // Загружаем изображение с помощью Glide
