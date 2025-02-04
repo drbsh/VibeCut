@@ -20,6 +20,8 @@ import com.example.vibecut.ViewModels.EditerActivity;
 
 public class CustomMediaLineLayout extends BaseCustomLineLayout {
 
+    private float initialXDraggingPosition;
+
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
@@ -49,6 +51,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         parentLayout = (RelativeLayout) getParent();
+        int scrollX = layoutManager.getHorizontalScrollView().getScrollX();
         Log.d("CustomMediaLineLayout", "onTouchEvent called");
         Log.d("CustomMediaLineLayout", "startHandle: " + startHandle + ", endHandle: " + endHandle);
         Log.d("CustomMediaLineLayout", "layoutManager: " + layoutManager + ", isHandleVisible: " + isHandleVisible);
@@ -57,8 +60,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 initialX = event.getRawX();
-                dX = getX() - initialX;
-
+                initialXDraggingPosition = getX();
                 initialWidth = getWidth();
                 parentLayout.requestDisallowInterceptTouchEvent(true); // <<<<---------------- ЗАМЕНА НА SCROLLVIEW
 
@@ -126,30 +128,31 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                         }
                         flagVibrate = false;
                     }
-                    float newXThanDragging = event.getRawX() + dX; // Используем rawX для абсолютной позиции
-
+                    dX = event.getRawX() - initialX;
+                    float newXThanDragging = initialXDraggingPosition + (dX); // Используем rawX для абсолютной позиции
 
                     setX(newXThanDragging); // Устанавливаем новое положение
 
                     targetPosition = getTargetPosition(event);
                     if (targetPosition != -1) {
                         highlightTargetPosition(targetPosition);
-                    }else{
+                    } else {
                         targetPosition = originalPosition;
                         highlightTargetPosition(targetPosition);
                     }
 
                 }
                 HorizontalScrollView horizontalScrollView = layoutManager.getHorizontalScrollView();
+
                 float touchX = event.getRawX();
                 int screenWidth = getResources().getDisplayMetrics().widthPixels;
 
                 // Проверяем, находится ли палец близко к левому краю
-                if (touchX < 50) { // 50 пикселей от левого края
+                if (touchX < 80) { // 50 пикселей от левого края
                     horizontalScrollView.smoothScrollBy(-10, 0); // Прокрутка влево
                 }
                 // Проверяем, находится ли палец близко к правому краю
-                else if (touchX > screenWidth - 50) { // 50 пикселей от правого края
+                else if (touchX > screenWidth - 80) { // 50 пикселей от правого края
                     horizontalScrollView.smoothScrollBy(10, 0); // Прокрутка вправо
                 }
 
@@ -164,9 +167,14 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     isDragging = false;
                     handler.removeCallbacks(longPressRunnable);
                     setAlpha(1.0f); // Возвращаем прозрачность к норме
-                    MediaLineAdapter adapter = EditerActivity.getAdapter();
-                    adapter.updateWithSwitchPositions(this, targetPosition);
-
+                    if (targetPosition == originalPosition) {
+                        // Если объект не был перемещен на другую позицию, возвращаем его на исходное место
+                        setX(initialXDraggingPosition);
+                        resetHighlightTargetPosition(targetPosition);
+                    } else {
+                        MediaLineAdapter adapter = EditerActivity.getAdapter();
+                        adapter.updateWithSwitchPositions(this, targetPosition);
+                    }
                 }
                 if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
@@ -215,5 +223,15 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
             }
         }
     }
+
+    public void resetHighlightTargetPosition(int position) {
+        for (int i = 0; i < parentLayout.getChildCount(); i++) {
+            View child = parentLayout.getChildAt(i);
+            if (i == position) {
+                child.setBackgroundColor(Color.TRANSPARENT);
+            }
+        }
+    }
+
 
 }

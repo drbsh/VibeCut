@@ -132,13 +132,21 @@
 
             if (isFirst) {
                 // Устанавливаем отступ слева в 150dp для первого элемента
+                int rightMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
                 int leftMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
-                params.setMargins(leftMargin, 0, 10, 0); // Отступ слева
+                if(isEnd){
+                    params.setMargins(leftMargin, 0, rightMargin, 0); // Отступ слева
+                }
+                else{
+                    params.setMargins(leftMargin, 0, 10, 0); // Отступ слева
+                }
+
             } else if (isEnd) {
                 // Устанавливаем отступ справа в 150dp для остальных элементов
                 int rightMargin = (int) context.getResources().getDimension(R.dimen.margin_150dp);
                 params.setMargins(0, 0, rightMargin, 0); // Отступ справа
-            } else {
+            }
+            else {
                 // Устанавливаем отступ снизу в 10dp для остальных элементов
                 params.setMargins(0, 0, 10, 0); // Отступ справа
             }
