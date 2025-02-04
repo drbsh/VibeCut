@@ -47,6 +47,11 @@
         public void InflateToCustomMediaLineLayout(BaseCustomLineLayout customLineLayout) {
             LayoutInflater.from(customLineLayout.getContext()).inflate(R.layout.mediafile_lineitem, customLineLayout, true);
         }
+
+        public void notifyItemInserted() {
+            populateMediaItems();
+        }
+
         public interface OnTimeSetListener {
             void onTimeSet(LocalTime time);
         }
@@ -79,7 +84,7 @@
         }
 
         private void populateMediaItems() {
-            CustomLayoutManager.idMediaItems = 0;
+//            CustomLayoutManager.idMediaItems = 0;
             BaseCustomLineLayout previous = null;
 
             mediaLineContainer.removeAllViews(); // Очистка контейнера перед добавлением новых элементов
@@ -143,9 +148,9 @@
         }
 
 
-        public void onBindViewHolder(MediaFile mediaFile, BaseCustomLineLayout customMediaLineLayout) {
-            TextView itemDuration = customMediaLineLayout.findViewById(R.id.item_duration);
-            ImageView mediaLineItem = customMediaLineLayout.findViewById(R.id.MediaLineItem);
+        public void onBindViewHolder(MediaFile mediaFile, BaseCustomLineLayout customLineLayout) {
+            TextView itemDuration = customLineLayout.findViewById(R.id.item_duration);
+            ImageView mediaLineItem = customLineLayout.findViewById(R.id.MediaLineItem);
 
             // Устанавливаем длительность
             Duration durationTime = mediaFile.getDuration();
@@ -155,7 +160,7 @@
 
             // Загружаем изображение с помощью Glide
             Uri previewUri = mediaFile.getPreviewMedia();
-            Glide.with(customMediaLineLayout.getContext())
+            Glide.with(customLineLayout.getContext())
                     .load(previewUri)
                     .into(mediaLineItem);
 
@@ -181,12 +186,7 @@
             }
         }
 
-        public void notifyItemInserted(int index) {
-            // Создаем новый элемент MediaFile (или получаем его из другого источника)
-            MediaFile newMediaFile = mediaFiles.get(index); // Получаем элемент из списка
 
-            populateMediaItems();
-        }
 
         private List<Integer> getCurrentDuration(String durationString){
             String[] parts = durationString.split(":");

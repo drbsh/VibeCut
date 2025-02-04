@@ -21,6 +21,7 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     protected OnWidthChangeListener listener;
     protected View startHandle;
     protected View endHandle;
+
     protected TextView duration;
     protected CustomLayoutManager layoutManager;
     protected boolean isHandleVisible = false;

@@ -11,5 +11,4 @@ public interface BaseCustomLineLayoutInterface {
     boolean isTouchingEndHandle(MotionEvent event);
     int getTargetPosition(MotionEvent event);
     void highlightTargetPosition(int position);
-    void resetPosition();
 }

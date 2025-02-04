@@ -233,9 +233,10 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
             }
         }
         MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
+        mediaFile.setWidthOnTimeline(100);
         // Добавляем MediaFile в проект
         MediaFiles.add(mediaFile);// Уведомляем адаптер об изменении данных
-        adapter.notifyItemInserted(MediaFiles.size() - 1);
+        adapter.notifyItemInserted();
         JSONHelper.exportToJSON(this, projectInfo);
     }
 

@@ -134,6 +134,9 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     targetPosition = getTargetPosition(event);
                     if (targetPosition != -1) {
                         highlightTargetPosition(targetPosition);
+                    }else{
+                        targetPosition = originalPosition;
+                        highlightTargetPosition(targetPosition);
                     }
 
                 }
@@ -158,9 +161,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if (isDragging && !flagDrag) {
-                    if (targetPosition == -1) {
-                        resetPosition();
-                    }
                     isDragging = false;
                     handler.removeCallbacks(longPressRunnable);
                     setAlpha(1.0f); // Возвращаем прозрачность к норме
@@ -214,29 +214,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 child.setBackgroundColor(Color.TRANSPARENT); // Сбрасываем цвет для остальных
             }
         }
-    }
-
-    public void resetPosition() {
-        // Получаем текущего родителя
-        ViewGroup currentParent = (ViewGroup) getParent();
-
-        // Проверяем, есть ли родитель и совпадает ли он с parentLayout
-        if (currentParent != null && currentParent == parentLayout) {
-            // Удаляем элемент из текущего родителя
-            currentParent.removeView(this);
-        }
-
-        // Проверяем, что оригинальный контейнер не равен null
-        if (parentLayout != null) {
-            // Добавляем элемент в оригинальный контейнер
-            parentLayout.addView(this, originalPosition);
-        }
-
-        // Устанавливаем оригинальную позицию
-        setX(originalPosition);
-
-        // Обновляем layout
-        requestLayout();
     }
 
 }

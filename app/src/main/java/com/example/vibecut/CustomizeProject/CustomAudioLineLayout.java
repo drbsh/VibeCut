@@ -214,7 +214,6 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
         }
         return true;
     }
-    @Override
     public void resetPosition() {
 
         // Получаем текущего родителя
