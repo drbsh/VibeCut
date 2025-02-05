@@ -95,7 +95,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     dX = event.getRawX() - initialX;
                     newWidth = initialWidth - (int) dX; // Уменьшаем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
-                    layoutManager.setWidth(newWidth, originalPosition);
+                    newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
@@ -112,6 +112,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     // Растягиваем с правой стороны
                     newWidth = initialWidth + (int) dX; // Увеличиваем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
+                    newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
                     layoutManager.setWidth(newWidth, originalPosition);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();

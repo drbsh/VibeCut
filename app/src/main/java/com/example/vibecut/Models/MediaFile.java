@@ -9,8 +9,8 @@ public class MediaFile extends BaseFile {
     private String previewMedia; // Уникальное поле для MediaFile
 
     // Конструктор
-    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, Duration duration, String typeMedia) {
-        super(nameFile, pathToFile, duration, typeMedia); // Вызов конструктора базового класса
+    public MediaFile(String nameFile, Uri previewMedia, Uri pathToFile, Duration duration, String typeMedia, int widthOnTimeline) {
+        super(nameFile, pathToFile, duration, typeMedia, widthOnTimeline); // Вызов конструктора базового класса
         this.previewMedia = previewMedia.toString(); // Инициализация уникального поля
     }
 

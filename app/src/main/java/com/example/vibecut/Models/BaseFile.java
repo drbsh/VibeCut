@@ -14,14 +14,15 @@ public abstract class BaseFile implements Serializable {
     private Duration duration;
     private String typeMedia;
     private int widthOnTimeline;
-
+    private Duration maxDuration;
     // Конструктор для общих полей
-    public BaseFile(String nameFile, Uri pathToFile, Duration duration, String typeMedia) {
+    public BaseFile(String nameFile, Uri pathToFile, Duration duration, String typeMedia, int widthOnTimeline) {
         this.idFile = UUID.randomUUID().toString(); // Рандомный ID
         this.nameFile = nameFile;
         this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
         this.duration = duration;
         this.typeMedia = typeMedia;
+        this.widthOnTimeline = widthOnTimeline;
     }
 
     // Геттеры и сеттеры
@@ -71,5 +72,13 @@ public abstract class BaseFile implements Serializable {
 
     public void setWidthOnTimeline(int widthOnTimeline) {
         this.widthOnTimeline = widthOnTimeline;
+    }
+
+    public Duration getMaxDuration() {
+        return maxDuration;
+    }
+
+    public void setMaxDuration(Duration maxDuration) {
+        this.maxDuration = maxDuration;
     }
 }

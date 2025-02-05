@@ -42,6 +42,7 @@ public class FillingMediaFile
         this.MediaFiles = MediaFiles;
         this.mediaAdapter = mediaAdapter;
         this.projectInfo = projectInfo;
+        countTimeAndWidth = new CountTimeAndWidth(context);
     }
 
     public MediaFile getMediaFile() {
@@ -67,15 +68,17 @@ public class FillingMediaFile
         String mimeType = context.getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
-        Duration duration = Duration.ZERO;
+        Duration duration = Duration.ZERO, maxDuration = Duration.ZERO;
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
+            maxDuration = Duration.ofHours(3);
             width = countTimeAndWidth.WidthByTimeChanged(duration);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             try {
                 duration = getVideoDuration(selectedMediaUri);
+                maxDuration = duration;
                 width = countTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
                 e.printStackTrace(); // Логируем ошибку
@@ -83,25 +86,25 @@ public class FillingMediaFile
             }
         }
         if(adapter != null){
-            addFileToCurrentProject(fileName, preview, selectedMediaUri, duration, typeMedia, width);
+            addFileToCurrentProject(fileName, preview, selectedMediaUri, duration, typeMedia, width, maxDuration);
         }
         else{
-            addFileToNewProject(fileName, preview, selectedMediaUri, duration, typeMedia, width, MediaFiles);
+            addFileToNewProject(fileName, preview, selectedMediaUri, duration, typeMedia, width, MediaFiles, maxDuration);
         }
     }
-    private void addFileToCurrentProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width){
-        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
-        mediaFile.setWidthOnTimeline(width);
+    private void addFileToCurrentProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, Duration maxDuration){
+        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
+        mediaFile.setMaxDuration(maxDuration);
         // Добавляем MediaFile в проект
         MediaFiles.add(mediaFile);// Уведомляем адаптер об изменении данных
         adapter.notifyItemInserted();
         JSONHelper.exportToJSON(context, projectInfo);
     }
-    private void addFileToNewProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, List<MediaFile> mediaFiles){
-        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
+    private void addFileToNewProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, List<MediaFile> mediaFiles, Duration maxDuration){
+        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
+        mediaFile.setMaxDuration(maxDuration);
         // Добавляем MediaFile в проект
         projectInfo.addMediaFile(mediaFile);
-        mediaFile.setWidthOnTimeline(width);
         // Добавляем MediaFile в список
         mediaFiles.add(mediaFile);
         // Уведомляем адаптер об изменении данных
