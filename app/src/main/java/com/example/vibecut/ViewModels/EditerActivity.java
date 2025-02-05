@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
+import com.example.vibecut.Adapters.FillingMediaFile;
 import com.example.vibecut.CustomizeProject.CustomLayoutManager;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
@@ -56,6 +57,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     private RelativeLayout mediaLineContainer;
     private RelativeLayout audioLineContainer;
     private CountTimeAndWidth countTimeAndWidth;
+    private FillingMediaFile fillingMediaFile;
     public static MediaLineAdapter getAdapter() {
         return adapter;
     }
@@ -69,11 +71,8 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
         horizontalScrollView = findViewById(R.id.scroll_all_media_line);
 
-
         mediaLineContainer = findViewById(R.id.media_line_container);
         audioLineContainer = findViewById(R.id.audio_line_container);
-
-
 
 //        recyclerView = findViewById(R.id.recyclerViewVideoTimeline);
 
@@ -104,6 +103,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
         updateTheme(isDarkTheme);
         countTimeAndWidth = new CountTimeAndWidth(this);
+        fillingMediaFile = new FillingMediaFile(this, adapter, projectInfo, MediaFiles);
     }
 
     private void updateTheme(boolean isDarkTheme) {
@@ -198,142 +198,12 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     ClipData.Item item = data.getClipData().getItemAt(i);
-                    processingFile(item);
+                    fillingMediaFile.processingFile(item);
                 }
             } else if (data.getData() != null) {
                 // Если выбран только один файл
-                processingFile(data.getData());
+                fillingMediaFile.processingFile(data.getData());
             }
-        }
-    }
-    // Обработка каждого файла
-    private void processingFile(ClipData.Item item) {
-        Uri selectedMediaUri = item.getUri(); // Получаем Uri из ClipData.Item
-        processUri(selectedMediaUri);
-    }
-
-    private void processingFile(Uri selectedMediaUri) {
-        processUri(selectedMediaUri);
-    }
-
-    private void processUri(Uri selectedMediaUri) {
-        // Получаем имя файла из Uri
-        int width = 0;
-        String fileName = getFileName(selectedMediaUri);
-        String mimeType = getContentResolver().getType(selectedMediaUri);
-        Uri preview = getPreview(mimeType, selectedMediaUri);
-        String typeMedia = "";
-        Duration duration = Duration.ZERO;
-        if (mimeType.startsWith("image/")) {
-            typeMedia = "img";
-            duration = Duration.ofSeconds(3);
-            width = countTimeAndWidth.WidthByTimeChanged(duration);
-        } else if (mimeType.startsWith("video/")){
-            typeMedia = "video";
-            try {
-                duration = getVideoDuration(selectedMediaUri);
-                width = countTimeAndWidth.WidthByTimeChanged(duration);
-            } catch (IOException e) {
-                e.printStackTrace(); // Логируем ошибку
-                Toast.makeText(this, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
-            }
-        }
-        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
-        mediaFile.setWidthOnTimeline(width);
-        // Добавляем MediaFile в проект
-        MediaFiles.add(mediaFile);// Уведомляем адаптер об изменении данных
-        adapter.notifyItemInserted();
-        JSONHelper.exportToJSON(this, projectInfo);
-    }
-
-
-    // Получение предпросмотра
-    private Uri getPreview(String mimeType, Uri selectedMediaUri) {
-        Uri preview = null;
-        if (mimeType != null) {
-            if (mimeType.startsWith("image/")) {
-                preview = selectedMediaUri;
-            } else if (mimeType.startsWith("video/")) {
-                try {
-                    preview = getVideoThumbnail(selectedMediaUri); // Метод для получения миниатюры видео
-                } catch (IOException e) {
-                    e.printStackTrace(); // Логируем ошибку
-                    Toast.makeText(this, "Не удалось получить миниатюру видео.", Toast.LENGTH_SHORT).show();
-                    return preview;
-                }
-            } else {
-                Toast.makeText(this, "Выбранный файл не является изображением или видео.", Toast.LENGTH_SHORT).show();
-                return preview;
-            }
-        }
-        return preview;
-    }
-
-    // Метод для получения имени файла из Uri
-    private String getFileName(Uri uri) {
-        String result = null;
-        if (uri.getScheme().equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
-            try {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    if (nameIndex != -1) { // Проверяем, что индекс не -1
-                        result = cursor.getString(nameIndex);
-                    }
-                }
-            } finally {
-                if (cursor != null) {
-                    cursor.close();
-                }
-            }
-        }
-        if (result == null) {
-            // Если имя не найдено, пробуем извлечь его из пути
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
-        return result;
-    }
-
-    //метод для сохранения миниатюры видео в папку проекта
-    private Uri savePreviewToFolderProject(String prName, Bitmap img, String nameFile){
-        File folder = new File(this.getFilesDir(), "VibeCutProjects/" + prName);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-
-        // Создаем файл для сохранения миниатюры
-        File file = new File(folder, nameFile + ".png"); // Вы можете изменить имя файла по своему усмотрению
-
-        try (FileOutputStream out = new FileOutputStream(file)) {
-            img.compress(Bitmap.CompressFormat.PNG, 100, out); // Сохраняем изображение в формате PNG
-        } catch (IOException e) {
-            e.printStackTrace(); // Обработка ошибок
-        }
-        return Uri.fromFile(file);
-    }
-
-    //Метод для получения миниатюры видео
-    private Uri getVideoThumbnail(Uri uri) throws IOException{
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(this, uri);
-        Bitmap bitmap = retriever.getFrameAtTime(0); // Получаем первый кадр
-        retriever.release();
-        return savePreviewToFolderProject(projectInfo.getName(), bitmap, FilenameUtils.removeExtension(getFileName(uri)));
-    }
-    private Duration getVideoDuration(Uri videoUri) throws IOException {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            retriever.setDataSource(this, videoUri);
-            String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            long durationInMillis = Long.parseLong(time);
-
-            return Duration.ofMillis(durationInMillis);
-        } finally {
-            retriever.release();
         }
     }
     @Override
