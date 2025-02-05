@@ -99,6 +99,7 @@
 
         private CustomMediaLineLayout AddItemMedia(int index, MediaFile mediaFile, Boolean isFirst, Boolean isEnd, BaseCustomLineLayout previous) {
             CustomMediaLineLayout customLineLayout = new CustomMediaLineLayout(mediaLineContainer.getContext(), null);
+            customLineLayout.setProjectInfo(projectInfo);
             InflateToCustomMediaLineLayout(customLineLayout);
             pullingInfoCustomLayout(mediaFile, customLineLayout);
 

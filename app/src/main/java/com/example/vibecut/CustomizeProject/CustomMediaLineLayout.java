@@ -13,10 +13,14 @@ import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
+import com.example.vibecut.Adapters.CountTimeAndWidth;
 import com.example.vibecut.Adapters.MediaLineAdapter;
+import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
+
+import java.time.Duration;
 
 public class CustomMediaLineLayout extends BaseCustomLineLayout {
 
@@ -26,7 +30,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
         super(context, attrs);
     }
 
-
+    private CountTimeAndWidth countTimeAndWidth = new CountTimeAndWidth(context);
     @Override
     public void init() {
         startHandle = findViewById(R.id.start_medialine_item);
@@ -95,6 +99,11 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
+                    Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
+                    duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
+                    mediaFile.setDuration(newDuration);
+                    projectInfo.updateMediafile(mediaFile);
+                    JSONHelper.exportToJSON(context, projectInfo);
                     requestLayout();
                 } else if (flagStartOrEnd == 2) {
                     flagDrag = true;
@@ -108,6 +117,11 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
+                    Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
+                    duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
+                    mediaFile.setDuration(newDuration);
+                    projectInfo.updateMediafile(mediaFile);
+                    JSONHelper.exportToJSON(context, projectInfo);
                     requestLayout();
                 } else if (!isDragging) {
                     getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW

@@ -12,7 +12,7 @@ import java.util.List;
 public class CustomTimePicker extends LinearLayout {
     private NumberPicker npHours, npMinutes, npSeconds, npMillis;
     private OnTimeChangedListener onTimeChangedListener;
-
+    private Boolean isDark = false;
     public CustomTimePicker(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
@@ -48,8 +48,9 @@ public class CustomTimePicker extends LinearLayout {
         }
         // Обновляем цвет текста при изменении значения
         updateNumberPickerTextColor();
+        // Обновляем цвет текста при изменении значения
+        updateNumberPickerTextColor();
     };
-
     public int getHours() { return npHours.getValue(); }
     public int getMinutes() { return npMinutes.getValue(); }
     public int getSeconds() { return npSeconds.getValue(); }
@@ -70,11 +71,13 @@ public class CustomTimePicker extends LinearLayout {
         setNumberPickerTextColor(npMinutes, color);
         setNumberPickerTextColor(npSeconds, color);
         setNumberPickerTextColor(npMillis, color);
+        isDark = isDarkTheme;
     }
 
     private void updateNumberPickerTextColor() {
         // Обновляем цвет текста для всех NumberPicker
-        int color = getResources().getColor(R.color.white); // Или используйте ваш метод для определения цвета
+        int color = isDark ? getResources().getColor(R.color.white) : getResources().getColor(R.color.black);
+
         setNumberPickerTextColor(npHours, color);
         setNumberPickerTextColor(npMinutes, color);
         setNumberPickerTextColor(npSeconds, color);

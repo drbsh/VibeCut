@@ -13,6 +13,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.vibecut.Adapters.CountTimeAndWidth;
 import com.example.vibecut.CustomizeProject.CustomLayoutManager;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
@@ -53,7 +55,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     public static CustomLayoutManager layoutManagerAudio;
     private RelativeLayout mediaLineContainer;
     private RelativeLayout audioLineContainer;
-
+    private CountTimeAndWidth countTimeAndWidth;
     public static MediaLineAdapter getAdapter() {
         return adapter;
     }
@@ -101,6 +103,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
         updateTheme(isDarkTheme);
+        countTimeAndWidth = new CountTimeAndWidth(this);
     }
 
     private void updateTheme(boolean isDarkTheme) {
@@ -215,6 +218,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
     private void processUri(Uri selectedMediaUri) {
         // Получаем имя файла из Uri
+        int width = 0;
         String fileName = getFileName(selectedMediaUri);
         String mimeType = getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
@@ -223,17 +227,19 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
+            width = countTimeAndWidth.WidthByTimeChanged(duration);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             try {
                 duration = getVideoDuration(selectedMediaUri);
+                width = countTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
                 e.printStackTrace(); // Логируем ошибку
                 Toast.makeText(this, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
             }
         }
         MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
-        mediaFile.setWidthOnTimeline(100);
+        mediaFile.setWidthOnTimeline(width);
         // Добавляем MediaFile в проект
         MediaFiles.add(mediaFile);// Уведомляем адаптер об изменении данных
         adapter.notifyItemInserted();
@@ -338,8 +344,9 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
                 .plusMillis(millis);
 
         mediaFile.setDuration(newDuration);
+        mediaFile.setWidthOnTimeline(countTimeAndWidth.WidthByTimeChanged(newDuration));
         Toast.makeText(this, "Время изменено: " + mediaFile.getDuration(), Toast.LENGTH_SHORT).show();
-
+        Log.d("widthTimeChange", String.valueOf(mediaFile.getWidthOnTimeline()));
         projectInfo.updateMediafile(mediaFile);
 
         JSONHelper.exportToJSON(this, projectInfo);

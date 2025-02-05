@@ -9,6 +9,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.vibecut.Models.MediaFile;
+import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.ViewModels.EditerActivity;
 
 public abstract class BaseCustomLineLayout extends RelativeLayout implements BaseCustomLineLayoutInterface {
@@ -35,6 +36,7 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     protected RelativeLayout parentLayout;
     protected int originalPosition; // Исходная позиция объекта
     protected int targetPosition = 0;
+    protected ProjectInfo projectInfo;
 
     public BaseCustomLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -105,7 +107,7 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     public void setMediaFile(MediaFile mediaFile) {
         this.mediaFile = mediaFile;
     }
-
+    public void setProjectInfo(ProjectInfo projectInfo){this.projectInfo = projectInfo;}
     public void setParentLayout(RelativeLayout parentLayout) {
         this.parentLayout = parentLayout;
     }

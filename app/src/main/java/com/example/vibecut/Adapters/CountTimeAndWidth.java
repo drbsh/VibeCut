@@ -9,21 +9,20 @@ import java.time.Duration;
 public class CountTimeAndWidth {
     private Context context;
     private int screenWidth;
-    private int oneSecondWidth;
+    private double oneMilliSecondWidth;
     public CountTimeAndWidth(Context context){
         this.context = context;
         screenWidth = getScreenWidth();
     }
     public Duration TimeByWidthChanged(int newWidth){
-        oneSecondWidth = getOneSecondWidth();
-        double durationInSeconds = (double) newWidth / oneSecondWidth;
-        return Duration.ofSeconds((long) durationInSeconds);
+        oneMilliSecondWidth = getOneMilliSecondWidth();
+        double durationInSeconds = (double) newWidth / oneMilliSecondWidth;
+        return Duration.ofMillis((long) durationInSeconds);
     }
     public int WidthByTimeChanged(Duration newTime){
-        oneSecondWidth = getOneSecondWidth();
-        long durationInSeconds = newTime.getSeconds();
-        // Вычисляем ширину на основе одной секунды
-        return (int) (durationInSeconds * oneSecondWidth);
+        oneMilliSecondWidth = getOneMilliSecondWidth();
+        long durationInMilliSeconds = newTime.toMillis();
+        return (int) (durationInMilliSeconds * oneMilliSecondWidth);
     }
 
     public static String formatDurationToString(Duration duration){
@@ -37,9 +36,10 @@ public class CountTimeAndWidth {
             return String.format("%02d:%02d:%02d:%03d", hours, minutes, seconds, millis);
     }
 
-    private int getOneSecondWidth(){
-        return screenWidth / 30;
+    private double getOneMilliSecondWidth(){
+        return (double) screenWidth / 30000;
     }
+
     private int getScreenWidth() {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics displayMetrics = new DisplayMetrics();

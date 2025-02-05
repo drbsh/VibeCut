@@ -26,6 +26,7 @@ package com.example.vibecut.ViewModels;
     import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
 
+    import com.example.vibecut.Adapters.CountTimeAndWidth;
     import com.example.vibecut.Adapters.MediaAdapter;
     import com.example.vibecut.Models.MediaFile;
     import com.example.vibecut.Models.ProjectInfo;
@@ -54,7 +55,6 @@ package com.example.vibecut.ViewModels;
         private Context context;
         private static final int PICK_MEDIA_REQUEST = 1;
         private boolean isDarkTheme;
-
 
         public interface ProjectDialogListener {
             void onProjectSaved(ProjectInfo projectInfo);
@@ -229,18 +229,22 @@ package com.example.vibecut.ViewModels;
 
     private void processUri(Uri selectedMediaUri) {
         // Получаем имя файла из Uri
+        int width = 0;
         String fileName = getFileName(selectedMediaUri);
         String mimeType = requireContext().getContentResolver().getType(selectedMediaUri);
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
         Duration duration = Duration.ZERO;
+        CountTimeAndWidth countTimeAndWidth = new CountTimeAndWidth(requireContext());
         if (mimeType.startsWith("image/")) {
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
+            width = countTimeAndWidth.WidthByTimeChanged(duration);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             try {
                 duration = getVideoDuration(selectedMediaUri);
+                width = countTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
                 e.printStackTrace(); // Логируем ошибку
                 Toast.makeText(requireContext(), "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
@@ -249,7 +253,7 @@ package com.example.vibecut.ViewModels;
         MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia);
         // Добавляем MediaFile в проект
         projectInfo.addMediaFile(mediaFile);
-        mediaFile.setWidthOnTimeline(100);
+        mediaFile.setWidthOnTimeline(width);
         // Добавляем MediaFile в список
         mediaFiles.add(mediaFile);
         // Уведомляем адаптер об изменении данных
