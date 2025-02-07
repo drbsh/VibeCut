@@ -175,7 +175,7 @@
 
             // Устанавливаем обработчик нажатия
             itemDuration.setOnClickListener(v -> {
-                List<Integer> currentTime = getCurrentDuration(duration);
+                List<Integer> currentTime = getCurrentDuration(itemDuration.getText().toString());
 
                 // Создаем экземпляр TimePickerDialog
                 TimePickerDialog timePickerDialog = new TimePickerDialog(currentTime, mediaFile);

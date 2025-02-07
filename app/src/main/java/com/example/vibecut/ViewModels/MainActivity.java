@@ -140,7 +140,7 @@
             setTheme(isDarkTheme ? R.style.DarkBackground : R.style.LightBackground);
         }
 
-        //создание папки для проектов
+        //создание папок для проектов
         public void createProjectFolder() {
             // Создаем папку для проектов
             projectFolder = new File(getFilesDir(), "VibeCutProjects");
@@ -149,12 +149,12 @@
             if (!projectFolder.exists()) {
                 if (projectFolder.mkdirs()) {
                     Toast.makeText(this, "Папка для проектов успешно создана.", Toast.LENGTH_SHORT).show();
+
                 } else {
                     Toast.makeText(this, "Ошибка создания папки.", Toast.LENGTH_SHORT).show();
                 }
             }
         }
-
 
         //переход на страницу избранного
         public void openFavouritesClick(View view) {

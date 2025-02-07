@@ -16,8 +16,11 @@ import com.example.vibecut.Models.ProjectInfo;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.time.Duration;
 import java.util.List;
 
@@ -30,6 +33,10 @@ public class FillingMediaFile
     private MediaAdapter mediaAdapter;
     private ProjectInfo projectInfo;
     private CountTimeAndWidth countTimeAndWidth;
+    private static final String folderImage = "images";
+    private static final String folderVideo = "video";
+    private static final String folderAudio = "audio";
+
     public FillingMediaFile(Context context, MediaLineAdapter adapter, ProjectInfo projectInfo, List<MediaFile> MediaFiles){
         this.context = context;
         this.MediaFiles = MediaFiles;
@@ -61,6 +68,19 @@ public class FillingMediaFile
         processUri(selectedMediaUri);
     }
 
+    private void startCopyFile(Uri selectedMediaUri, String type)
+    {
+        try {
+            File sourceFile = new File(getFilePathFromUri(selectedMediaUri)); // Получаем путь к файлу из Uri
+            String destDirectoryName = "VibeCutProjects/" + projectInfo.getIdProj() + "/" + type; // Папка проекта
+            copyFileToDirectory(context, sourceFile, destDirectoryName); // Копируем файл
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Не удалось скопировать файл.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+    }
+
     private void processUri(Uri selectedMediaUri) {
         // Получаем имя файла из Uri
         int width = 0;
@@ -70,12 +90,14 @@ public class FillingMediaFile
         String typeMedia = "";
         Duration duration = Duration.ZERO, maxDuration = Duration.ZERO;
         if (mimeType.startsWith("image/")) {
+            startCopyFile(selectedMediaUri, folderImage);
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
             maxDuration = Duration.ofHours(3);
             width = countTimeAndWidth.WidthByTimeChanged(duration);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
+            startCopyFile(selectedMediaUri, folderVideo);
             try {
                 duration = getVideoDuration(selectedMediaUri);
                 maxDuration = duration;
@@ -85,6 +107,7 @@ public class FillingMediaFile
                 Toast.makeText(context, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
             }
         }
+
         if(adapter != null){
             addFileToCurrentProject(fileName, preview, selectedMediaUri, duration, typeMedia, width, maxDuration);
         }
@@ -92,22 +115,27 @@ public class FillingMediaFile
             addFileToNewProject(fileName, preview, selectedMediaUri, duration, typeMedia, width, MediaFiles, maxDuration);
         }
     }
-    private void addFileToCurrentProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, Duration maxDuration){
-        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
+    private void addFileToCurrentProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, Duration maxDuration) {
+        // Обновляем Uri на путь к скопированному файлу
+        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getName() + "/" + fileName);
+        Uri copiedFileUri = Uri.fromFile(copiedFile);
+
+        MediaFile mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
         mediaFile.setMaxDuration(maxDuration);
-        // Добавляем MediaFile в проект
-        MediaFiles.add(mediaFile);// Уведомляем адаптер об изменении данных
+        MediaFiles.add(mediaFile);
         adapter.notifyItemInserted();
         JSONHelper.exportToJSON(context, projectInfo);
     }
-    private void addFileToNewProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, List<MediaFile> mediaFiles, Duration maxDuration){
-        MediaFile mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
+
+    private void addFileToNewProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, List<MediaFile> mediaFiles, Duration maxDuration) {
+        // Обновляем Uri на путь к скопированному файлу
+        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getName() + "/" + fileName);
+        Uri copiedFileUri = Uri.fromFile(copiedFile);
+
+        MediaFile mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
         mediaFile.setMaxDuration(maxDuration);
-        // Добавляем MediaFile в проект
         projectInfo.addMediaFile(mediaFile);
-        // Добавляем MediaFile в список
         mediaFiles.add(mediaFile);
-        // Уведомляем адаптер об изменении данных
         mediaAdapter.notifyItemInserted(mediaFiles.size() - 1);
     }
     private Uri getPreview(String mimeType, Uri selectedMediaUri) {
@@ -160,7 +188,7 @@ public class FillingMediaFile
 
     //метод для сохранения миниатюры видео в папку проекта
     private Uri savePreviewToFolderProject(String prName, Bitmap img, String nameFile){
-        File folder = new File(context.getFilesDir(), "VibeCutProjects/" + prName);
+        File folder = new File(context.getFilesDir(), "VibeCutProjects/" + prName + "/previews");
         if (!folder.exists()) {
             folder.mkdirs();
         }
@@ -182,7 +210,7 @@ public class FillingMediaFile
         retriever.setDataSource(context, uri);
         Bitmap bitmap = retriever.getFrameAtTime(0); // Получаем первый кадр
         retriever.release();
-        return savePreviewToFolderProject(projectInfo.getName(), bitmap, FilenameUtils.removeExtension(getFileName(uri)));
+        return savePreviewToFolderProject(projectInfo.getIdProj(), bitmap, FilenameUtils.removeExtension(getFileName(uri)));
     }
     private Duration getVideoDuration(Uri videoUri) throws IOException {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -195,5 +223,58 @@ public class FillingMediaFile
         } finally {
             retriever.release();
         }
+    }
+
+    //методы копирования
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
+        if (!sourceFile.exists()) {
+            throw new IOException("Source file does not exist: " + sourceFile.getAbsolutePath());
+        }
+
+        try (FileInputStream inStream = new FileInputStream(sourceFile);
+             FileOutputStream outStream = new FileOutputStream(destFile);
+             FileChannel inChannel = inStream.getChannel();
+             FileChannel outChannel = outStream.getChannel()) {
+
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+        }
+    }
+
+    public static void copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
+        File destDir = new File(context.getFilesDir(), destDirectoryName);
+        if (!destDir.exists()) {
+            destDir.mkdirs();
+        }
+
+        File destFile = new File(destDir, sourceFile.getName());
+        copyFile(sourceFile, destFile);
+    }
+    private String getFilePathFromUri(Uri uri) {
+        String filePath = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columnIndex = cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME);
+                    String fileName = cursor.getString(columnIndex);
+                    File file = new File(context.getCacheDir(), fileName);
+                    try (InputStream inputStream = context.getContentResolver().openInputStream(uri);
+                         FileOutputStream outputStream = new FileOutputStream(file)) {
+                        byte[] buffer = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buffer)) > 0) {
+                            outputStream.write(buffer, 0, length);
+                        }
+                        filePath = file.getAbsolutePath();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                cursor.close();
+            }
+        } else if (uri.getScheme().equals("file")) {
+            filePath = uri.getPath();
+        }
+        return filePath;
     }
 }
