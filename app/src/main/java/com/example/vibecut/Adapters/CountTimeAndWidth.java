@@ -19,11 +19,13 @@ public class CountTimeAndWidth {
         double durationInSeconds = (double) newWidth / oneMilliSecondWidth;
         return Duration.ofMillis((long) durationInSeconds);
     }
+
     public int WidthByTimeChanged(Duration newTime){
         oneMilliSecondWidth = getOneMilliSecondWidth();
         long durationInMilliSeconds = newTime.toMillis();
         return (int) (durationInMilliSeconds * oneMilliSecondWidth);
     }
+
 
     public static String formatDurationToString(Duration duration){
             long totalMillis = duration.toMillis();

@@ -95,7 +95,14 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     dX = event.getRawX() - initialX;
                     newWidth = initialWidth - (int) dX; // Уменьшаем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
-                    newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
+
+                    // что то по типу такого: сначала вычисляем минимальную ширину из максимальной и заданной
+                     newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
+
+                    // а потом преобразовываем в Duration и прибавляем к текущей ширине
+                    // newWidth = mediafile.WidthOnTimeLine + ffmpegEditer.ChangeLengthByBorders(false, TimeByWidthChanged(newWidth));
+
+
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
