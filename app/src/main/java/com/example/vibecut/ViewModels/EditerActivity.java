@@ -45,6 +45,8 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.List;
 
+import kotlin.math.UMathKt;
+
 public class EditerActivity extends AppCompatActivity implements TimePickerDialog.TimePickerDialogListener {
     private static final int PICK_MEDIA_REQUEST = 1;
     private TextView nameProjectTextView;
@@ -213,8 +215,15 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
                 .plusSeconds(seconds)
                 .plusMillis(millis);
 
-        mediaFile.setDuration(newDuration);
-        mediaFile.setWidthOnTimeline(countTimeAndWidth.WidthByTimeChanged(newDuration));
+        if (newDuration.compareTo(mediaFile.getMaxDuration()) < 0) {
+            mediaFile.setDuration(newDuration); // Set to newDuration if it's less than maxDuration
+            mediaFile.setWidthOnTimeline(countTimeAndWidth.WidthByTimeChanged(newDuration));
+
+        } else {
+            mediaFile.setDuration(mediaFile.getMaxDuration()); // Set to maxDuration if newDuration is greater
+            mediaFile.setWidthOnTimeline(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()));
+        }
+
         Toast.makeText(this, "Время изменено: " + mediaFile.getDuration(), Toast.LENGTH_SHORT).show();
         Log.d("widthTimeChange", String.valueOf(mediaFile.getWidthOnTimeline()));
         projectInfo.updateMediafile(mediaFile);
