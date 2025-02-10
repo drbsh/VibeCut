@@ -32,6 +32,7 @@ android {
 }
 
 dependencies {
+    implementation("com.arthenica:ffmpeg-kit-full-gpl:6.0-2.LTS")
     implementation("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     implementation("commons-io:commons-io:2.18.0")

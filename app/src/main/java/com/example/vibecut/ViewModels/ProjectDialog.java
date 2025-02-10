@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -45,6 +46,7 @@ public class ProjectDialog extends DialogFragment {
     private static final int PICK_MEDIA_REQUEST = 1;
     private boolean isDarkTheme;
     private FillingMediaFile fillingMediaFile;
+    private boolean isDialogClosedByUser = true;
 
     public interface ProjectDialogListener {
         void onProjectSaved(ProjectInfo projectInfo);
@@ -144,6 +146,7 @@ public class ProjectDialog extends DialogFragment {
 
         // Обработчик для кнопки "Сохранить"
         saveButton.setOnClickListener(v -> {
+            isDialogClosedByUser = false; // чтобы не выполнялся dismiss
             projectInfo.setName(nameProject.getText().toString());
             projectInfo.setProjectFiles(mediaFiles);
             projectInfo.setDate(LocalDateTime.now());
@@ -206,4 +209,33 @@ public class ProjectDialog extends DialogFragment {
         }
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        // Ваши действия при закрытии диалогового окна
+        if (isDialogClosedByUser) {
+            File folder = new File(String.format("%s/%s", projectFolder, projectInfo.getIdProj()));
+            if (folder.exists()) {
+                // Удаляем все файлы и папки внутри folder
+                if (deleteDirectory(folder)) {
+                    Toast.makeText(context, "Папка проекта успешно удалена.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Не удалось удалить папку проекта.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    // Метод для рекурсивного удаления папки
+    private boolean deleteDirectory(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            File[] children = dir.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteDirectory(child); // Рекурсивно удаляем содержимое
+                }
+            }
+        }
+        return dir.delete(); // Удаляем саму папку
+    }
 }

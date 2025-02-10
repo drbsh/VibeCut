@@ -68,16 +68,16 @@ public class FillingMediaFile
         processUri(selectedMediaUri);
     }
 
-    private void startCopyFile(Uri selectedMediaUri, String type)
+    private Uri startCopyFile(Uri selectedMediaUri, String type)
     {
         try {
             File sourceFile = new File(getFilePathFromUri(selectedMediaUri)); // Получаем путь к файлу из Uri
             String destDirectoryName = "VibeCutProjects/" + projectInfo.getIdProj() + "/" + type; // Папка проекта
-            copyFileToDirectory(context, sourceFile, destDirectoryName); // Копируем файл
+            return copyFileToDirectory(context, sourceFile, destDirectoryName); // Копируем файл
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(context, "Не удалось скопировать файл.", Toast.LENGTH_SHORT).show();
-            return;
+            return null;
         }
     }
 
@@ -90,11 +90,12 @@ public class FillingMediaFile
         String typeMedia = "";
         Duration duration = Duration.ZERO, maxDuration = Duration.ZERO;
         if (mimeType.startsWith("image/")) {
-            startCopyFile(selectedMediaUri, folderImage);
+            selectedMediaUri = startCopyFile(selectedMediaUri, folderImage);
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
             maxDuration = Duration.ofHours(3);
             width = countTimeAndWidth.WidthByTimeChanged(duration);
+            selectedMediaUri = FFmpegEditer.FromImgToMp4(selectedMediaUri);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             startCopyFile(selectedMediaUri, folderVideo);
@@ -117,10 +118,16 @@ public class FillingMediaFile
     }
     private void addFileToCurrentProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, Duration maxDuration) {
         // Обновляем Uri на путь к скопированному файлу
-        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getName() + "/" + fileName);
-        Uri copiedFileUri = Uri.fromFile(copiedFile);
 
-        MediaFile mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
+        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getIdProj() + "/" + fileName);
+        Uri copiedFileUri = Uri.fromFile(copiedFile);
+        MediaFile mediaFile;
+        if(typeMedia == "video"){
+            mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
+        }
+        else{
+            mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
+        }
         mediaFile.setMaxDuration(maxDuration);
         MediaFiles.add(mediaFile);
         adapter.notifyItemInserted();
@@ -129,10 +136,16 @@ public class FillingMediaFile
 
     private void addFileToNewProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, List<MediaFile> mediaFiles, Duration maxDuration) {
         // Обновляем Uri на путь к скопированному файлу
-        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getName() + "/" + fileName);
+        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getIdProj() + "/" + fileName);
         Uri copiedFileUri = Uri.fromFile(copiedFile);
+        MediaFile mediaFile;
+        if(typeMedia == "video"){
+            mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
+        }
+        else{
+            mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
+        }
 
-        MediaFile mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
         mediaFile.setMaxDuration(maxDuration);
         projectInfo.addMediaFile(mediaFile);
         mediaFiles.add(mediaFile);
@@ -226,7 +239,7 @@ public class FillingMediaFile
     }
 
     //методы копирования
-    public static void copyFile(File sourceFile, File destFile) throws IOException {
+    public Uri copyFile(File sourceFile, File destFile) throws IOException {
         if (!sourceFile.exists()) {
             throw new IOException("Source file does not exist: " + sourceFile.getAbsolutePath());
         }
@@ -238,16 +251,17 @@ public class FillingMediaFile
 
             inChannel.transferTo(0, inChannel.size(), outChannel);
         }
+        return Uri.fromFile(destFile);
     }
 
-    public static void copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
+    public Uri copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
         File destDir = new File(context.getFilesDir(), destDirectoryName);
         if (!destDir.exists()) {
             destDir.mkdirs();
         }
 
         File destFile = new File(destDir, sourceFile.getName());
-        copyFile(sourceFile, destFile);
+        return copyFile(sourceFile, destFile);
     }
     private String getFilePathFromUri(Uri uri) {
         String filePath = null;
