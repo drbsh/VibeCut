@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.vibecut.Adapters.FFmpegEditer;
+import com.example.vibecut.Models.BaseFile;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.ViewModels.EditerActivity;
@@ -37,6 +39,7 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     protected int originalPosition; // Исходная позиция объекта
     protected int targetPosition = 0;
     protected ProjectInfo projectInfo;
+    public FFmpegEditer ffmpegEditer;
 
     public BaseCustomLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -56,11 +59,6 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
         this.layoutManager = EditerActivity.layoutManagerMedia; // Получаем менеджер компоновки
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // Общий код для обработки touch events
-        return true;
-    }
     @Override
     public void resizeItem(int newWidth) {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
@@ -117,6 +115,13 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     }
     public void setLayoutManager(CustomLayoutManager layoutManager) {
         this.layoutManager = layoutManager;
+    }
+    public void setFFmpegEditer (){
+        ffmpegEditer = new FFmpegEditer(mediaFile);
+    }
+
+    public BaseFile getMediaFile() {
+        return mediaFile;
     }
 
     public interface OnWidthChangeListener {

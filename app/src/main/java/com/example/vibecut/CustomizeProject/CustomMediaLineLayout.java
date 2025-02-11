@@ -14,6 +14,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
+import com.example.vibecut.Adapters.FFmpegEditer;
 import com.example.vibecut.Adapters.MediaLineAdapter;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
@@ -25,6 +26,9 @@ import java.time.Duration;
 public class CustomMediaLineLayout extends BaseCustomLineLayout {
 
     private float initialXDraggingPosition;
+    private boolean isLeftOrRight;
+    private int differenceLeftBorderFromLeftSide = 0, differenceRightBorderFromRightSide = 0;
+    private int maxWidth;
 
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -85,51 +89,63 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 break;
             case MotionEvent.ACTION_MOVE:
                 isScrolling = true; //определяет то что пользователь начал движение пальцем
+                dX = event.getRawX() - initialX;
 
 
                 // Определите, за какую рамку тянет пользователь
                 if (flagStartOrEnd == 1) {
                     // Растягиваем с левой стороны
+                    isLeftOrRight = false;
                     flagDrag = true;
                     isDragging = false;
-                    dX = event.getRawX() - initialX;
-                    newWidth = initialWidth - (int) dX; // Уменьшаем ширину
-                    newWidth = Math.max(MIN_WIDTH, newWidth);
+
+                    if(newWidth - dX < MIN_WIDTH){
+                        dX = newWidth - MIN_WIDTH;
+                    }
+                    else if((newWidth - dX) > maxWidth)
+                    {
+                        dX = 0;
+                        differenceLeftBorderFromLeftSide += maxWidth - newWidth;
+                        newWidth = maxWidth;
+                    }
+                    differenceLeftBorderFromLeftSide += (int) dX;
+                    newWidth -= dX; // Уменьшаем ширину
 
                     // что то по типу такого: сначала вычисляем минимальную ширину из максимальной и заданной
-                     newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
-
-                    // а потом преобразовываем в Duration и прибавляем к текущей ширине
-                    // newWidth = mediafile.WidthOnTimeLine + ffmpegEditer.ChangeLengthByBorders(false, TimeByWidthChanged(newWidth));
-
-
+//                    newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
                     Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
                     duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
-                    projectInfo.updateMediafile(mediaFile);
-                    JSONHelper.exportToJSON(context, projectInfo);
+
                     requestLayout();
                 } else if (flagStartOrEnd == 2) {
+                    isLeftOrRight = true;
                     flagDrag = true;
                     isDragging = false;
-                    dX = event.getRawX() - initialX;
                     // Растягиваем с правой стороны
-                    newWidth = initialWidth + (int) dX; // Увеличиваем ширину
-                    newWidth = Math.max(MIN_WIDTH, newWidth);
-                    newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
+                    if(newWidth + dX < MIN_WIDTH){
+                        dX = -(newWidth - MIN_WIDTH);
+                    }
+                    else if((newWidth + dX) > maxWidth)
+                    {
+                        dX = 0;
+                        differenceRightBorderFromRightSide += maxWidth - newWidth;
+                        newWidth = maxWidth;
+                    }
+                    differenceRightBorderFromRightSide += (int) dX;
+                    newWidth += dX; // Уменьшаем ширину
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
-                    layoutManager.setWidth(newWidth, originalPosition);
+                    layoutManager.setWidth(newWidth, this);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
                     Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
                     duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
-                    projectInfo.updateMediafile(mediaFile);
-                    JSONHelper.exportToJSON(context, projectInfo);
+
                     requestLayout();
                 } else if (!isDragging) {
                     getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
@@ -150,8 +166,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                         }
                         flagVibrate = false;
                     }
-                    dX = event.getRawX() - initialX;
-                    float newXThanDragging = initialXDraggingPosition + (dX); // Используем rawX для абсолютной позиции
+                    float newXThanDragging = initialXDraggingPosition + dX; // Используем rawX для абсолютной позиции
 
                     setX(newXThanDragging); // Устанавливаем новое положение
 
@@ -179,9 +194,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 }
 
                 // Обновляем listener только если ширина изменилась
-                if (listener != null) {
-                    listener.onWidthChanged(this, newWidth); // Notify the listener
-                }
+
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
@@ -200,15 +213,16 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 }
                 if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
-
                     CustomLayoutManager.updateHandlesVisibility(this);
                 }
                 flagVibrate = true;
                 isDragging = false;
                 isScrolling = false; // возвращаем в значение по дефолту
+                JSONHelper.exportToJSON(context, projectInfo);
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
+                differenceLeftBorderFromLeftSide = 0;
+                differenceRightBorderFromRightSide = 0;
                 parentLayout.requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
-                layoutManager.exportWidth(context);
                 break;
         }
         return true;
@@ -256,4 +270,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
     }
 
 
+    public void setMaxWidth() {
+        maxWidth = countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration());
+    }
 }

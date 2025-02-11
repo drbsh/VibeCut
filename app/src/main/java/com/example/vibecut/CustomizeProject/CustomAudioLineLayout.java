@@ -127,7 +127,7 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
                     dX = event.getRawX() - initialX;
                     newWidth = initialWidth - (int) dX; // Уменьшаем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
-                    layoutManager.setWidth(newWidth, originalPosition);
+                    layoutManager.setWidth(newWidth, this);
                     requestLayout();
                 } else if (flagStartOrEnd == 2) {
                     flagDrag = true;
@@ -137,7 +137,7 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
                     newWidth = initialWidth + (int) dX; // Увеличиваем ширину
                     newWidth = Math.max(MIN_WIDTH, newWidth);
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
-                    layoutManager.setWidth(newWidth, originalPosition);
+                    layoutManager.setWidth(newWidth, this);
                     requestLayout();
                 } else if (!isDragging) {
                     getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
@@ -209,7 +209,6 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
                 isScrolling = false; // возвращаем в значение по дефолту
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
                 getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
-                layoutManager.exportWidth(context);
                 break;
         }
         return true;

@@ -111,8 +111,8 @@
             customLineLayout.setParentLayout(mediaLineContainer);
             customLineLayout.setLayoutManager(layoutManager);
             customLineLayout.setOriginalPosition(index);
-            //FFmpegEditer ffmpegClass(Uri, maxDuration)
-            //customLineLayout.setFFmpegEditer(FFmpegEditer);
+            customLineLayout.setFFmpegEditer();
+            customLineLayout.setMaxWidth();
 
             mediaLineContainer.addView(customLineLayout);
 

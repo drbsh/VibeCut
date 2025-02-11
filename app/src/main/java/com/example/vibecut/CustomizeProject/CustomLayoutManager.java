@@ -87,14 +87,9 @@ public class CustomLayoutManager {
 //            }
 //        }
 //    }
-    public void setWidth(int width, int originCode) {
-        BaseCustomLineLayout layoutToChangeWidth = (BaseCustomLineLayout) mediaLineContainer.getChildAt(originCode);
-        layoutToChangeWidth.resizeItem(width);
-        MediaFiles.get(originCode).setWidthOnTimeline(width);
-        projectInfo.setProjectFiles(MediaFiles);
-    }
-    public void exportWidth(Context context){
-        JSONHelper.exportToJSON(context, projectInfo);
+    public void setWidth(int width, BaseCustomLineLayout properingLayout) {
+        properingLayout.resizeItem(width);
+        properingLayout.getMediaFile().setWidthOnTimeline(width);
     }
 
 }
