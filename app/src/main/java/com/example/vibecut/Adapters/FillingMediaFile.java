@@ -36,6 +36,7 @@ public class FillingMediaFile
     private static final String folderImage = "images";
     private static final String folderVideo = "video";
     private static final String folderAudio = "audio";
+    private static final String folderOriginals = "originals";
 
     public FillingMediaFile(Context context, MediaLineAdapter adapter, ProjectInfo projectInfo, List<MediaFile> MediaFiles){
         this.context = context;
@@ -72,7 +73,7 @@ public class FillingMediaFile
     {
         try {
             File sourceFile = new File(getFilePathFromUri(selectedMediaUri)); // Получаем путь к файлу из Uri
-            String destDirectoryName = "VibeCutProjects/" + projectInfo.getIdProj() + "/" + type; // Папка проекта
+            String destDirectoryName = "VibeCutProjects/" +  projectInfo.getIdProj() + "/" + type; // Папка проекта
             return copyFileToDirectory(context, sourceFile, destDirectoryName); // Копируем файл
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,18 +90,19 @@ public class FillingMediaFile
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
         Duration duration = Duration.ZERO, maxDuration = Duration.ZERO;
+        Uri originalPathToFile = startCopyFile(selectedMediaUri, folderOriginals); // копирование исходника при создании файла
         if (mimeType.startsWith("image/")) {
-            selectedMediaUri = startCopyFile(selectedMediaUri, folderImage);
+            selectedMediaUri = startCopyFile(selectedMediaUri, folderImage);// можно подумать чтобы убрать (Refactor)
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
             maxDuration = Duration.ofHours(3);
             width = countTimeAndWidth.WidthByTimeChanged(duration);
-            selectedMediaUri = FFmpegEditer.FromImgToMp4(selectedMediaUri);
+            selectedMediaUri = FFmpegEditer.FromImgToMp4(originalPathToFile, selectedMediaUri);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
-            startCopyFile(selectedMediaUri, folderVideo);
+            selectedMediaUri = startCopyFile(selectedMediaUri, folderVideo);// можно подумать чтобы убрать (Refactor)
             try {
-                duration = getVideoDuration(selectedMediaUri);
+                duration = getVideoDuration(selectedMediaUri);// можно подумать чтобы заменить (Refactor)
                 maxDuration = duration;
                 width = countTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
@@ -110,41 +112,32 @@ public class FillingMediaFile
         }
 
         if(adapter != null){
-            addFileToCurrentProject(fileName, preview, selectedMediaUri, duration, typeMedia, width, maxDuration);
+            addFileToCurrentProject(fileName, preview, selectedMediaUri, originalPathToFile, duration, typeMedia, width, maxDuration);
         }
         else{
-            addFileToNewProject(fileName, preview, selectedMediaUri, duration, typeMedia, width, MediaFiles, maxDuration);
+            addFileToNewProject(fileName, preview, selectedMediaUri, originalPathToFile, duration, typeMedia, width, MediaFiles, maxDuration);
         }
     }
-    private void addFileToCurrentProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, Duration maxDuration) {
+    private void addFileToCurrentProject(String fileName, Uri preview, Uri selectedMediaUri, Uri originalPathToFile, Duration duration, String typeMedia, int width, Duration maxDuration) {
         // Обновляем Uri на путь к скопированному файлу
 
-        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getIdProj() + "/" + fileName);
-        Uri copiedFileUri = Uri.fromFile(copiedFile);
+
         MediaFile mediaFile;
-        if(typeMedia == "video"){
-            mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
-        }
-        else{
-            mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
-        }
+        mediaFile = new MediaFile(fileName, preview, selectedMediaUri, originalPathToFile, duration, typeMedia, width);
+
         mediaFile.setMaxDuration(maxDuration);
         MediaFiles.add(mediaFile);
         adapter.notifyItemInserted();
         JSONHelper.exportToJSON(context, projectInfo);
     }
 
-    private void addFileToNewProject(String fileName, Uri preview, Uri selectedMediaUri, Duration duration, String typeMedia, int width, List<MediaFile> mediaFiles, Duration maxDuration) {
+    private void addFileToNewProject(String fileName, Uri preview, Uri selectedMediaUri, Uri originalPathToFile, Duration duration, String typeMedia, int width, List<MediaFile> mediaFiles, Duration maxDuration) {
         // Обновляем Uri на путь к скопированному файлу
-        File copiedFile = new File(context.getFilesDir(), "VibeCutProjects/" + projectInfo.getIdProj() + "/" + fileName);
-        Uri copiedFileUri = Uri.fromFile(copiedFile);
+
+
         MediaFile mediaFile;
-        if(typeMedia == "video"){
-            mediaFile = new MediaFile(fileName, preview, copiedFileUri, duration, typeMedia, width);
-        }
-        else{
-            mediaFile = new MediaFile(fileName, preview, selectedMediaUri, duration, typeMedia, width);
-        }
+        mediaFile = new MediaFile(fileName, preview, selectedMediaUri, originalPathToFile, duration, typeMedia, width);
+
 
         mediaFile.setMaxDuration(maxDuration);
         projectInfo.addMediaFile(mediaFile);

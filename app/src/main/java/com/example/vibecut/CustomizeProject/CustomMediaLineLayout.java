@@ -9,15 +9,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
-import com.example.vibecut.Adapters.FFmpegEditer;
 import com.example.vibecut.Adapters.MediaLineAdapter;
 import com.example.vibecut.JSONHelper;
-import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
 
@@ -27,7 +24,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
 
     private float initialXDraggingPosition;
     private boolean isLeftOrRight;
-    private int differenceLeftBorderFromLeftSide = 0, differenceRightBorderFromRightSide = 0;
+    private int differenceLeftBorderFromLeftSide, differenceRightBorderFromRightSide;
     private int maxWidth;
 
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
@@ -47,6 +44,8 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
             params.width = mediaFile.getWidthOnTimeline();
             this.setLayoutParams(params);
             requestLayout();
+            differenceRightBorderFromRightSide = mediaFile.getDifferenceRightBorderFromRightSide();
+            differenceLeftBorderFromLeftSide = mediaFile.getDifferenceLeftBorderFromLeftSide();
         });
         longPressRunnable = new Runnable() {
             @Override
@@ -102,13 +101,12 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     if(newWidth - dX < MIN_WIDTH){
                         dX = newWidth - MIN_WIDTH;
                     }
-                    else if((newWidth - dX) > maxWidth)
+                    else if((newWidth - differenceRightBorderFromRightSide - dX) >= maxWidth )
                     {
                         dX = 0;
-                        differenceLeftBorderFromLeftSide += maxWidth - newWidth;
-                        newWidth = maxWidth;
+                        differenceLeftBorderFromLeftSide = 0;
+                        newWidth = maxWidth + differenceRightBorderFromRightSide;
                     }
-                    differenceLeftBorderFromLeftSide += (int) dX;
                     newWidth -= dX; // Уменьшаем ширину
 
                     // что то по типу такого: сначала вычисляем минимальную ширину из максимальной и заданной
@@ -119,7 +117,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
                     duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
-
+                    mediaFile.setWidthOnTimeline(newWidth);
                     requestLayout();
                 } else if (flagStartOrEnd == 2) {
                     isLeftOrRight = true;
@@ -129,13 +127,12 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     if(newWidth + dX < MIN_WIDTH){
                         dX = -(newWidth - MIN_WIDTH);
                     }
-                    else if((newWidth + dX) > maxWidth)
+                    else if((newWidth  + dX + differenceLeftBorderFromLeftSide) >= maxWidth )
                     {
                         dX = 0;
-                        differenceRightBorderFromRightSide += maxWidth - newWidth;
-                        newWidth = maxWidth;
+                        differenceRightBorderFromRightSide = 0;
+                        newWidth = maxWidth - differenceLeftBorderFromLeftSide;
                     }
-                    differenceRightBorderFromRightSide += (int) dX;
                     newWidth += dX; // Уменьшаем ширину
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
                     layoutManager.setWidth(newWidth, this);
@@ -145,6 +142,8 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
                     duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
+                    mediaFile.setWidthOnTimeline(newWidth);
+
 
                     requestLayout();
                 } else if (!isDragging) {
@@ -211,7 +210,17 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                         adapter.updateWithSwitchPositions(this, targetPosition);
                     }
                 }
-                if ((flagStartOrEnd == 0) && !isScrolling) {
+                if (flagStartOrEnd == 1){
+                    differenceLeftBorderFromLeftSide +=  dX;
+                    mediaFile.setDifferenceLeftBorderFromLeftSide(differenceLeftBorderFromLeftSide);
+                    ffmpegEditer.ChangeLengthByBorders(isLeftOrRight,  countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(countTimeAndWidth.subtractDurations(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), Math.abs(differenceRightBorderFromRightSide))));
+                }
+                else if(flagStartOrEnd == 2){
+                    differenceRightBorderFromRightSide +=  dX;
+                    mediaFile.setDifferenceRightBorderFromRightSide(differenceRightBorderFromRightSide);
+                    ffmpegEditer.ChangeLengthByBorders(isLeftOrRight,  countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(countTimeAndWidth.subtractDurations(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), Math.abs(differenceRightBorderFromRightSide))));
+                }
+                else if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
                     CustomLayoutManager.updateHandlesVisibility(this);
                 }
@@ -220,8 +229,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 isScrolling = false; // возвращаем в значение по дефолту
                 JSONHelper.exportToJSON(context, projectInfo);
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
-                differenceLeftBorderFromLeftSide = 0;
-                differenceRightBorderFromRightSide = 0;
                 parentLayout.requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
                 break;
         }

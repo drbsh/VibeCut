@@ -2,9 +2,9 @@ package com.example.vibecut.Models;
 
 import android.net.Uri;
 
+import java.io.File;
 import java.io.Serializable;
 import java.time.Duration;
-import java.time.LocalTime;
 import java.util.UUID;
 
 public abstract class BaseFile implements Serializable {
@@ -15,6 +15,8 @@ public abstract class BaseFile implements Serializable {
     private String typeMedia;
     private int widthOnTimeline;
     private Duration maxDuration;
+    private int differenceLeftBorderFromLeftSide;
+    private int differenceRightBorderFromRightSide;
     // Конструктор для общих полей
     public BaseFile(String nameFile, Uri pathToFile, Duration duration, String typeMedia, int widthOnTimeline) {
         this.idFile = UUID.randomUUID().toString(); // Рандомный ID
@@ -34,7 +36,7 @@ public abstract class BaseFile implements Serializable {
         this.nameFile = nameFile;
     }
 
-    public Uri getPathToFile() {
+    public Uri getPathToEditedFile() {
         return Uri.parse(pathToFile); // Десериализация строки в Uri
     }
 
@@ -81,4 +83,21 @@ public abstract class BaseFile implements Serializable {
     public void setMaxDuration(Duration maxDuration) {
         this.maxDuration = maxDuration;
     }
+
+    public int getDifferenceLeftBorderFromLeftSide() {
+        return differenceLeftBorderFromLeftSide;
+    }
+
+    public int getDifferenceRightBorderFromRightSide() {
+        return differenceRightBorderFromRightSide;
+    }
+
+    public void setDifferenceRightBorderFromRightSide(int differenceRightBorderFromRightSide) {
+        this.differenceRightBorderFromRightSide = differenceRightBorderFromRightSide;
+    }
+    public void setDifferenceLeftBorderFromLeftSide(int differenceLeftBorderFromLeftSide) {
+        this.differenceLeftBorderFromLeftSide = differenceLeftBorderFromLeftSide;
+    }
+
+
 }

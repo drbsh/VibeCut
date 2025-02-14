@@ -3,9 +3,11 @@ package com.example.vibecut.ViewModels;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
@@ -49,6 +52,11 @@ import kotlin.math.UMathKt;
 
 public class EditerActivity extends AppCompatActivity implements TimePickerDialog.TimePickerDialogListener {
     private static final int PICK_MEDIA_REQUEST = 1;
+    private static final int REQUEST_CODE_PERMISSIONS = 101;
+    private static final String[] REQUIRED_PERMISSIONS = new String[] {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
     private TextView nameProjectTextView;
     private HorizontalScrollView horizontalScrollView;
     private ProjectInfo projectInfo;//текущий  проект
@@ -94,6 +102,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         layoutManagerMedia = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
         layoutManagerAudio = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
         layoutManagerMedia.setHorizontalScrollView(horizontalScrollView);
+
         adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManagerMedia, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
@@ -230,8 +239,4 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
         JSONHelper.exportToJSON(this, projectInfo);
     }
-
-
-
-
 }

@@ -35,7 +35,7 @@ public class CountTimeAndWidth {
             long seconds = (totalMillis % 60_000) / 1_000;
             long millis = totalMillis % 1_000;
 
-            return String.format("%02d:%02d:%02d:%03d", hours, minutes, seconds, millis);
+            return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
     }
 
     private double getOneMilliSecondWidth(){
@@ -47,6 +47,11 @@ public class CountTimeAndWidth {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.widthPixels;
+    }
+
+    public int subtractDurations(long duration1, long duration2) {
+        long result = duration1 - duration2;
+        return (int)Math.max(result, 0); // Возвращаем 0, если результат отрицательный
     }
 
 }
