@@ -109,8 +109,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     }
                     newWidth -= dX; // Уменьшаем ширину
 
-                    // что то по типу такого: сначала вычисляем минимальную ширину из максимальной и заданной
-//                    newWidth = Math.min(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), newWidth);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
@@ -213,12 +211,11 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 if (flagStartOrEnd == 1){
                     differenceLeftBorderFromLeftSide +=  dX;
                     mediaFile.setDifferenceLeftBorderFromLeftSide(differenceLeftBorderFromLeftSide);
-                    ffmpegEditer.ChangeLengthByBorders(isLeftOrRight,  countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(countTimeAndWidth.subtractDurations(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), Math.abs(differenceRightBorderFromRightSide))));
-                }
+                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceRightBorderFromRightSide)));                }
                 else if(flagStartOrEnd == 2){
                     differenceRightBorderFromRightSide +=  dX;
                     mediaFile.setDifferenceRightBorderFromRightSide(differenceRightBorderFromRightSide);
-                    ffmpegEditer.ChangeLengthByBorders(isLeftOrRight,  countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(countTimeAndWidth.subtractDurations(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()), Math.abs(differenceRightBorderFromRightSide))));
+                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceRightBorderFromRightSide)));
                 }
                 else if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);

@@ -97,7 +97,9 @@ public class FillingMediaFile
             duration = Duration.ofSeconds(3);
             maxDuration = Duration.ofHours(3);
             width = countTimeAndWidth.WidthByTimeChanged(duration);
-            selectedMediaUri = FFmpegEditer.FromImgToMp4(originalPathToFile, selectedMediaUri);
+
+            MediaCodecConverter mediaCodecConverter = new MediaCodecConverter();
+            selectedMediaUri = Uri.parse(mediaCodecConverter.convertImageToVideoMediaCodec(originalPathToFile, selectedMediaUri, 3));
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             selectedMediaUri = startCopyFile(selectedMediaUri, folderVideo);// можно подумать чтобы убрать (Refactor)
