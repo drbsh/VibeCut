@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.vibecut.JSONHelper;
@@ -99,7 +100,10 @@ public class FillingMediaFile
             width = countTimeAndWidth.WidthByTimeChanged(duration);
 
             MediaCodecConverter mediaCodecConverter = new MediaCodecConverter();
-            selectedMediaUri = Uri.parse(mediaCodecConverter.convertImageToVideoMediaCodec(originalPathToFile, selectedMediaUri, 3));
+            MediaCodecConverter.Paths paths;
+            paths = mediaCodecConverter.convertImageToVideoMediaCodec(originalPathToFile, selectedMediaUri, 3);
+            originalPathToFile = Uri.parse(paths.originPath);
+            selectedMediaUri = Uri.parse(paths.outputPath);
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             selectedMediaUri = startCopyFile(selectedMediaUri, folderVideo);// можно подумать чтобы убрать (Refactor)
@@ -234,7 +238,7 @@ public class FillingMediaFile
     }
 
     //методы копирования
-    public Uri copyFile(File sourceFile, File destFile) throws IOException {
+    public static Uri copyFile(File sourceFile, File destFile) throws IOException {
         if (!sourceFile.exists()) {
             throw new IOException("Source file does not exist: " + sourceFile.getAbsolutePath());
         }
@@ -249,7 +253,7 @@ public class FillingMediaFile
         return Uri.fromFile(destFile);
     }
 
-    public Uri copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
+    public static Uri copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
         File destDir = new File(context.getFilesDir(), destDirectoryName);
         if (!destDir.exists()) {
             destDir.mkdirs();

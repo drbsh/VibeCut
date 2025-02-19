@@ -211,11 +211,11 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 if (flagStartOrEnd == 1){
                     differenceLeftBorderFromLeftSide +=  dX;
                     mediaFile.setDifferenceLeftBorderFromLeftSide(differenceLeftBorderFromLeftSide);
-                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceRightBorderFromRightSide)));                }
+                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));                }
                 else if(flagStartOrEnd == 2){
                     differenceRightBorderFromRightSide +=  dX;
                     mediaFile.setDifferenceRightBorderFromRightSide(differenceRightBorderFromRightSide);
-                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceLeftBorderFromLeftSide)), countTimeAndWidth.TimeByWidthChanged(Math.abs(differenceRightBorderFromRightSide)));
+                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));
                 }
                 else if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);

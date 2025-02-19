@@ -179,12 +179,20 @@ public class MediaCodecConverter {
         VIDEO_HEIGHT = outputHeight;
 
     }
+    public class Paths{
+        public String originPath;
+        public String outputPath;
+        public Paths(String originPath, String outputPath){
+            this.originPath = originPath;
+            this.outputPath = outputPath;
+        }
+    }
     // Основной метод
-    public String convertImageToVideoMediaCodec(Uri originFileUri, Uri outputFileUri, float time) {
+    public Paths convertImageToVideoMediaCodec(Uri originFileUri, Uri outputFileUri, float time) {
         // 1. Determine the desired video dimensions (scale down if necessary).
         VIDEO_DURATION_SECONDS = time;
         int targetWidth = 1080; // Or whatever dimensions are compatible with your device.
-        int targetHeight = 2340;
+        int targetHeight = 1920;
         String stringOutPutPath = outputFileUri.getPath();
 
         // 2.  Load and scale the bitmap using decodeSampledBitmapFromUri
@@ -259,6 +267,7 @@ public class MediaCodecConverter {
                     inputBuffer.put(yuv);
                     encoder.queueInputBuffer(inputBufferIndex, 0, yuv.length, presentationTimeUs, 0);
                     presentationTimeUs += 1000000L / FRAME_RATE;
+                    presentationTimeUs += 1000000L / FRAME_RATE;
                 }
 
                 int outputBufferIndex = encoder.dequeueOutputBuffer(bufferInfo, 10000);
@@ -321,7 +330,27 @@ public class MediaCodecConverter {
                 }
             }
         }
-        return stringOutPutPath;
+        File OriginFile = new File(originFileUri.getPath());
+        try{
+            OriginFile.delete();
+        } catch (Exception e) {
+            Log.e("ErrorDelete", "Error deleting " + originFileUri + "\nError: " + e);
+        }
+        originFileUri = Uri.parse(originFileUri.getPath().substring(0, originFileUri.getPath().lastIndexOf(".")) + ".mp4");
+        OriginFile = new File(originFileUri.getPath());
+        try{
+            OriginFile.createNewFile();
+        } catch (IOException e) {
+            Log.e("Error create file", "Error: ", e);
+        }
+        outputFile = new File(stringOutPutPath);
+        try {
+            FillingMediaFile.copyFile(outputFile, OriginFile);
+        } catch (IOException e) {
+            Log.e("CopyError", "Error Copy: " + outputFileUri + "\nto " + originFileUri);
+        }
+        Paths paths = new Paths(originFileUri.getPath(), stringOutPutPath);
+        return paths;
     }
 
     // Helper Method: Convert Bitmap to YUV (Simplified, may need optimization)
