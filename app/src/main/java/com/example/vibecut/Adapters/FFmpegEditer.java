@@ -10,9 +10,12 @@ import com.arthenica.ffmpegkit.FFprobeKit;
 import com.arthenica.ffmpegkit.ReturnCode;
 import com.example.vibecut.Models.MediaFile;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class FFmpegEditer {
@@ -39,7 +42,7 @@ public class FFmpegEditer {
 //            }else{
                 exchangeSizeVideoFromFoto();
 //            }
-                returnTimeVideo(stringUriEditedFile);
+                returnTimeVideo(stringOriginalPathToFile);
         } else {
             // Если это видео, растягиваем его с указанной стороны
             difDurationRight = CountTimeAndWidth.TimeByWidthChanged(Math.abs(CountTimeAndWidth.WidthByTimeChanged(difDurationRight)));
@@ -113,16 +116,69 @@ public class FFmpegEditer {
         }
     }
     private void concatenateVideosCommand(String inputVideo1, String inputVideo2, String outputVideo) {
-        String command = String.format("-i %s -i %s -filter_complex \"[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a]\" -map \"[v]\" -map \"[a]\" %s",
-                inputVideo1, inputVideo2, outputVideo);
+        // Шаг 0: Создаем временные пути для оптимизированных видео
+        String optimizedInput1 = inputVideo1.substring(0, inputVideo1.lastIndexOf(".")) + "_optimized.mp4";
+        String optimizedInput2 = inputVideo2.substring(0, inputVideo2.lastIndexOf(".")) + "_optimized.mp4";
 
-        FFmpegKit.executeAsync(command, session -> {
-            if (ReturnCode.isSuccess(session.getReturnCode())) {
-                // Видео успешно склеены
-                System.out.println("Видео успешно склеены!");
+        // Шаг 1: Оптимизируем первое видео (movflags faststart)
+        String optimizeCommand1 = String.format("-i %s -c:v copy -c:a copy -movflags faststart %s", inputVideo1, optimizedInput1);
+        FFmpegKit.executeAsync(optimizeCommand1, session1 -> {
+            if (ReturnCode.isSuccess(session1.getReturnCode())) {
+                Log.i("FFmpeg", "Первое видео успешно оптимизировано.");
+
+                // Шаг 2: Оптимизируем второе видео (movflags faststart)
+                String optimizeCommand2 = String.format("-i %s -c:v copy -c:a copy -movflags faststart %s", inputVideo2, optimizedInput2);
+                FFmpegKit.executeAsync(optimizeCommand2, session2 -> {
+                    if (ReturnCode.isSuccess(session2.getReturnCode())) {
+                        Log.i("FFmpeg", "Второе видео успешно оптимизировано.");
+
+                        // Шаг 3: Создаем список файлов для конкатенации
+                        String[] inputVideoPaths = new String[2];
+                        inputVideoPaths[0] = optimizedInput1;
+                        inputVideoPaths[1] = optimizedInput2;
+
+                        String concatListPath = optimizedInput1.substring(0, optimizedInput1.lastIndexOf(".")) + ".txt";
+                        File concatFile = new File(concatListPath);
+
+                        try {
+                            concatFile.createNewFile();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        try (BufferedWriter writer = new BufferedWriter(new FileWriter(concatFile))) {
+                            for (String videoPath : inputVideoPaths) {
+                                writer.write("file '" + videoPath + "'");
+                                writer.newLine();
+                            }
+                            Log.i("FFmpeg", "Concat list file created: " + concatListPath);
+                        } catch (IOException e) {
+                            Log.e("FFmpeg", "Failed to create concat list file: " + e.getMessage());
+                            throw new RuntimeException(e);
+                        }
+
+                        // Шаг 4: Склеиваем видео с помощью FFmpeg
+                        String concatCommand = String.format("-f concat -safe 0 -i %s -c copy -f mp4 %s", concatListPath, outputVideo);
+                        FFmpegKit.executeAsync(concatCommand, session3 -> {
+                            if (ReturnCode.isSuccess(session3.getReturnCode())) {
+                                Log.i("FFmpeg", "Видео успешно склеены.");
+
+                                // Шаг 5: Удаляем временные файлы
+                                new File(optimizedInput1).delete();
+                                new File(optimizedInput2).delete();
+                                new File(concatListPath).delete();
+
+                                System.out.println("Процесс завершен! Видео готово.");
+                            } else {
+                                System.err.println("Ошибка при склейке видео: " + session3.getFailStackTrace());
+                            }
+                        });
+                    } else {
+                        System.err.println("Ошибка при оптимизации второго видео: " + session2.getFailStackTrace());
+                    }
+                });
             } else {
-                // Ошибка при склейке видео
-                System.err.println("Ошибка при склейке видео: " + session.getFailStackTrace());
+                System.err.println("Ошибка при оптимизации первого видео: " + session1.getFailStackTrace());
             }
         });
     }
@@ -134,11 +190,10 @@ public class FFmpegEditer {
 
     private void returnTimeVideo(String uriFile) {
         // Команда для ffprobe: извлекаем длительность видео
-        String command = String.format("-i %s -f null -", uriFile);
+        String command = String.format("%s", uriFile);
 
         FFmpegKit.executeAsync(command, session -> {
             if (ReturnCode.isSuccess(session.getReturnCode())) {
-                // Видео успешно склеены
                 Log.d("FFmpeg", "Длина получена!: "+ session.toString());
             }
             else{
