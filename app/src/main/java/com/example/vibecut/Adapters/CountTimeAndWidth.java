@@ -8,19 +8,19 @@ import java.time.Duration;
 
 public class CountTimeAndWidth {
     private Context context;
-    private int screenWidth;
-    private double oneMilliSecondWidth;
+    private static int screenWidth;
+    private static double oneMilliSecondWidth;
     public CountTimeAndWidth(Context context){
         this.context = context;
         screenWidth = getScreenWidth();
     }
-    public Duration TimeByWidthChanged(int newWidth){
+    public static Duration TimeByWidthChanged(int newWidth){
         oneMilliSecondWidth = getOneMilliSecondWidth();
         double durationInSeconds = (double) newWidth / oneMilliSecondWidth;
         return Duration.ofMillis((long) durationInSeconds);
     }
 
-    public int WidthByTimeChanged(Duration newTime){
+    public static int WidthByTimeChanged(Duration newTime){
         oneMilliSecondWidth = getOneMilliSecondWidth();
         long durationInMilliSeconds = newTime.toMillis();
         return (int) (durationInMilliSeconds * oneMilliSecondWidth);
@@ -38,7 +38,7 @@ public class CountTimeAndWidth {
             return String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, millis);
     }
 
-    private double getOneMilliSecondWidth(){
+    private static double getOneMilliSecondWidth(){
         return (double) screenWidth / 30000;
     }
 
@@ -49,9 +49,11 @@ public class CountTimeAndWidth {
         return displayMetrics.widthPixels;
     }
 
-    public int subtractDurations(long duration1, long duration2) {
-        long result = duration1 - duration2;
-        return (int)Math.max(result, 0); // Возвращаем 0, если результат отрицательный
+    public static Duration subtractDurations(Duration duration1, Duration duration2) {
+        long durLong1 = WidthByTimeChanged(duration1);
+        long durLong2 = WidthByTimeChanged(duration2);
+        long result = durLong1 - durLong2;
+        return TimeByWidthChanged((int)Math.max(result, 0)); // Возвращаем 0, если результат отрицательный
     }
 
 }
