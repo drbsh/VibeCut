@@ -225,7 +225,7 @@
             <View
                 android:layout_width="3dp"
                 android:layout_height="match_parent"
-                android:layout_marginStart="150dp"
+                android:layout_gravity="center"
                 android:background="@color/white"/>
         </FrameLayout>
 
@@ -240,6 +240,7 @@
             <ImageButton
                 android:id="@+id/button_add_text"
                 android:layout_width="0dp"
+                android:onClick="addText"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
@@ -247,6 +248,7 @@
             <ImageButton
                 android:id="@+id/button_crop"
                 android:layout_width="0dp"
+                android:onClick="cuttingVideo"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
@@ -254,6 +256,7 @@
             <ImageButton
                 android:id="@+id/button_add_filters"
                 android:layout_width="0dp"
+                android:onClick="addEffects"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"

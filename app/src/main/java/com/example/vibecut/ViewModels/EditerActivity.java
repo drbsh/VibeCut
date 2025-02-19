@@ -16,7 +16,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -68,6 +70,10 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     private RelativeLayout audioLineContainer;
     private CountTimeAndWidth countTimeAndWidth;
     private FillingMediaFile fillingMediaFile;
+    private ImageButton buttonCuttingVideo;
+    private ImageButton buttonTextImpose;
+    private ImageButton buttonAddEffects;
+
     public static MediaLineAdapter getAdapter() {
         return adapter;
     }
@@ -238,5 +244,19 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         projectInfo.updateMediafile(mediaFile);
 
         JSONHelper.exportToJSON(this, projectInfo);
+    }
+
+    public void addEffects(View view) {
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = inflater.inflate(R.layout.popup_effects_window, null);
+
+        // Создаем PopupWindow
+        PopupWindow popupWindow = new PopupWindow(popupView,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(android.R.color.transparent));
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setFocusable(true);
+        popupWindow.showAsDropDown(view, 0, 110);
     }
 }
