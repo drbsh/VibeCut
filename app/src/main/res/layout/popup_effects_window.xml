@@ -1,28 +1,259 @@
-<TableLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="500dp"
-    android:layout_height="500dp"
-    android:stretchColumns="*"
-    android:padding="16dp">
-    <TableRow
-        android:layout_weight="1"
-        android:layout_height="0dp">
-        <View></View>
-        <View></View>
-        <View></View>
-    </TableRow>
-    <TableRow
-        android:layout_weight="1"
-        android:layout_height="0dp">
-        <View></View>
-        <View></View>
-        <View></View>
-    </TableRow>
-    <TableRow
-        android:layout_weight="1"
-        android:layout_height="0dp">
-        <View></View>
-        <View></View>
-        <View></View>
-    </TableRow>
-</TableLayout>
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray2"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/lemonmilkrusbylyajka"
+        android:textSize="16sp"
+        android:text="Эффекты"
+        android:textColor="@color/white"
+        android:gravity="center"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:stretchColumns="*"
+            android:padding="16dp">
+
+        <!-- Первая строка -->
+            <TableRow
+                android:layout_height="wrap_content">
+
+                <!-- Ячейка 1 -->
+                <LinearLayout
+                    android:id="@+id/layout_brightness"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:background="@drawable/selector_layout"> <!--при нажатии визуал-->
+
+                <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/brightness" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Яркость"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- Ячейка 2 -->
+                <LinearLayout
+                    android:id="@+id/layout_contrast"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:background="@drawable/selector_layout">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/contrast" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Контраст"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- Ячейка 3 -->
+                <LinearLayout
+                    android:id="@+id/layout_saturation"
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:background="@drawable/selector_layout">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true"
+                        android:src="@drawable/saturation" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Насыщенность"
+                        android:textSize="10sp"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+            </TableRow>
+
+        <!-- Вторая строка -->
+            <TableRow
+                android:layout_height="wrap_content">
+
+                <!-- Ячейка 1 -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="***"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- Ячейка 2 -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="***"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- Ячейка 3 -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="***"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+            </TableRow>
+
+        <!-- Третья строка -->
+            <TableRow
+                android:layout_height="wrap_content">
+
+                <!-- Ячейка 1 -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="***"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- Ячейка 2 -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="***"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+
+                <!-- Ячейка 3 -->
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:adjustViewBounds="true" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="***"
+                        android:fontFamily="@font/lemonmilkrusbylyajka"
+                        android:textColor="@color/white"
+                        android:gravity="center" />
+                </LinearLayout>
+            </TableRow>
+        </TableLayout>
+    </ScrollView>
+</LinearLayout>

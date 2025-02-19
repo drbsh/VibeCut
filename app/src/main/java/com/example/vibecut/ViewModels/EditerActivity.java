@@ -15,7 +15,9 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
+import com.example.vibecut.Adapters.EffectClickListener;
 import com.example.vibecut.Adapters.FillingMediaFile;
 import com.example.vibecut.CustomizeProject.CustomLayoutManager;
 import com.example.vibecut.JSONHelper;
@@ -246,17 +249,44 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         JSONHelper.exportToJSON(this, projectInfo);
     }
 
-    public void addEffects(View view) {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.popup_effects_window, null);
+    public void addEffects(View anchorView) {
+        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupContentView = layoutInflater.inflate(R.layout.popup_effects_window, null);
 
         // Создаем PopupWindow
-        PopupWindow popupWindow = new PopupWindow(popupView,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setBackgroundDrawable(getResources().getDrawable(android.R.color.transparent));
-        popupWindow.setOutsideTouchable(true);
-        popupWindow.setFocusable(true);
-        popupWindow.showAsDropDown(view, 0, 110);
+        PopupWindow effectsPopupWindow = new PopupWindow(popupContentView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        effectsPopupWindow.setBackgroundDrawable(getResources().getDrawable(android.R.color.transparent));
+        effectsPopupWindow.setOutsideTouchable(true);
+        effectsPopupWindow.setFocusable(true);
+
+        // Получаем ширину экрана
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int screenWidth = displayMetrics.widthPixels;
+
+        // Вычисляем новую ширину и высоту для квадратного PopupWindow
+        int padding = 100; // Отступы по 100 пикселей с каждой стороны
+        int popupSize = screenWidth - 2 * padding; // Размер для квадратного PopupWindow
+
+        // Устанавливаем новую ширину и высоту для PopupWindow
+        effectsPopupWindow.setWidth(popupSize);
+        effectsPopupWindow.setHeight(popupSize);
+
+        // Создаем экземпляр обработчика кликов
+        EffectClickListener clickListener = new EffectClickListener(this);
+
+        // Находим LinearLayout и назначаем обработчики кликов
+        LinearLayout layoutBrightness = popupContentView.findViewById(R.id.layout_brightness);
+        LinearLayout layoutContrast = popupContentView.findViewById(R.id.layout_contrast);
+        LinearLayout layoutSaturation = popupContentView.findViewById(R.id.layout_saturation);
+
+        layoutBrightness.setOnClickListener(clickListener);
+        layoutContrast.setOnClickListener(clickListener);
+        layoutSaturation.setOnClickListener(clickListener);
+
+        int xOffset = -screenWidth / 2 + padding;
+        int yOffset = -effectsPopupWindow.getHeight() - anchorView.getHeight(); // Сдвигаем вверх на высоту PopupWindow
+        effectsPopupWindow.showAsDropDown(anchorView, xOffset, yOffset);
     }
+
 }

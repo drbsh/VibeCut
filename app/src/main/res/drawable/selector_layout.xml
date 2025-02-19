@@ -1,0 +1,17 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Состояние: элемент нажат -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#30000000" /> <!-- Полупрозрачный черный цвет -->
+            <corners android:radius="8dp" /> <!-- Закругленные углы -->
+        </shape>
+    </item>
+
+    <!-- Состояние по умолчанию (элемент не нажат) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" /> <!-- Прозрачный фон -->
+            <corners android:radius="8dp" /> <!-- Закругленные углы -->
+        </shape>
+    </item>
+</selector>
