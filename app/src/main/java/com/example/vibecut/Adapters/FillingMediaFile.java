@@ -101,7 +101,7 @@ public class FillingMediaFile
 
             MediaCodecConverter mediaCodecConverter = new MediaCodecConverter();
             MediaCodecConverter.Paths paths;
-            paths = mediaCodecConverter.convertImageToVideoMediaCodec(originalPathToFile, selectedMediaUri);
+            paths = mediaCodecConverter.convertImageToVideoMediaCodec(originalPathToFile, selectedMediaUri, 3);
             originalPathToFile = Uri.parse(paths.originPath);
             selectedMediaUri = Uri.parse(paths.outputPath);
         } else if (mimeType.startsWith("video/")){
