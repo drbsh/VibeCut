@@ -42,7 +42,7 @@ public class FFmpegEditer {
 //            }else{
                 exchangeSizeVideoFromFoto();
 //            }
-                returnTimeVideo(stringOriginalPathToFile);
+//                returnTimeVideo(stringOriginalPathToFile);
         } else {
             // Если это видео, растягиваем его с указанной стороны
             difDurationRight = CountTimeAndWidth.TimeByWidthChanged(Math.abs(CountTimeAndWidth.WidthByTimeChanged(difDurationRight)));
@@ -88,7 +88,7 @@ public class FFmpegEditer {
         }
 
         double i;
-        for (i = 0; i < durationInMillis; i += 3000) {
+        for (i = 0; i < durationInMillis - 3000; i += 3000) {
             concatenateVideosCommand(stringUriEditedFile, stringOriginalPathToFile, pathToTempFile);
             try {
                 FillingMediaFile.copyFile(new File(pathToTempFile), new File(stringUriEditedFile));
@@ -96,7 +96,7 @@ public class FFmpegEditer {
                 Log.e("CopyFileError", "Error Copying File: " + e);
             }
         }
-        if (i - durationInMillis != 0) {
+        if (durationInMillis - i != 0) {
             concatenateVideosCommand(stringUriEditedFile, stringOriginalPathToFile, pathToTempFile);
             try {
                 FillingMediaFile.copyFile(new File(pathToTempFile), new File(stringUriEditedFile));
@@ -119,15 +119,21 @@ public class FFmpegEditer {
         // Шаг 0: Создаем временные пути для оптимизированных видео
         String optimizedInput1 = inputVideo1.substring(0, inputVideo1.lastIndexOf(".")) + "_optimized.mp4";
         String optimizedInput2 = inputVideo2.substring(0, inputVideo2.lastIndexOf(".")) + "_optimized.mp4";
+        try {
+            new File(optimizedInput1).createNewFile();
+            new File(optimizedInput2).createNewFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         // Шаг 1: Оптимизируем первое видео (movflags faststart)
-        String optimizeCommand1 = String.format("-i %s -c:v copy -c:a copy -movflags faststart %s", inputVideo1, optimizedInput1);
+        String optimizeCommand1 = String.format("-i %s -c copy -movflags faststart %s", inputVideo1, optimizedInput1);
         FFmpegKit.executeAsync(optimizeCommand1, session1 -> {
             if (ReturnCode.isSuccess(session1.getReturnCode())) {
                 Log.i("FFmpeg", "Первое видео успешно оптимизировано.");
 
                 // Шаг 2: Оптимизируем второе видео (movflags faststart)
-                String optimizeCommand2 = String.format("-i %s -c:v copy -c:a copy -movflags faststart %s", inputVideo2, optimizedInput2);
+                String optimizeCommand2 = String.format("-i %s -c copy -movflags faststart %s", inputVideo2, optimizedInput2);
                 FFmpegKit.executeAsync(optimizeCommand2, session2 -> {
                     if (ReturnCode.isSuccess(session2.getReturnCode())) {
                         Log.i("FFmpeg", "Второе видео успешно оптимизировано.");
@@ -178,7 +184,8 @@ public class FFmpegEditer {
                     }
                 });
             } else {
-                System.err.println("Ошибка при оптимизации первого видео: " + session1.getFailStackTrace());
+                Log.e("FFmpeg", "Ошибка при оптимизации первого видео: " + session1.getFailStackTrace());
+                Log.e("FFmpeg", "Логи FFmpeg: " + session1.getLogsAsString());
             }
         });
     }
@@ -190,7 +197,7 @@ public class FFmpegEditer {
 
     private void returnTimeVideo(String uriFile) {
         // Команда для ffprobe: извлекаем длительность видео
-        String command = String.format("%s", uriFile);
+        String command = String.format("AtomicParsley %s -T ", uriFile);
 
         FFmpegKit.executeAsync(command, session -> {
             if (ReturnCode.isSuccess(session.getReturnCode())) {
