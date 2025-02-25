@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.vibecut.Adapters.FFmpegEditer;
+import com.example.vibecut.Adapters.VideoEditer;
 import com.example.vibecut.Models.BaseFile;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
@@ -39,7 +39,7 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     protected int originalPosition; // Исходная позиция объекта
     protected int targetPosition = 0;
     protected ProjectInfo projectInfo;
-    public FFmpegEditer ffmpegEditer;
+    public VideoEditer ffmpegEditer;
 
     public BaseCustomLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -117,7 +117,7 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
         this.layoutManager = layoutManager;
     }
     public void setFFmpegEditer (){
-        ffmpegEditer = new FFmpegEditer(mediaFile);
+        ffmpegEditer = new VideoEditer(mediaFile);
     }
 
     public BaseFile getMediaFile() {
