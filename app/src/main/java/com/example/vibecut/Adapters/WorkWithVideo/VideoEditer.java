@@ -1,9 +1,11 @@
-package com.example.vibecut.Adapters;
+package com.example.vibecut.Adapters.WorkWithVideo;
 
 import static com.example.vibecut.Adapters.CountTimeAndWidth.formatDurationToString;
 
 import android.util.Log;
 
+import com.example.vibecut.Adapters.CountTimeAndWidth;
+import com.example.vibecut.Adapters.FillingMediaFile;
 import com.example.vibecut.Models.MediaFile;
 
 import java.io.File;
@@ -60,24 +62,13 @@ public class VideoEditer {
         String pathTempFileToAppendRemains = stringUriEditedFile.substring(0, stringUriEditedFile.lastIndexOf(".")) + "_TEMP_REMAINS.mp4";
         File tempFile = new File(pathToTempFile);
         File tempFileToAppendRemains = new File(pathTempFileToAppendRemains);
-//        try{
-//            if(!tempFile.exists()) {
-//                tempFile.createNewFile();
-//            }
-//            if(!tempFileToAppendRemains.exists()) {
-//                tempFileToAppendRemains.createNewFile();
-//            }
-//        } catch (IOException e) {
-//            Log.e("Error Create File", "Error create" + pathToTempFile);
-//        }
-
 
         long i;
         long difDurations = durationInMillis - previousDurationOfVideoFromPhoto;
         for (i = 3000; i < difDurations; i += 3000) {
             concatenateVideosCommand(stringUriEditedFile, stringOriginalPathToFile, pathToTempFile);
             try {
-                FillingMediaFile.copyFile(new File(pathToTempFile), new File(stringUriEditedFile));
+                FillingMediaFile.moveFile(new File(pathToTempFile), new File(stringUriEditedFile));
             } catch (IOException e) {
                 Log.e("CopyFileError", "Error Copying File: " + e);
             }
@@ -90,10 +81,11 @@ public class VideoEditer {
                 // Обрезка завершена, начинаем склейку
                 concatenateVideosCommand(stringUriEditedFile, pathTempFileToAppendRemains, pathToTempFile);
                 try {
-                    FillingMediaFile.copyFile(new File(pathToTempFile), new File(stringUriEditedFile));
+                    FillingMediaFile.moveFile(new File(pathToTempFile), new File(stringUriEditedFile));
                 } catch (IOException e) {
                     Log.e("CopyFileError", "Error Copying File: " + e);
                 }
+                tempFileToAppendRemains.delete();
 
             });
 
@@ -128,7 +120,7 @@ public class VideoEditer {
         File tempFile = new File(pathToTempFile);
         fFmpegEditer.extendRegularVideo(formatDurationToString(Duration.ofMillis(0)), formatDurationToString(Duration.ofMillis(durationInMillis)), pathToTempFile, stringUriEditedFile, () -> {
             try {
-                FillingMediaFile.copyFile(new File(pathToTempFile), new File(stringUriEditedFile));
+                FillingMediaFile.moveFile(new File(pathToTempFile), new File(stringUriEditedFile));
             } catch (IOException e) {
                 Log.e("CopyFileError", "Error Copying File: " + e);
             }

@@ -1,4 +1,4 @@
-package com.example.vibecut.Adapters;
+package com.example.vibecut.Adapters.WorkWithVideo;
 
 import android.content.Context;
 

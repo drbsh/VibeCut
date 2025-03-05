@@ -1,4 +1,4 @@
-    package com.example.vibecut.Adapters;
+    package com.example.vibecut.Adapters.WorkWithVideo;
     
     import android.graphics.Bitmap;
     import android.graphics.BitmapFactory;
@@ -11,7 +11,9 @@
     import android.media.MediaCodecList;
     import android.media.MediaFormat;
     import android.util.Log;
-    
+
+    import com.example.vibecut.Adapters.FillingMediaFile;
+
     import java.io.File;
     import java.io.IOException;
     import java.nio.ByteBuffer;

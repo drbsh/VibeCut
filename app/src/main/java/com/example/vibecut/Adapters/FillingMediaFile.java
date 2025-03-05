@@ -7,9 +7,9 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.OpenableColumns;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.example.vibecut.Adapters.WorkWithVideo.MediaCodecConverter;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
@@ -238,6 +238,22 @@ public class FillingMediaFile
     }
 
     //методы копирования
+    public static Uri moveFile(File sourceFile, File destFile) throws IOException {
+        if (!sourceFile.exists()) {
+            throw new IOException("Source file does not exist: " + sourceFile.getAbsolutePath());
+        }
+
+        try (FileInputStream inStream = new FileInputStream(sourceFile);
+             FileOutputStream outStream = new FileOutputStream(destFile);
+             FileChannel inChannel = inStream.getChannel();
+             FileChannel outChannel = outStream.getChannel()) {
+
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+        }
+
+        sourceFile.delete();
+        return Uri.fromFile(destFile);
+    }
     public static Uri copyFile(File sourceFile, File destFile) throws IOException {
         if (!sourceFile.exists()) {
             throw new IOException("Source file does not exist: " + sourceFile.getAbsolutePath());
@@ -250,17 +266,40 @@ public class FillingMediaFile
 
             inChannel.transferTo(0, inChannel.size(), outChannel);
         }
+
         return Uri.fromFile(destFile);
     }
 
     public static Uri copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
+        // Создаем целевую директорию, если она не существует
         File destDir = new File(context.getFilesDir(), destDirectoryName);
         if (!destDir.exists()) {
             destDir.mkdirs();
         }
 
-        File destFile = new File(destDir, sourceFile.getName());
-        return copyFile(sourceFile, destFile);
+        // Получаем имя файла и его расширение
+        String fileName = sourceFile.getName();
+        String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+        String extension = fileName.substring(fileName.lastIndexOf('.') + 1);
+
+        // Создаем целевой файл
+        File destFileMP4 = new File(destDir, baseName + "." + "mp4");
+        File destFile = new File(destDir, fileName);
+
+        // Проверяем, существует ли файл с таким именем
+        int counter = 1;
+        while (destFile.exists() || destFileMP4.exists()) {
+            // Если файл существует, добавляем суффикс (например, "_1", "_2" и т.д.)
+            String newFileNameMP4 = baseName + "_" + counter + "." + "mp4";
+            String newFileName = baseName + "_" + counter + "." + extension;
+
+            destFile = new File(destDir, newFileName);
+            destFileMP4 = new File(destDir, newFileNameMP4);
+            counter++;
+        }
+
+        // Копируем файл
+        return moveFile(sourceFile, destFile);
     }
     private String getFilePathFromUri(Uri uri) {
         String filePath = null;
