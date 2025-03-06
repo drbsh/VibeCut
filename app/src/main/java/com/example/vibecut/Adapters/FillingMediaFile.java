@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.vibecut.Adapters.WorkWithVideo.MediaCodecConverter;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 public class FillingMediaFile
 {
@@ -33,7 +35,6 @@ public class FillingMediaFile
     private MediaLineAdapter adapter;
     private MediaAdapter mediaAdapter;
     private ProjectInfo projectInfo;
-    private CountTimeAndWidth countTimeAndWidth;
     private static final String folderImage = "images";
     private static final String folderVideo = "video";
     private static final String folderAudio = "audio";
@@ -44,22 +45,13 @@ public class FillingMediaFile
         this.MediaFiles = MediaFiles;
         this.adapter = adapter;
         this.projectInfo = projectInfo;
-        countTimeAndWidth = new CountTimeAndWidth(context);
+
     }
     public FillingMediaFile(Context context, ProjectInfo projectInfo, List<MediaFile> MediaFiles, MediaAdapter mediaAdapter){
         this.context = context;
         this.MediaFiles = MediaFiles;
         this.mediaAdapter = mediaAdapter;
         this.projectInfo = projectInfo;
-        countTimeAndWidth = new CountTimeAndWidth(context);
-    }
-
-    public MediaFile getMediaFile() {
-        return mediaFile;
-    }
-
-    public void setMediaFile(MediaFile mediaFile) {
-        this.mediaFile = mediaFile;
     }
 
     public void processingFile(Uri selectedMediaUri) {
@@ -97,7 +89,7 @@ public class FillingMediaFile
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
             maxDuration = Duration.ofHours(3);
-            width = countTimeAndWidth.WidthByTimeChanged(duration);
+            width = CountTimeAndWidth.WidthByTimeChanged(duration);
 
             MediaCodecConverter mediaCodecConverter = new MediaCodecConverter();
             MediaCodecConverter.Paths paths;
@@ -110,7 +102,7 @@ public class FillingMediaFile
             try {
                 duration = getVideoDuration(selectedMediaUri);// можно подумать чтобы заменить (Refactor)
                 maxDuration = duration;
-                width = countTimeAndWidth.WidthByTimeChanged(duration);
+                width = CountTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
                 e.printStackTrace(); // Логируем ошибку
                 Toast.makeText(context, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
@@ -211,7 +203,7 @@ public class FillingMediaFile
         try (FileOutputStream out = new FileOutputStream(file)) {
             img.compress(Bitmap.CompressFormat.PNG, 100, out); // Сохраняем изображение в формате PNG
         } catch (IOException e) {
-            e.printStackTrace(); // Обработка ошибок
+            Log.e("Error compressing image: ", e.toString());
         }
         return Uri.fromFile(file);
     }
@@ -254,7 +246,7 @@ public class FillingMediaFile
         sourceFile.delete();
         return Uri.fromFile(destFile);
     }
-    public static Uri copyFile(File sourceFile, File destFile) throws IOException {
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
         if (!sourceFile.exists()) {
             throw new IOException("Source file does not exist: " + sourceFile.getAbsolutePath());
         }
@@ -266,8 +258,6 @@ public class FillingMediaFile
 
             inChannel.transferTo(0, inChannel.size(), outChannel);
         }
-
-        return Uri.fromFile(destFile);
     }
 
     public static Uri copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
@@ -303,7 +293,7 @@ public class FillingMediaFile
     }
     private String getFilePathFromUri(Uri uri) {
         String filePath = null;
-        if (uri.getScheme().equals("content")) {
+        if (Objects.equals(uri.getScheme(), "content")) {
             Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
@@ -324,7 +314,7 @@ public class FillingMediaFile
                 }
                 cursor.close();
             }
-        } else if (uri.getScheme().equals("file")) {
+        } else if (Objects.equals(uri.getScheme(), "file")) {
             filePath = uri.getPath();
         }
         return filePath;

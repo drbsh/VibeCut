@@ -4,6 +4,7 @@
     import android.net.Uri;
     import android.view.LayoutInflater;
     import android.view.View;
+    import android.widget.HorizontalScrollView;
     import android.widget.ImageView;
     import android.widget.RelativeLayout;
     import android.widget.TextView;
@@ -24,16 +25,18 @@
     public class MediaLineAdapter implements TimePickerDialog.OnTimeSetListener {
         private ProjectInfo projectInfo;
         private static List<MediaFile> mediaFiles;
-        private RelativeLayout mediaLineContainer;
-        private Context context;
-        private AppCompatActivity activity;
+        private final RelativeLayout mediaLineContainer;
+        private final Context context;
+        private final AppCompatActivity activity;
+        private final HorizontalScrollView horizontalScrollView;
         private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
-        public MediaLineAdapter(RelativeLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, Context context, AppCompatActivity activity) {
+        public MediaLineAdapter(HorizontalScrollView horizontalScrollView, RelativeLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, Context context, AppCompatActivity activity) {
             this.mediaLineContainer = mediaLineContainer;
             this.mediaFiles = mediaFiles;
             this.projectInfo = projectInfo;
             this.context = context;
             this.activity = activity;
+            this.horizontalScrollView = horizontalScrollView;
             populateMediaItems(); // Заполнение контейнера элементами
         }
         public void updateWithSwitchPositions(BaseCustomLineLayout customLineLayout, int targetPosition) {
@@ -84,6 +87,7 @@
             customLineLayout.setOriginalPosition(index);
             customLineLayout.setVideoEditer();
             customLineLayout.setMaxWidth();
+            customLineLayout.setHorizontalScrollView(horizontalScrollView);
 ;
 
             mediaLineContainer.addView(customLineLayout);
@@ -137,8 +141,8 @@
 
             // Устанавливаем длительность
             Duration durationTime = mediaFile.getDuration();
-            CountTimeAndWidth countTimeAndWidth = new CountTimeAndWidth(context);
-            String duration = countTimeAndWidth.formatDurationToString(durationTime);
+
+            String duration = CountTimeAndWidth.formatDurationToString(durationTime);
             itemDuration.setText(duration);
 
             // Загружаем изображение с помощью Glide

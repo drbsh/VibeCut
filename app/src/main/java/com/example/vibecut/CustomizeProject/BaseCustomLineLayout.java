@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.vibecut.Adapters.WorkWithVideo.VideoEditer;
-import com.example.vibecut.Models.BaseFile;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.ViewModels.EditerActivity;
@@ -118,7 +117,7 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     public void setVideoEditer(){
         videoEditer = new VideoEditer(mediaFile);
     }
-    public void setHorizontalScrollView() {this.horizontalScrollView = horizontalScrollView;}
+    public void setHorizontalScrollView(HorizontalScrollView horizontalScrollView) {this.horizontalScrollView = horizontalScrollView;}
 
 
 }

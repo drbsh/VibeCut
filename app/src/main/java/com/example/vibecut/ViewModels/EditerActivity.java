@@ -2,22 +2,14 @@ package com.example.vibecut.ViewModels;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-
-import android.Manifest;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,37 +23,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
 import com.example.vibecut.Adapters.EffectClickListener;
 import com.example.vibecut.Adapters.FillingMediaFile;
-import com.example.vibecut.CustomizeProject.CustomLayoutManager;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Adapters.MediaLineAdapter;
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.R;
-
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalTime;
 import java.util.List;
-
-import kotlin.math.UMathKt;
 
 public class EditerActivity extends AppCompatActivity implements TimePickerDialog.TimePickerDialogListener {
     private static final int PICK_MEDIA_REQUEST = 1;
-    private static final int REQUEST_CODE_PERMISSIONS = 101;
-    private static final String[] REQUIRED_PERMISSIONS = new String[] {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
     private TextView nameProjectTextView;
     private HorizontalScrollView horizontalScrollView;
     private ProjectInfo projectInfo;//текущий  проект
@@ -86,8 +62,9 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.editer_activity);
 
-        horizontalScrollView = findViewById(R.id.scroll_all_media_line);
+        new CountTimeAndWidth(this);// Устанавливаем контекст для статических функций класса
 
+        horizontalScrollView = findViewById(R.id.scroll_all_media_line);
         mediaLineContainer = findViewById(R.id.media_line_container);
         audioLineContainer = findViewById(R.id.audio_line_container);
 
@@ -105,7 +82,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
 
         MediaFiles = projectInfo.getProjectFiles();
 
-        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, this, this); // Создаем адаптер
+        adapter = new MediaLineAdapter(horizontalScrollView, mediaLineContainer, MediaFiles, projectInfo, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
 //        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
