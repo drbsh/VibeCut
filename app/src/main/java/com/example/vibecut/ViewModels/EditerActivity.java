@@ -67,8 +67,6 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     private ProjectInfo projectInfo;//текущий  проект
     private List<MediaFile> MediaFiles;
     private static MediaLineAdapter adapter;
-    public static CustomLayoutManager layoutManagerMedia;
-    public static CustomLayoutManager layoutManagerAudio;
     private RelativeLayout mediaLineContainer;
     private RelativeLayout audioLineContainer;
     private CountTimeAndWidth countTimeAndWidth;
@@ -93,8 +91,6 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         mediaLineContainer = findViewById(R.id.media_line_container);
         audioLineContainer = findViewById(R.id.audio_line_container);
 
-//        recyclerView = findViewById(R.id.recyclerViewVideoTimeline);
-
         if (getIntent() != null && getIntent().hasExtra("project_info")) {
             projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
 
@@ -108,11 +104,8 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         }
 
         MediaFiles = projectInfo.getProjectFiles();
-        layoutManagerMedia = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
-        layoutManagerAudio = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
-        layoutManagerMedia.setHorizontalScrollView(horizontalScrollView);
 
-        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManagerMedia, this, this); // Создаем адаптер
+        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, this, this); // Создаем адаптер
 
         // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
 //        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);

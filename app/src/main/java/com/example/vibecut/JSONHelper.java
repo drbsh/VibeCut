@@ -5,8 +5,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.example.vibecut.Adapters.DurationAdapter;
-import com.example.vibecut.Adapters.LocalDateTimeAdapter;
-import com.example.vibecut.Adapters.LocalTimeAdapter;
+import com.example.vibecut.Adapters.TimeWidthFormaters.LocalDateTimeAdapter;
+import com.example.vibecut.Adapters.TimeWidthFormaters.LocalTimeAdapter;
 import com.example.vibecut.Adapters.UriAdapter;
 import com.example.vibecut.Models.ProjectInfo;
 import com.google.gson.Gson;

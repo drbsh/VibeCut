@@ -12,7 +12,6 @@
 
     import com.bumptech.glide.Glide;
     import com.example.vibecut.CustomizeProject.BaseCustomLineLayout;
-    import com.example.vibecut.CustomizeProject.CustomLayoutManager;
     import com.example.vibecut.CustomizeProject.CustomMediaLineLayout;
     import com.example.vibecut.Models.MediaFile;
     import com.example.vibecut.Models.ProjectInfo;
@@ -20,21 +19,23 @@
     import com.example.vibecut.ViewModels.TimePickerDialog;
 
     import java.time.Duration;
-    import java.time.LocalTime;
-    import java.time.format.DateTimeFormatter;
     import java.util.List;
 
     public class MediaLineAdapter implements TimePickerDialog.OnTimeSetListener {
-        private MediaFile mediaFile;
-        private CustomLayoutManager layoutManager;
         private ProjectInfo projectInfo;
         private static List<MediaFile> mediaFiles;
-        private LayoutInflater inflater;
         private RelativeLayout mediaLineContainer;
         private Context context;
         private AppCompatActivity activity;
         private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
-
+        public MediaLineAdapter(RelativeLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, Context context, AppCompatActivity activity) {
+            this.mediaLineContainer = mediaLineContainer;
+            this.mediaFiles = mediaFiles;
+            this.projectInfo = projectInfo;
+            this.context = context;
+            this.activity = activity;
+            populateMediaItems(); // Заполнение контейнера элементами
+        }
         public void updateWithSwitchPositions(BaseCustomLineLayout customLineLayout, int targetPosition) {
             int currentPosition  = customLineLayout.getOriginalPosition();
             MediaFile file = mediaFiles.get(currentPosition);
@@ -42,41 +43,12 @@
             mediaFiles.set(targetPosition, file);
             populateMediaItems();
         }
-
-
         public void InflateToCustomMediaLineLayout(BaseCustomLineLayout customLineLayout) {
             LayoutInflater.from(customLineLayout.getContext()).inflate(R.layout.mediafile_lineitem, customLineLayout, true);
         }
 
         public void notifyItemInserted() {
             populateMediaItems();
-        }
-
-        public interface OnTimeSetListener {
-            void onTimeSet(LocalTime time);
-        }
-
-        private OnTimeSetListener listener;
-
-        public void setOnTimeSetListener(OnTimeSetListener listener) {
-            this.listener = listener;
-        }
-
-        // Вызовите этот метод, когда время будет установлено
-        private void notifyTimeSet(LocalTime time) {
-            if (listener != null) {
-                listener.onTimeSet(time);
-            }
-        }
-
-        public MediaLineAdapter(RelativeLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, CustomLayoutManager layoutManager, Context context, AppCompatActivity activity) {
-            this.mediaLineContainer = mediaLineContainer;
-            this.mediaFiles = mediaFiles;
-            this.layoutManager = layoutManager;
-            this.projectInfo = projectInfo;
-            this.context = context;
-            this.activity = activity;
-            populateMediaItems(); // Заполнение контейнера элементами
         }
 
         public void pullingInfoCustomLayout(MediaFile mediaFile, BaseCustomLineLayout newcustomMediaLineLayout) {
@@ -109,10 +81,10 @@
             customLineLayout.setMediaFile(mediaFile);
             customLineLayout.setContext(context);
             customLineLayout.setParentLayout(mediaLineContainer);
-            customLineLayout.setLayoutManager(layoutManager);
             customLineLayout.setOriginalPosition(index);
-            customLineLayout.setFFmpegEditer();
+            customLineLayout.setVideoEditer();
             customLineLayout.setMaxWidth();
+;
 
             mediaLineContainer.addView(customLineLayout);
 

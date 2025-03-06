@@ -1,7 +1,5 @@
 package com.example.vibecut.CustomizeProject;
 
-import static com.example.vibecut.CustomizeProject.CustomLayoutManager.MIN_WIDTH;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Vibrator;
@@ -21,6 +19,7 @@ import com.example.vibecut.ViewModels.EditerActivity;
 import java.time.Duration;
 
 public class CustomMediaLineLayout extends BaseCustomLineLayout {
+    private int MIN_WIDTH = 100;
 
     private float initialXDraggingPosition;
     private boolean isLeftOrRight;
@@ -58,7 +57,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         parentLayout = (RelativeLayout) getParent();
-        int scrollX = layoutManager.getHorizontalScrollView().getScrollX();
+        int scrollX = .getHorizontalScrollView().getScrollX();
         Log.d("CustomMediaLineLayout", "onTouchEvent called");
         Log.d("CustomMediaLineLayout", "startHandle: " + startHandle + ", endHandle: " + endHandle);
         Log.d("CustomMediaLineLayout", "layoutManager: " + layoutManager + ", isHandleVisible: " + isHandleVisible);
@@ -211,11 +210,11 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 if (flagStartOrEnd == 1){
                     differenceLeftBorderFromLeftSide +=  dX;
                     mediaFile.setDifferenceLeftBorderFromLeftSide(differenceLeftBorderFromLeftSide);
-                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));                }
+                    videoEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));                }
                 else if(flagStartOrEnd == 2){
                     differenceRightBorderFromRightSide +=  dX;
                     mediaFile.setDifferenceRightBorderFromRightSide(differenceRightBorderFromRightSide);
-                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));
+                    videoEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));
                 }
                 else if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);

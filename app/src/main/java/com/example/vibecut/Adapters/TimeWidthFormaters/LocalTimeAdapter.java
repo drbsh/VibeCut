@@ -1,4 +1,4 @@
-package com.example.vibecut.Adapters;
+package com.example.vibecut.Adapters.TimeWidthFormaters;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
