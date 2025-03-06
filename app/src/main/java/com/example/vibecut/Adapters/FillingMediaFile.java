@@ -4,7 +4,11 @@ import android.content.ClipData;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.media.MediaMetadataRetriever;
+import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -108,6 +112,18 @@ public class FillingMediaFile
                 Toast.makeText(context, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
             }
         }
+        else if (mimeType.startsWith("audio/")){
+            typeMedia = "audio";
+            selectedMediaUri = startCopyFile(selectedMediaUri, folderAudio);// можно подумать чтобы убрать (Refactor)
+            try {
+                duration = getVideoDuration(selectedMediaUri);// можно подумать чтобы заменить (Refactor)
+                maxDuration = duration;
+                width = CountTimeAndWidth.WidthByTimeChanged(duration);
+            } catch (IOException e) {
+                e.printStackTrace(); // Логируем ошибку
+                Toast.makeText(context, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
+            }
+        }
 
         if(adapter != null){
             addFileToCurrentProject(fileName, preview, selectedMediaUri, originalPathToFile, duration, typeMedia, width, maxDuration);
@@ -155,7 +171,16 @@ public class FillingMediaFile
                     Toast.makeText(context, "Не удалось получить миниатюру видео.", Toast.LENGTH_SHORT).show();
                     return preview;
                 }
-            } else {
+            }else if (mimeType.startsWith("audio/")) {
+                try {
+                    preview = getAudioWaveform(selectedMediaUri); // Метод для получения waveform аудио
+                } catch (IOException e) {
+                    e.printStackTrace(); // Логируем ошибку
+                    Toast.makeText(context, "Не удалось создать waveform для аудио.", Toast.LENGTH_SHORT).show();
+                    return preview;
+                }
+            }
+            else {
                 Toast.makeText(context, "Выбранный файл не является изображением или видео.", Toast.LENGTH_SHORT).show();
                 return preview;
             }
@@ -206,6 +231,67 @@ public class FillingMediaFile
             Log.e("Error compressing image: ", e.toString());
         }
         return Uri.fromFile(file);
+    }
+    // метод получение волны звука
+    private Uri getAudioWaveform(Uri audioUri) throws IOException {
+        // Получаем путь к аудиофайлу
+        String filePath = getFilePathFromUri(audioUri);
+        if (filePath == null) {
+            throw new IOException("Не удалось получить путь к аудиофайлу.");
+        }
+
+        // Создаем Bitmap для waveform
+        int width = 300; // Ширина waveform
+        int height = 100; // Высота waveform
+        Bitmap waveformBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(waveformBitmap);
+        Paint paint = new Paint();
+        paint.setColor(Color.BLUE); // Цвет waveform
+        paint.setStrokeWidth(2); // Толщина линии
+
+        // Используем Visualizer для получения данных о звуке
+        Visualizer visualizer = new Visualizer(0); // 0 означает, что мы не привязываемся к MediaPlayer
+        visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+            @Override
+            public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+                // Отрисовываем waveform на Bitmap
+                float xStep = (float) width / waveform.length;
+                float yCenter = height / 2f;
+
+                for (int i = 0; i < waveform.length - 1; i++) {
+                    float x1 = i * xStep;
+                    float y1 = yCenter + (waveform[i] / 128f) * yCenter;
+
+                    float x2 = (i + 1) * xStep;
+                    float y2 = yCenter + (waveform[i + 1] / 128f) * yCenter;
+
+                    canvas.drawLine(x1, y1, x2, y2, paint);
+                }
+            }
+
+            @Override
+            public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+                // Не используется
+            }
+        }, Visualizer.getMaxCaptureRate() / 2, true, false);
+
+        // Устанавливаем аудиофайл для визуализации
+        visualizer.setEnabled(true);
+        visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+
+        // Ждем некоторое время для сбора данных
+        try {
+            Thread.sleep(500); // Ждем 500 мс для сбора данных
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Отключаем Visualizer
+        visualizer.setEnabled(false);
+        visualizer.release();
+
+        // Сохраняем waveform в файл и возвращаем Uri
+        return savePreviewToFolderProject(projectInfo.getIdProj(), waveformBitmap, FilenameUtils.removeExtension(getFileName(audioUri)));
     }
 
     //Метод для получения миниатюры видео

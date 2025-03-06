@@ -29,7 +29,6 @@
         private final Context context;
         private final AppCompatActivity activity;
         private final HorizontalScrollView horizontalScrollView;
-        private static final int MIN_WIDTH = 100; // Минимальная ширина элемента
         public MediaLineAdapter(HorizontalScrollView horizontalScrollView, RelativeLayout mediaLineContainer, List<MediaFile> mediaFiles, ProjectInfo projectInfo, Context context, AppCompatActivity activity) {
             this.mediaLineContainer = mediaLineContainer;
             this.mediaFiles = mediaFiles;
