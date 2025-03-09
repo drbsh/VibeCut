@@ -184,9 +184,9 @@ public class ProjectDialog extends DialogFragment {
     }
 
     private void pickMedia() {
-
         Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/* video/*"); // Выбор изображений и видео
+        intent.setType("*/*"); // Разрешаем выбор всех типов файлов
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*", "audio/*"}); // Указываем типы файлов
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, PICK_MEDIA_REQUEST);
     }

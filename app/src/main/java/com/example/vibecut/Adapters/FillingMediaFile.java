@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.provider.OpenableColumns;
@@ -240,6 +241,20 @@ public class FillingMediaFile
             throw new IOException("Не удалось получить путь к аудиофайлу.");
         }
 
+        // Создаем MediaPlayer для получения аудиосессионного ID
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(context, audioUri);
+            mediaPlayer.prepare();
+            mediaPlayer.start(); // Убедитесь, что MediaPlayer воспроизводит аудио
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Не удалось воспроизвести аудиофайл.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        int audioSessionId = mediaPlayer.getAudioSessionId();
+
         // Создаем Bitmap для waveform
         int width = 300; // Ширина waveform
         int height = 100; // Высота waveform
@@ -250,7 +265,16 @@ public class FillingMediaFile
         paint.setStrokeWidth(2); // Толщина линии
 
         // Используем Visualizer для получения данных о звуке
-        Visualizer visualizer = new Visualizer(0); // 0 означает, что мы не привязываемся к MediaPlayer
+        Visualizer visualizer;
+        try {
+            visualizer = new Visualizer(audioSessionId);
+            visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+        } catch (UnsupportedOperationException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Visualizer не поддерживается на этом устройстве.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
         visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
             @Override
             public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
@@ -277,7 +301,6 @@ public class FillingMediaFile
 
         // Устанавливаем аудиофайл для визуализации
         visualizer.setEnabled(true);
-        visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
 
         // Ждем некоторое время для сбора данных
         try {
@@ -290,9 +313,14 @@ public class FillingMediaFile
         visualizer.setEnabled(false);
         visualizer.release();
 
+        // Останавливаем MediaPlayer
+        mediaPlayer.stop();
+        mediaPlayer.release();
+
         // Сохраняем waveform в файл и возвращаем Uri
         return savePreviewToFolderProject(projectInfo.getIdProj(), waveformBitmap, FilenameUtils.removeExtension(getFileName(audioUri)));
     }
+
 
     //Метод для получения миниатюры видео
     private Uri getVideoThumbnail(Uri uri) throws IOException{
