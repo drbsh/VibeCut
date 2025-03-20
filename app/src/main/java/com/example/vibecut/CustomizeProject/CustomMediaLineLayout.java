@@ -8,11 +8,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
-import com.example.vibecut.Adapters.MediaLineAdapter;
+import com.example.vibecut.Adapters.LineAdapters.MediaLineAdapter;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
@@ -23,7 +22,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
 
     private float initialXDraggingPosition;
     private int differenceLeftBorderFromLeftSide, differenceRightBorderFromRightSide;
-    private int maxWidth;
 
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -254,7 +252,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
             }
         }
     }
-
     public void resetHighlightTargetPosition(int position) {
         for (int i = 0; i < parentLayout.getChildCount(); i++) {
             View child = parentLayout.getChildAt(i);
@@ -264,8 +261,4 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
         }
     }
 
-
-    public void setMaxWidth() {
-        maxWidth = CountTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration());
-    }
 }

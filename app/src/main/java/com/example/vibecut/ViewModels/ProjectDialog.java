@@ -154,7 +154,7 @@ public class ProjectDialog extends DialogFragment {
             List<ProjectInfo> savedProjects = MainActivity.getProjectList();
 
             if (listener != null) {
-                if (projectInfo.getProjectFiles().size() == 0) {
+                if (projectInfo.getMediaFiles().size() == 0) {
                     Toast.makeText(getActivity(), "Пожалуйста, выберите хотя бы один медиафайл.", Toast.LENGTH_SHORT).show();
                     return;
                 } else if (projectInfo.getName() == null || projectInfo.getName().isEmpty()) {
@@ -185,7 +185,7 @@ public class ProjectDialog extends DialogFragment {
 
     private void pickMedia() {
         Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("*/*"); // Разрешаем выбор всех типов файлов
+        intent.setType("image/* video/* audio/*"); // Разрешаем выбор всех типов файлов
         intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*", "audio/*"}); // Указываем типы файлов
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(intent, PICK_MEDIA_REQUEST);

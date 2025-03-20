@@ -22,12 +22,12 @@ public class MediaFile implements Serializable {
     public MediaFile(String nameFile, Uri previewMedia, Uri pathToEditedFile, Uri originalPathToFile, Duration duration, String typeMedia, int widthOnTimeline) {
         this.idFile = UUID.randomUUID().toString(); // Рандомный ID
         this.nameFile = nameFile;
-        this.pathToFile = pathToFile.toString(); // Сериализация Uri в строку
+        this.pathToFile = pathToEditedFile.toString(); // Сериализация Uri в строку
+        this.originalPathToFile = originalPathToFile.toString();// Сериализация Uri в строку
         this.duration = duration;
         this.typeMedia = typeMedia;
         this.widthOnTimeline = widthOnTimeline;
         this.previewMedia = previewMedia.toString(); // Инициализация уникального поля
-        this.originalPathToFile = originalPathToFile.getPath();
     }
 
     // Геттер и сеттер для previewMedia

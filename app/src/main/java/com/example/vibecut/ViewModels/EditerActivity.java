@@ -25,11 +25,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.vibecut.Adapters.LineAdapters.AudioLineAdapter;
 import com.example.vibecut.Adapters.CountTimeAndWidth;
 import com.example.vibecut.Adapters.EffectClickListener;
 import com.example.vibecut.Adapters.FillingMediaFile;
 import com.example.vibecut.JSONHelper;
-import com.example.vibecut.Adapters.MediaLineAdapter;
+import com.example.vibecut.Adapters.LineAdapters.MediaLineAdapter;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.R;
@@ -42,17 +43,20 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
     private HorizontalScrollView horizontalScrollView;
     private ProjectInfo projectInfo;//текущий  проект
     private List<MediaFile> MediaFiles;
-    private static MediaLineAdapter adapter;
+    private List<MediaFile> AudioFiles;
+    private static MediaLineAdapter mediaLineAdapter;
+    private static AudioLineAdapter audioLineAdapter;
     private RelativeLayout mediaLineContainer;
     private RelativeLayout audioLineContainer;
     private CountTimeAndWidth countTimeAndWidth;
-    private FillingMediaFile fillingMediaFile;
+    private FillingMediaFile fillingMediaFiles;
+    private FillingMediaFile fillingAudioFiles;
     private ImageButton buttonCuttingVideo;
     private ImageButton buttonTextImpose;
     private ImageButton buttonAddEffects;
 
     public static MediaLineAdapter getAdapter() {
-        return adapter;
+        return mediaLineAdapter;
     }
     public ProjectInfo getProjectInfo(){
             return projectInfo;
@@ -80,20 +84,22 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
             }
         }
 
-        MediaFiles = projectInfo.getProjectFiles();
+        MediaFiles = projectInfo.getMediaFiles();
 
-        adapter = new MediaLineAdapter(horizontalScrollView, mediaLineContainer, MediaFiles, projectInfo, this, this); // Создаем адаптер
+        AudioFiles = projectInfo.getAudioFiles();
 
-        // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
-//        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
-        // УБЕРИ ЭТУ СТРОКУ ЧТОБЫ СККРЫТЬ НИЖНИЙ РЯД
+        mediaLineAdapter = new MediaLineAdapter(horizontalScrollView, mediaLineContainer, MediaFiles, projectInfo, this, this); // Создаем адаптер
+
+        audioLineAdapter = new AudioLineAdapter(horizontalScrollView, audioLineContainer, AudioFiles, projectInfo, this, this); // Создаем адаптер
+
 
 
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
         updateTheme(isDarkTheme);
         countTimeAndWidth = new CountTimeAndWidth(this);
-        fillingMediaFile = new FillingMediaFile(this, adapter, projectInfo, MediaFiles);
+        fillingMediaFiles = new FillingMediaFile(this, mediaLineAdapter, projectInfo, MediaFiles);
+        fillingAudioFiles = new FillingMediaFile(this, audioLineAdapter, projectInfo, AudioFiles);
     }
 
     private void updateTheme(boolean isDarkTheme) {
@@ -146,7 +152,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
             button.setOnClickListener(v -> {
                 int index = MediaFiles.indexOf(file); // Находим индекс файла
                 if (index != -1) {
-                    adapter.notifyItemRemoved(index); // Уведомляем адаптер об удалении
+                    mediaLineAdapter.notifyItemRemoved(index); // Уведомляем адаптер об удалении
                     boolean success = JSONHelper.exportToJSON(this, projectInfo); // Сохраняем изменения
                     if (success) {
                         Toast.makeText(this, "Файл " + file.getNameFile() + " успешно удален из проекта", Toast.LENGTH_SHORT).show();
@@ -188,11 +194,11 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     ClipData.Item item = data.getClipData().getItemAt(i);
-                    fillingMediaFile.processingFile(item);
+                    fillingMediaFiles.processingFile(item);
                 }
             } else if (data.getData() != null) {
                 // Если выбран только один файл
-                fillingMediaFile.processingFile(data.getData());
+                fillingMediaFiles.processingFile(data.getData());
             }
         }
     }

@@ -15,6 +15,7 @@ import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.vibecut.Adapters.LineAdapters.BaseMediaLineAdapter;
 import com.example.vibecut.Adapters.WorkWithVideo.MediaCodecConverter;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
@@ -37,7 +38,7 @@ public class FillingMediaFile
     private final Context context;
     private List<MediaFile> MediaFiles;
     private MediaFile mediaFile;
-    private MediaLineAdapter adapter;
+    private BaseMediaLineAdapter adapter;
     private MediaAdapter mediaAdapter;
     private ProjectInfo projectInfo;
     private static final String folderImage = "images";
@@ -45,7 +46,7 @@ public class FillingMediaFile
     private static final String folderAudio = "audio";
     private static final String folderOriginals = "originals";
 
-    public FillingMediaFile(Context context, MediaLineAdapter adapter, ProjectInfo projectInfo, List<MediaFile> MediaFiles){
+    public FillingMediaFile(Context context, BaseMediaLineAdapter adapter, ProjectInfo projectInfo, List<MediaFile> MediaFiles){
         this.context = context;
         this.MediaFiles = MediaFiles;
         this.adapter = adapter;
@@ -107,6 +108,7 @@ public class FillingMediaFile
             try {
                 duration = getVideoDuration(selectedMediaUri);// можно подумать чтобы заменить (Refactor)
                 maxDuration = duration;
+                new CountTimeAndWidth(context);
                 width = CountTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
                 e.printStackTrace(); // Логируем ошибку
@@ -235,13 +237,25 @@ public class FillingMediaFile
     }
     // метод получение волны звука
     private Uri getAudioWaveform(Uri audioUri) throws IOException {
-        // Получаем путь к аудиофайлу
         String filePath = getFilePathFromUri(audioUri);
         if (filePath == null) {
             throw new IOException("Не удалось получить путь к аудиофайлу.");
         }
 
-        // Создаем MediaPlayer для получения аудиосессионного ID
+        // Проверяем, поддерживается ли Visualizer на устройстве
+        boolean isVisualizerSupported = true;
+        try {
+            Visualizer visualizer = new Visualizer(0); // 0 — это фиктивный ID сессии для проверки
+            visualizer.release(); // Освобождаем ресурсы
+        } catch (RuntimeException e) {
+            isVisualizerSupported = false;
+        }
+
+        if (!isVisualizerSupported) {
+            Toast.makeText(context, "Visualizer не поддерживается на этом устройстве.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
         MediaPlayer mediaPlayer = new MediaPlayer();
         try {
             mediaPlayer.setDataSource(context, audioUri);
@@ -255,7 +269,18 @@ public class FillingMediaFile
 
         int audioSessionId = mediaPlayer.getAudioSessionId();
 
-        // Создаем Bitmap для waveform
+        Visualizer visualizer;
+        try {
+            visualizer = new Visualizer(audioSessionId);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Ошибка при инициализации Visualizer.", Toast.LENGTH_SHORT).show();
+            mediaPlayer.release();
+            return null;
+        }
+
+        visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+
         int width = 300; // Ширина waveform
         int height = 100; // Высота waveform
         Bitmap waveformBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -264,21 +289,9 @@ public class FillingMediaFile
         paint.setColor(Color.BLUE); // Цвет waveform
         paint.setStrokeWidth(2); // Толщина линии
 
-        // Используем Visualizer для получения данных о звуке
-        Visualizer visualizer;
-        try {
-            visualizer = new Visualizer(audioSessionId);
-            visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
-        } catch (UnsupportedOperationException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Visualizer не поддерживается на этом устройстве.", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-
         visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
             @Override
             public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
-                // Отрисовываем waveform на Bitmap
                 float xStep = (float) width / waveform.length;
                 float yCenter = height / 2f;
 
@@ -299,28 +312,11 @@ public class FillingMediaFile
             }
         }, Visualizer.getMaxCaptureRate() / 2, true, false);
 
-        // Устанавливаем аудиофайл для визуализации
         visualizer.setEnabled(true);
 
-        // Ждем некоторое время для сбора данных
-        try {
-            Thread.sleep(500); // Ждем 500 мс для сбора данных
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        // Отключаем Visualizer
-        visualizer.setEnabled(false);
-        visualizer.release();
-
-        // Останавливаем MediaPlayer
-        mediaPlayer.stop();
-        mediaPlayer.release();
-
-        // Сохраняем waveform в файл и возвращаем Uri
-        return savePreviewToFolderProject(projectInfo.getIdProj(), waveformBitmap, FilenameUtils.removeExtension(getFileName(audioUri)));
+        return audioUri;
     }
-
 
     //Метод для получения миниатюры видео
     private Uri getVideoThumbnail(Uri uri) throws IOException{

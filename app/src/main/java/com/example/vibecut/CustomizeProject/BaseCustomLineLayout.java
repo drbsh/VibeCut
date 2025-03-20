@@ -9,10 +9,13 @@ import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.vibecut.Adapters.CountTimeAndWidth;
 import com.example.vibecut.Adapters.WorkWithVideo.VideoEditer;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.ViewModels.EditerActivity;
+
+import java.time.Duration;
 
 public abstract class BaseCustomLineLayout extends RelativeLayout implements BaseCustomLineLayoutInterface {
     protected boolean flagVibrate = true;
@@ -40,6 +43,8 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     protected ProjectInfo projectInfo;
     public VideoEditer videoEditer;
     protected HorizontalScrollView horizontalScrollView;
+    protected int maxWidth;
+
 
     public BaseCustomLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -118,6 +123,9 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
         videoEditer = new VideoEditer(mediaFile);
     }
     public void setHorizontalScrollView(HorizontalScrollView horizontalScrollView) {this.horizontalScrollView = horizontalScrollView;}
-
+    public void setMaxWidth(Duration maxWidth) {
+        new CountTimeAndWidth(context);
+        this.maxWidth = CountTimeAndWidth.WidthByTimeChanged(maxWidth);
+    }
 
 }

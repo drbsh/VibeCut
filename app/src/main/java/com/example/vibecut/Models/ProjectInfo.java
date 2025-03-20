@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class ProjectInfo implements Serializable {
     private String idProj;
@@ -102,6 +103,28 @@ public class ProjectInfo implements Serializable {
                 return;
             }
         }
+    }
+
+    /**
+     * Возвращает список медиафайлов с типом "video" или "img".
+     *
+     * @return Список медиафайлов.
+     */
+    public List<MediaFile> getMediaFiles() {
+        return projectFiles.stream()
+                .filter(file -> file.getTypeMedia().equals("video") || file.getTypeMedia().equals("img"))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Возвращает список аудиофайлов с типом "audio".
+     *
+     * @return Список аудиофайлов.
+     */
+    public List<MediaFile> getAudioFiles() {
+        return projectFiles.stream()
+                .filter(file -> file.getTypeMedia().equals("audio"))
+                .collect(Collectors.toList());
     }
 
 }
