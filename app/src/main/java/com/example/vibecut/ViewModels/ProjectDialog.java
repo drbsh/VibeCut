@@ -8,6 +8,7 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -184,10 +185,10 @@ public class ProjectDialog extends DialogFragment {
     }
 
     private void pickMedia() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/* video/* audio/*"); // Разрешаем выбор всех типов файлов
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*", "audio/*"}); // Указываем типы файлов
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*"); // Указываем, что хотим выбрать файлы любого типа
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*", "audio/*"}); // Фильтруем по MIME-типам
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Разрешаем выбор нескольких файлов
         startActivityForResult(intent, PICK_MEDIA_REQUEST);
     }
 
@@ -200,11 +201,27 @@ public class ProjectDialog extends DialogFragment {
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     ClipData.Item item = data.getClipData().getItemAt(i);
-                    fillingMediaFile.processingFile(item);
+                    Uri selectedUri = item.getUri();
+                    String mimeType = getActivity().getContentResolver().getType(selectedUri);
+
+                    // Проверяем MIME-тип файла
+                    if (mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("audio/"))) {
+                        fillingMediaFile.processingFile(item);
+                    } else {
+                        Toast.makeText(getActivity(), "Выбранный файл не является изображением, видео или аудио.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             } else if (data.getData() != null) {
                 // Если выбран только один файл
-                fillingMediaFile.processingFile(data.getData());
+                Uri selectedUri = data.getData();
+                String mimeType = getActivity().getContentResolver().getType(selectedUri);
+
+                // Проверяем MIME-тип файла
+                if (mimeType != null && (mimeType.startsWith("image/") || mimeType.startsWith("video/") || mimeType.startsWith("audio/"))) {
+                    fillingMediaFile.processingFile(data.getData());
+                } else {
+                    Toast.makeText(getActivity(), "Выбранный файл не является изображением, видео или аудио.", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }

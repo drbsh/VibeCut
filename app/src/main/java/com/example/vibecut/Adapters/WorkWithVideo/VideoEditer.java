@@ -42,7 +42,6 @@ public class VideoEditer {
             difDurationRight = CountTimeAndWidth.subtractDurations(mediaFile.getMaxDuration(), difDurationRight);
             fFmpegEditer.extendRegularVideo(formatDurationToString(difDurationLeft), formatDurationToString(difDurationRight));
         }
-        fFmpegEditer.returnTimeVideo(stringUriEditedFile);
     }
 
 

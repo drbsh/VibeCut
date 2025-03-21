@@ -16,12 +16,17 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.vibecut.Adapters.LineAdapters.BaseMediaLineAdapter;
+import com.example.vibecut.Adapters.WorkWithVideo.GetVideoDuration;
 import com.example.vibecut.Adapters.WorkWithVideo.MediaCodecConverter;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
 
 import org.apache.commons.io.FilenameUtils;
+
+import com.arthenica.ffmpegkit.FFmpegKit;
+import com.arthenica.ffmpegkit.FFmpegSession;
+import com.arthenica.ffmpegkit.ReturnCode;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,6 +94,7 @@ public class FillingMediaFile
         Uri preview = getPreview(mimeType, selectedMediaUri);
         String typeMedia = "";
         Duration duration = Duration.ZERO, maxDuration = Duration.ZERO;
+        new CountTimeAndWidth(context);
         Uri originalPathToFile = startCopyFile(selectedMediaUri, folderOriginals); // копирование исходника при создании файла
         if (mimeType.startsWith("image/")) {
             selectedMediaUri = startCopyFile(selectedMediaUri, folderImage);// можно подумать чтобы убрать (Refactor)
@@ -102,17 +108,28 @@ public class FillingMediaFile
             paths = mediaCodecConverter.convertImageToVideoMediaCodec(originalPathToFile, selectedMediaUri, 3);
             originalPathToFile = Uri.parse(paths.originPath);
             selectedMediaUri = Uri.parse(paths.outputPath);
+            long durationMs = GetVideoDuration.getVideoDuration(context, selectedMediaUri);
+            if (durationMs != -1) {
+                Log.d("VideoDuration", "Длительность видео: " + durationMs + " мс");
+            } else {
+                Log.e("VideoDuration", "Не удалось получить длительность видео");
+            }
         } else if (mimeType.startsWith("video/")){
             typeMedia = "video";
             selectedMediaUri = startCopyFile(selectedMediaUri, folderVideo);// можно подумать чтобы убрать (Refactor)
             try {
                 duration = getVideoDuration(selectedMediaUri);// можно подумать чтобы заменить (Refactor)
                 maxDuration = duration;
-                new CountTimeAndWidth(context);
                 width = CountTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
                 e.printStackTrace(); // Логируем ошибку
                 Toast.makeText(context, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
+            }
+            long durationMs = GetVideoDuration.getVideoDuration(context, selectedMediaUri);
+            if (durationMs != -1) {
+                Log.d("VideoDuration", "Длительность видео: " + durationMs + " мс");
+            } else {
+                Log.e("VideoDuration", "Не удалось получить длительность видео");
             }
         }
         else if (mimeType.startsWith("audio/")){
@@ -242,80 +259,22 @@ public class FillingMediaFile
             throw new IOException("Не удалось получить путь к аудиофайлу.");
         }
 
-        // Проверяем, поддерживается ли Visualizer на устройстве
-        boolean isVisualizerSupported = true;
-        try {
-            Visualizer visualizer = new Visualizer(0); // 0 — это фиктивный ID сессии для проверки
-            visualizer.release(); // Освобождаем ресурсы
-        } catch (RuntimeException e) {
-            isVisualizerSupported = false;
+        // Создаем временный файл для waveform
+        File waveformFile = new File(context.getCacheDir(), "waveform.png");
+        if (waveformFile.exists()) {
+            waveformFile.delete();
         }
 
-        if (!isVisualizerSupported) {
-            Toast.makeText(context, "Visualizer не поддерживается на этом устройстве.", Toast.LENGTH_SHORT).show();
+        // Команда FFmpeg для создания waveform
+        String command = "-i " + filePath + " -filter_complex \"showwavespic=colors=blue:s=800x200\" -frames:v 1 " + waveformFile.getAbsolutePath();
+
+        FFmpegSession session = FFmpegKit.execute(command);
+        if (ReturnCode.isSuccess(session.getReturnCode())) {
+            return Uri.fromFile(waveformFile);
+        } else {
+            Toast.makeText(context, "Ошибка при создании waveform.", Toast.LENGTH_SHORT).show();
             return null;
         }
-
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(context, audioUri);
-            mediaPlayer.prepare();
-            mediaPlayer.start(); // Убедитесь, что MediaPlayer воспроизводит аудио
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Не удалось воспроизвести аудиофайл.", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-
-        int audioSessionId = mediaPlayer.getAudioSessionId();
-
-        Visualizer visualizer;
-        try {
-            visualizer = new Visualizer(audioSessionId);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            Toast.makeText(context, "Ошибка при инициализации Visualizer.", Toast.LENGTH_SHORT).show();
-            mediaPlayer.release();
-            return null;
-        }
-
-        visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
-
-        int width = 300; // Ширина waveform
-        int height = 100; // Высота waveform
-        Bitmap waveformBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(waveformBitmap);
-        Paint paint = new Paint();
-        paint.setColor(Color.BLUE); // Цвет waveform
-        paint.setStrokeWidth(2); // Толщина линии
-
-        visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
-            @Override
-            public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
-                float xStep = (float) width / waveform.length;
-                float yCenter = height / 2f;
-
-                for (int i = 0; i < waveform.length - 1; i++) {
-                    float x1 = i * xStep;
-                    float y1 = yCenter + (waveform[i] / 128f) * yCenter;
-
-                    float x2 = (i + 1) * xStep;
-                    float y2 = yCenter + (waveform[i + 1] / 128f) * yCenter;
-
-                    canvas.drawLine(x1, y1, x2, y2, paint);
-                }
-            }
-
-            @Override
-            public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
-                // Не используется
-            }
-        }, Visualizer.getMaxCaptureRate() / 2, true, false);
-
-        visualizer.setEnabled(true);
-
-
-        return audioUri;
     }
 
     //Метод для получения миниатюры видео
