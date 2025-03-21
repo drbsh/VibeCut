@@ -248,7 +248,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         effectsPopupWindow.setHeight(popupSize);
 
         // Создаем экземпляр обработчика кликов
-        EffectClickListener clickListener = new EffectClickListener(this);
+        EffectClickListener clickListener = new EffectClickListener(this, effectsPopupWindow);
 
         // Находим LinearLayout и назначаем обработчики кликов
         LinearLayout layoutBrightness = popupContentView.findViewById(R.id.layout_brightness);

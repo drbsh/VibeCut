@@ -1,22 +1,30 @@
 package com.example.vibecut.Adapters;
 
+import static com.example.vibecut.Adapters.WorkWithVideo.MakeEffects.changeBrightness;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.R;
+import com.example.vibecut.ViewModels.SeekBarDialogFragment;
 
 import java.io.File;
 
-public class EffectClickListener implements View.OnClickListener {
+public class EffectClickListener implements View.OnClickListener, SeekBarDialogFragment.SeekBarListener {
     private Context context;
-
-    public EffectClickListener(Context context) {
+    private PopupWindow effectsPopupWindow;
+    private float seekBarValue;
+    public EffectClickListener(Context context, PopupWindow effectsPopupWindow) {
         this.context = context;
+        this.effectsPopupWindow = effectsPopupWindow;
     }
 
     @Override
@@ -30,15 +38,17 @@ public class EffectClickListener implements View.OnClickListener {
         } else if (id == R.id.layout_saturation) {// Обработка нажатия на "Насыщенность"
             Toast.makeText(context, "Насыщенность", Toast.LENGTH_SHORT).show();
         }
+        effectsPopupWindow.dismiss(); //скрытие popup
     }
     private void isAllVideo(String effectName){
         new AlertDialog.Builder(context)
                 .setTitle("")
-                .setMessage("Вы хотите применить эффект " + effectName + "для всего видео?")
+                .setMessage("Вы хотите применить эффект " + effectName + " для всего проекта?")
                 .setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // ВЫЗВАТЬ ФУНКЦИЮ ДЛЯ ПРИМЕНЕНИЯ ЭФФЕКТА
+                        showSeekbar();
+                        //changeBrightness
                     }
                 })
                 .setNegativeButton("Нет", new DialogInterface.OnClickListener() {
@@ -50,5 +60,17 @@ public class EffectClickListener implements View.OnClickListener {
                     }
                 })
                 .show();
+    }
+
+    private float showSeekbar(){
+        SeekBarDialogFragment dialog = new SeekBarDialogFragment();
+        dialog.setSeekBarListener(this);
+        FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
+        dialog.show(fragmentManager, "SeekBarDialogFragment");
+        return 0;
+    }
+    @Override
+    public void onSeekBarValueChanged(float value) {
+        seekBarValue = value;
     }
 }
