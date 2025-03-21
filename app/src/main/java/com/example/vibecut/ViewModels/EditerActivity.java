@@ -85,18 +85,15 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         }
 
         MediaFiles = projectInfo.getMediaFiles();
-
         AudioFiles = projectInfo.getAudioFiles();
 
         mediaLineAdapter = new MediaLineAdapter(horizontalScrollView, mediaLineContainer, MediaFiles, projectInfo, this, this); // Создаем адаптер
-
         audioLineAdapter = new AudioLineAdapter(horizontalScrollView, audioLineContainer, AudioFiles, projectInfo, this, this); // Создаем адаптер
-
-
 
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
         updateTheme(isDarkTheme);
+
         countTimeAndWidth = new CountTimeAndWidth(this);
         fillingMediaFiles = new FillingMediaFile(this, mediaLineAdapter, projectInfo, MediaFiles);
         fillingAudioFiles = new FillingMediaFile(this, audioLineAdapter, projectInfo, AudioFiles);

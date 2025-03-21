@@ -19,13 +19,16 @@ import com.example.vibecut.ViewModels.EditerActivity;
 import java.time.Duration;
 
 public class CustomAudioLineLayout extends BaseCustomLineLayout {
+
     private float initialXDraggingPosition;
     private int differenceLeftBorderFromLeftSide, differenceRightBorderFromRightSide;
-    private int maxWidth;
+    private boolean isSnapped = false; // Флаг для отслеживания зацепления
+    private int snappedPosition = -1; // Позиция зацепленной рамки
 
     public CustomAudioLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
+
     @Override
     public void init() {
         startHandle = findViewById(R.id.start_medialine_item);
@@ -53,113 +56,103 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         parentLayout = (RelativeLayout) getParent();
-        int scrollX = horizontalScrollView.getScrollX();
         int newWidth = initialWidth; // Инициализируем newWidth значением initialWidth
 
-        boolean isLeftOrRight;
         int MIN_WIDTH = 100;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 initialX = event.getRawX();
                 initialXDraggingPosition = getX();
                 initialWidth = getWidth();
-                parentLayout.requestDisallowInterceptTouchEvent(true); // <<<<---------------- ЗАМЕНА НА SCROLLVIEW
+                parentLayout.requestDisallowInterceptTouchEvent(true);
 
                 if (isTouchingStartHandle(event)) {
                     flagStartOrEnd = 1;
                 } else if (isTouchingEndHandle(event)) {
                     flagStartOrEnd = 2;
                 } else {
-                    flagStartOrEnd = 0; // Обработка на какую из рамок нажал пользователь или длительность или вообще не нажимал
+                    flagStartOrEnd = 0;
                     if (handler.hasMessages(0) || isDragging) {
                         flagDrag = true;
                         isDragging = false;
                     }
                     handler.postDelayed(longPressRunnable, LONG_PRESS_DURATION);
-
                 }
-
                 break;
+
             case MotionEvent.ACTION_MOVE:
-                isScrolling = true; //определяет то что пользователь начал движение пальцем
+                isScrolling = true;
                 dX = event.getRawX() - initialX;
 
-
-                // Определите, за какую рамку тянет пользователь
                 if (flagStartOrEnd == 1) {
                     // Растягиваем с левой стороны
-                    isLeftOrRight = false;
                     flagDrag = true;
                     isDragging = false;
 
-                    if(newWidth - dX < MIN_WIDTH){
+                    if (newWidth - dX < MIN_WIDTH) {
                         dX = newWidth - MIN_WIDTH;
-                    }
-                    else if((newWidth - differenceRightBorderFromRightSide - dX) >= maxWidth )
-                    {
+                    } else if ((newWidth - differenceRightBorderFromRightSide - dX) >= maxWidth) {
                         dX = 0;
                         differenceLeftBorderFromLeftSide = 0;
                         newWidth = maxWidth + differenceRightBorderFromRightSide;
                     }
-                    newWidth -= (int) dX; // Уменьшаем ширину
+                    newWidth -= (int) dX;
 
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
-                    params.width = newWidth; // Изменяем только ширину
-                    this.setLayoutParams(params); // Применяем изменения
+                    params.width = newWidth;
+                    this.setLayoutParams(params);
                     Duration newDuration = CountTimeAndWidth.TimeByWidthChanged(newWidth);
                     duration.setText(CountTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
                     mediaFile.setWidthOnTimeline(newWidth);
                     requestLayout();
                 } else if (flagStartOrEnd == 2) {
-                    isLeftOrRight = true;
                     flagDrag = true;
                     isDragging = false;
                     // Растягиваем с правой стороны
-                    if(newWidth + dX < MIN_WIDTH){
+                    if (newWidth + dX < MIN_WIDTH) {
                         dX = -(newWidth - MIN_WIDTH);
-                    }
-                    else if((newWidth  + dX + differenceLeftBorderFromLeftSide) >= maxWidth )
-                    {
+                    } else if ((newWidth + dX + differenceLeftBorderFromLeftSide) >= maxWidth) {
                         dX = 0;
                         differenceRightBorderFromRightSide = 0;
                         newWidth = maxWidth - differenceLeftBorderFromLeftSide;
                     }
-                    newWidth += (int) dX; // Уменьшаем ширину
+                    newWidth += (int) dX;
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
                     resizeItem(newWidth);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
-                    params.width = newWidth; // Изменяем только ширину
-                    this.setLayoutParams(params); // Применяем изменения
+                    params.width = newWidth;
+                    this.setLayoutParams(params);
                     Duration newDuration = CountTimeAndWidth.TimeByWidthChanged(newWidth);
                     duration.setText(CountTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
                     mediaFile.setWidthOnTimeline(newWidth);
-
-
                     requestLayout();
+
+                    // Проверка на зацепление
+                    checkForSnap(event);
                 } else if (!isDragging) {
-                    getParent().requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
+                    getParent().requestDisallowInterceptTouchEvent(false);
                 }
                 if (isDragging) {
-                    // Устанавливаем флаг, что началось перетаскивание
                     flagDrag = false;
-                    setAlpha(0.5f); // Устанавливаем прозрачность
-                    requestLayout(); // Запрашиваем повторное размещение
+                    setAlpha(0.5f);
+                    requestLayout();
 
+                    // Проверка на зацепление при перетаскивании
+                    checkForSnap(event);
                 }
 
                 if (isDragging) {
                     if (flagVibrate) {
                         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
                         if (vibrator != null) {
-                            vibrator.vibrate(150); // вибрация 150 милисек
+                            vibrator.vibrate(150);
                         }
                         flagVibrate = false;
                     }
-                    float newXThanDragging = initialXDraggingPosition + dX; // Используем rawX для абсолютной позиции
-
-                    setX(newXThanDragging); // Устанавливаем новое положение
+                    float newXThanDragging = initialXDraggingPosition + dX;
+                    setX(newXThanDragging);
 
                     targetPosition = getTargetPosition(event);
                     if (targetPosition != -1) {
@@ -168,32 +161,25 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
                         targetPosition = originalPosition;
                         highlightTargetPosition(targetPosition);
                     }
-
                 }
 
                 float touchX = event.getRawX();
                 int screenWidth = getResources().getDisplayMetrics().widthPixels;
 
-                // Проверяем, находится ли палец близко к левому краю
-                if (touchX < 80) { // 50 пикселей от левого края
-                    horizontalScrollView.smoothScrollBy(-10, 0); // Прокрутка влево
+                if (touchX < 80) {
+                    horizontalScrollView.smoothScrollBy(-10, 0);
+                } else if (touchX > screenWidth - 80) {
+                    horizontalScrollView.smoothScrollBy(10, 0);
                 }
-                // Проверяем, находится ли палец близко к правому краю
-                else if (touchX > screenWidth - 80) { // 50 пикселей от правого края
-                    horizontalScrollView.smoothScrollBy(10, 0); // Прокрутка вправо
-                }
-
-                // Обновляем listener только если ширина изменилась
-
                 break;
+
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if (isDragging && !flagDrag) {
                     isDragging = false;
                     handler.removeCallbacks(longPressRunnable);
-                    setAlpha(1.0f); // Возвращаем прозрачность к норме
+                    setAlpha(1.0f);
                     if (targetPosition == originalPosition) {
-                        // Если объект не был перемещен на другую позицию, возвращаем его на исходное место
                         setX(initialXDraggingPosition);
                         resetHighlightTargetPosition(targetPosition);
                     } else {
@@ -201,30 +187,88 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
                         adapter.updateWithSwitchPositions(this, targetPosition);
                     }
                 }
-                if (flagStartOrEnd == 1){
+                if (flagStartOrEnd == 1) {
                     differenceLeftBorderFromLeftSide += (int) dX;
                     mediaFile.setDifferenceLeftBorderFromLeftSide(differenceLeftBorderFromLeftSide);
-                    videoEditer.ChangeLengthByBorders(CountTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), CountTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));                }
-                else if(flagStartOrEnd == 2){
+                    videoEditer.ChangeLengthByBorders(CountTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), CountTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));
+                } else if (flagStartOrEnd == 2) {
                     differenceRightBorderFromRightSide += (int) dX;
                     mediaFile.setDifferenceRightBorderFromRightSide(differenceRightBorderFromRightSide);
                     videoEditer.ChangeLengthByBorders(CountTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), CountTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));
-                }
-                else if ((flagStartOrEnd == 0) && !isScrolling) {
+                } else if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
                     CustomLayoutHelper.updateHandlesVisibility(this);
                 }
                 flagVibrate = true;
                 isDragging = false;
-                isScrolling = false; // возвращаем в значение по дефолту
+                isScrolling = false;
                 JSONHelper.exportToJSON(context, projectInfo);
                 Log.d("TouchEvent", "ACTION_UP or ACTION_CANCEL: finalWidth: " + newWidth);
-                parentLayout.requestDisallowInterceptTouchEvent(false);// <<<<---------------- ЗАМЕНА НА SCROLLVIEW
+                parentLayout.requestDisallowInterceptTouchEvent(false);
                 break;
         }
         return true;
     }
 
+    private void checkForSnap(MotionEvent event) {
+        float touchX = event.getRawX();
+        int[] location = new int[2];
+        getLocationInWindow(location);
+        float currentX = location[0];
+
+        // Проверяем, является ли контекст экземпляром EditerActivity
+        if (context instanceof EditerActivity) {
+            EditerActivity editerActivity = (EditerActivity) context;
+
+            // Получаем контейнер media_line_container
+            RelativeLayout mediaLineContainer = editerActivity.findViewById(R.id.media_line_container);
+
+            // Перебираем все дочерние элементы в media_line_container
+            for (int i = 0; i < mediaLineContainer.getChildCount(); i++) {
+                View child = mediaLineContainer.getChildAt(i);
+                if (child instanceof CustomMediaLineLayout) {
+                    int[] childLocation = new int[2];
+                    child.getLocationInWindow(childLocation);
+                    float childX = childLocation[0];
+                    float childWidth = child.getWidth();
+
+                    // Проверка на зацепление для правой рамки
+                    if (Math.abs((currentX + getWidth()) - (childX + childWidth)) < 10) {
+                        if (!isSnapped || snappedPosition != i) {
+                            isSnapped = true;
+                            snappedPosition = i;
+                            setX(childX + childWidth - getWidth());
+                            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                            if (vibrator != null) {
+                                vibrator.vibrate(150);
+                            }
+                        }
+                        return;
+                    }
+
+                    // Проверка на зацепление для левой рамки
+                    if (Math.abs(currentX - childX) < 10) {
+                        if (!isSnapped || snappedPosition != i) {
+                            isSnapped = true;
+                            snappedPosition = i;
+                            setX(childX);
+                            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+                            if (vibrator != null) {
+                                vibrator.vibrate(150);
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+
+            // Если не нашли зацепления, сбрасываем флаг
+            if (isSnapped) {
+                isSnapped = false;
+                snappedPosition = -1;
+            }
+        }
+    }
     @Override
     public int getTargetPosition(MotionEvent event) {
         float touchX = event.getRawX();
@@ -256,7 +300,6 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
             }
         }
     }
-
     public void resetHighlightTargetPosition(int position) {
         for (int i = 0; i < parentLayout.getChildCount(); i++) {
             View child = parentLayout.getChildAt(i);
@@ -265,5 +308,4 @@ public class CustomAudioLineLayout extends BaseCustomLineLayout {
             }
         }
     }
-
 }

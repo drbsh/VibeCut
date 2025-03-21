@@ -41,17 +41,6 @@ public class FFmpegEditer {
 
         });
     }
-    void returnTimeVideo(String uriFile) {
-        // Команда для ffprobe: извлекаем длительность видео
-        String command = String.format("file %s", uriFile);
 
-        FFmpegKit.executeAsync(command, session -> {
-            if (ReturnCode.isSuccess(session.getReturnCode())) {
-                Log.d("FFmpeg", "Длина получена!: "+ session.toString());
-            }
-            else{
-                Log.e("FFmpeg", "Failed to retrieve video duration: " + session.getFailStackTrace());
-            }
-        });
-    }
+
 }
