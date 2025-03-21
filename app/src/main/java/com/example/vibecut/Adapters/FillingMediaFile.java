@@ -4,11 +4,18 @@ import android.content.ClipData;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
+import android.media.audiofx.Visualizer;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.example.vibecut.Adapters.LineAdapters.BaseMediaLineAdapter;
 import com.example.vibecut.Adapters.WorkWithVideo.MediaCodecConverter;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.Models.MediaFile;
@@ -24,42 +31,33 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 public class FillingMediaFile
 {
     private final Context context;
     private List<MediaFile> MediaFiles;
     private MediaFile mediaFile;
-    private MediaLineAdapter adapter;
+    private BaseMediaLineAdapter adapter;
     private MediaAdapter mediaAdapter;
     private ProjectInfo projectInfo;
-    private CountTimeAndWidth countTimeAndWidth;
     private static final String folderImage = "images";
     private static final String folderVideo = "video";
     private static final String folderAudio = "audio";
     private static final String folderOriginals = "originals";
 
-    public FillingMediaFile(Context context, MediaLineAdapter adapter, ProjectInfo projectInfo, List<MediaFile> MediaFiles){
+    public FillingMediaFile(Context context, BaseMediaLineAdapter adapter, ProjectInfo projectInfo, List<MediaFile> MediaFiles){
         this.context = context;
         this.MediaFiles = MediaFiles;
         this.adapter = adapter;
         this.projectInfo = projectInfo;
-        countTimeAndWidth = new CountTimeAndWidth(context);
+
     }
     public FillingMediaFile(Context context, ProjectInfo projectInfo, List<MediaFile> MediaFiles, MediaAdapter mediaAdapter){
         this.context = context;
         this.MediaFiles = MediaFiles;
         this.mediaAdapter = mediaAdapter;
         this.projectInfo = projectInfo;
-        countTimeAndWidth = new CountTimeAndWidth(context);
-    }
-
-    public MediaFile getMediaFile() {
-        return mediaFile;
-    }
-
-    public void setMediaFile(MediaFile mediaFile) {
-        this.mediaFile = mediaFile;
     }
 
     public void processingFile(Uri selectedMediaUri) {
@@ -97,7 +95,7 @@ public class FillingMediaFile
             typeMedia = "img";
             duration = Duration.ofSeconds(3);
             maxDuration = Duration.ofHours(3);
-            width = countTimeAndWidth.WidthByTimeChanged(duration);
+            width = CountTimeAndWidth.WidthByTimeChanged(duration);
 
             MediaCodecConverter mediaCodecConverter = new MediaCodecConverter();
             MediaCodecConverter.Paths paths;
@@ -110,7 +108,20 @@ public class FillingMediaFile
             try {
                 duration = getVideoDuration(selectedMediaUri);// можно подумать чтобы заменить (Refactor)
                 maxDuration = duration;
-                width = countTimeAndWidth.WidthByTimeChanged(duration);
+                new CountTimeAndWidth(context);
+                width = CountTimeAndWidth.WidthByTimeChanged(duration);
+            } catch (IOException e) {
+                e.printStackTrace(); // Логируем ошибку
+                Toast.makeText(context, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if (mimeType.startsWith("audio/")){
+            typeMedia = "audio";
+            selectedMediaUri = startCopyFile(selectedMediaUri, folderAudio);// можно подумать чтобы убрать (Refactor)
+            try {
+                duration = getVideoDuration(selectedMediaUri);// можно подумать чтобы заменить (Refactor)
+                maxDuration = duration;
+                width = CountTimeAndWidth.WidthByTimeChanged(duration);
             } catch (IOException e) {
                 e.printStackTrace(); // Логируем ошибку
                 Toast.makeText(context, "Не удалось получить длительность видео.", Toast.LENGTH_SHORT).show();
@@ -163,7 +174,16 @@ public class FillingMediaFile
                     Toast.makeText(context, "Не удалось получить миниатюру видео.", Toast.LENGTH_SHORT).show();
                     return preview;
                 }
-            } else {
+            }else if (mimeType.startsWith("audio/")) {
+                try {
+                    preview = getAudioWaveform(selectedMediaUri); // Метод для получения waveform аудио
+                } catch (IOException e) {
+                    e.printStackTrace(); // Логируем ошибку
+                    Toast.makeText(context, "Не удалось создать waveform для аудио.", Toast.LENGTH_SHORT).show();
+                    return preview;
+                }
+            }
+            else {
                 Toast.makeText(context, "Выбранный файл не является изображением или видео.", Toast.LENGTH_SHORT).show();
                 return preview;
             }
@@ -211,9 +231,91 @@ public class FillingMediaFile
         try (FileOutputStream out = new FileOutputStream(file)) {
             img.compress(Bitmap.CompressFormat.PNG, 100, out); // Сохраняем изображение в формате PNG
         } catch (IOException e) {
-            e.printStackTrace(); // Обработка ошибок
+            Log.e("Error compressing image: ", e.toString());
         }
         return Uri.fromFile(file);
+    }
+    // метод получение волны звука
+    private Uri getAudioWaveform(Uri audioUri) throws IOException {
+        String filePath = getFilePathFromUri(audioUri);
+        if (filePath == null) {
+            throw new IOException("Не удалось получить путь к аудиофайлу.");
+        }
+
+        // Проверяем, поддерживается ли Visualizer на устройстве
+        boolean isVisualizerSupported = true;
+        try {
+            Visualizer visualizer = new Visualizer(0); // 0 — это фиктивный ID сессии для проверки
+            visualizer.release(); // Освобождаем ресурсы
+        } catch (RuntimeException e) {
+            isVisualizerSupported = false;
+        }
+
+        if (!isVisualizerSupported) {
+            Toast.makeText(context, "Visualizer не поддерживается на этом устройстве.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(context, audioUri);
+            mediaPlayer.prepare();
+            mediaPlayer.start(); // Убедитесь, что MediaPlayer воспроизводит аудио
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Не удалось воспроизвести аудиофайл.", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
+        int audioSessionId = mediaPlayer.getAudioSessionId();
+
+        Visualizer visualizer;
+        try {
+            visualizer = new Visualizer(audioSessionId);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Ошибка при инициализации Visualizer.", Toast.LENGTH_SHORT).show();
+            mediaPlayer.release();
+            return null;
+        }
+
+        visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+
+        int width = 300; // Ширина waveform
+        int height = 100; // Высота waveform
+        Bitmap waveformBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(waveformBitmap);
+        Paint paint = new Paint();
+        paint.setColor(Color.BLUE); // Цвет waveform
+        paint.setStrokeWidth(2); // Толщина линии
+
+        visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+            @Override
+            public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+                float xStep = (float) width / waveform.length;
+                float yCenter = height / 2f;
+
+                for (int i = 0; i < waveform.length - 1; i++) {
+                    float x1 = i * xStep;
+                    float y1 = yCenter + (waveform[i] / 128f) * yCenter;
+
+                    float x2 = (i + 1) * xStep;
+                    float y2 = yCenter + (waveform[i + 1] / 128f) * yCenter;
+
+                    canvas.drawLine(x1, y1, x2, y2, paint);
+                }
+            }
+
+            @Override
+            public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+                // Не используется
+            }
+        }, Visualizer.getMaxCaptureRate() / 2, true, false);
+
+        visualizer.setEnabled(true);
+
+
+        return audioUri;
     }
 
     //Метод для получения миниатюры видео
@@ -254,7 +356,7 @@ public class FillingMediaFile
         sourceFile.delete();
         return Uri.fromFile(destFile);
     }
-    public static Uri copyFile(File sourceFile, File destFile) throws IOException {
+    public static void copyFile(File sourceFile, File destFile) throws IOException {
         if (!sourceFile.exists()) {
             throw new IOException("Source file does not exist: " + sourceFile.getAbsolutePath());
         }
@@ -266,8 +368,6 @@ public class FillingMediaFile
 
             inChannel.transferTo(0, inChannel.size(), outChannel);
         }
-
-        return Uri.fromFile(destFile);
     }
 
     public static Uri copyFileToDirectory(Context context, File sourceFile, String destDirectoryName) throws IOException {
@@ -303,7 +403,7 @@ public class FillingMediaFile
     }
     private String getFilePathFromUri(Uri uri) {
         String filePath = null;
-        if (uri.getScheme().equals("content")) {
+        if (Objects.equals(uri.getScheme(), "content")) {
             Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
@@ -324,7 +424,7 @@ public class FillingMediaFile
                 }
                 cursor.close();
             }
-        } else if (uri.getScheme().equals("file")) {
+        } else if (Objects.equals(uri.getScheme(), "file")) {
             filePath = uri.getPath();
         }
         return filePath;

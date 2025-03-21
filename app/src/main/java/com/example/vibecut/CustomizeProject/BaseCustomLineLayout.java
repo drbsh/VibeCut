@@ -5,14 +5,17 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.vibecut.Adapters.CountTimeAndWidth;
 import com.example.vibecut.Adapters.WorkWithVideo.VideoEditer;
-import com.example.vibecut.Models.BaseFile;
 import com.example.vibecut.Models.MediaFile;
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.ViewModels.EditerActivity;
+
+import java.time.Duration;
 
 public abstract class BaseCustomLineLayout extends RelativeLayout implements BaseCustomLineLayoutInterface {
     protected boolean flagVibrate = true;
@@ -26,7 +29,6 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     protected View endHandle;
 
     protected TextView duration;
-    protected CustomLayoutManager layoutManager;
     protected boolean isHandleVisible = false;
     protected boolean isScrolling = false;
     protected MediaFile mediaFile;
@@ -39,26 +41,21 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     protected int originalPosition; // Исходная позиция объекта
     protected int targetPosition = 0;
     protected ProjectInfo projectInfo;
-    public VideoEditer ffmpegEditer;
+    public VideoEditer videoEditer;
+    protected HorizontalScrollView horizontalScrollView;
+    protected int maxWidth;
+
 
     public BaseCustomLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = (EditerActivity) context; // Привязываем контекст активности
     }
-
     @Override
     public void setHandlesVisibility(boolean visible){
             startHandle.setVisibility(visible ? View.VISIBLE : View.GONE);
             endHandle.setVisibility(visible ? View.VISIBLE : View.GONE);
         isHandleVisible = visible; // Обновляем состояние видимости
     }
-
-
-
-    protected void getLayoutManager() {
-        this.layoutManager = EditerActivity.layoutManagerMedia; // Получаем менеджер компоновки
-    }
-
     @Override
     public void resizeItem(int newWidth) {
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
@@ -89,19 +86,31 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
 
 
 
-    @Override
-    public int getOriginalPosition() {
-        return originalPosition;
-    }
 
     protected int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density);
     }
+    public interface OnWidthChangeListener {
+        void onWidthChanged(BaseCustomLineLayout view, int newWidth); // Интерфейс для слушателя изменений ширины
+    }
+    public void setOnWidthChangeListener(OnWidthChangeListener listener) {
+        this.listener = listener; // Устанавливаем слушателя изменений ширины
+    }
+    protected void notifyWidthChanged(int newWidth) {
+        if (listener != null) {
+            listener.onWidthChanged(this, newWidth); // Уведомляем слушателя об изменении ширины
+        }
+    }
 
+
+
+    @Override
+    public int getOriginalPosition() {
+        return originalPosition;
+    }
     public void setOriginalPosition(int position) {
         this.originalPosition = position; // Устанавливаем исходную позицию
     }
-
     public void setMediaFile(MediaFile mediaFile) {
         this.mediaFile = mediaFile;
     }
@@ -109,32 +118,14 @@ public abstract class BaseCustomLineLayout extends RelativeLayout implements Bas
     public void setParentLayout(RelativeLayout parentLayout) {
         this.parentLayout = parentLayout;
     }
-
-    public void setContext(Context context) {
-        this.context = context;
+    public void setContext(Context context) { this.context = context; }
+    public void setVideoEditer(){
+        videoEditer = new VideoEditer(mediaFile);
     }
-    public void setLayoutManager(CustomLayoutManager layoutManager) {
-        this.layoutManager = layoutManager;
-    }
-    public void setFFmpegEditer (){
-        ffmpegEditer = new VideoEditer(mediaFile);
-    }
-
-    public BaseFile getMediaFile() {
-        return mediaFile;
+    public void setHorizontalScrollView(HorizontalScrollView horizontalScrollView) {this.horizontalScrollView = horizontalScrollView;}
+    public void setMaxWidth(Duration maxWidth) {
+        new CountTimeAndWidth(context);
+        this.maxWidth = CountTimeAndWidth.WidthByTimeChanged(maxWidth);
     }
 
-    public interface OnWidthChangeListener {
-        void onWidthChanged(BaseCustomLineLayout view, int newWidth); // Интерфейс для слушателя изменений ширины
-    }
-
-    public void setOnWidthChangeListener(OnWidthChangeListener listener) {
-        this.listener = listener; // Устанавливаем слушателя изменений ширины
-    }
-
-    protected void notifyWidthChanged(int newWidth) {
-        if (listener != null) {
-            listener.onWidthChanged(this, newWidth); // Уведомляем слушателя об изменении ширины
-        }
-    }
 }

@@ -1,7 +1,6 @@
 package com.example.vibecut.CustomizeProject;
 
-import static com.example.vibecut.CustomizeProject.CustomLayoutManager.MIN_WIDTH;
-
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Vibrator;
@@ -9,11 +8,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.HorizontalScrollView;
 import android.widget.RelativeLayout;
 
 import com.example.vibecut.Adapters.CountTimeAndWidth;
-import com.example.vibecut.Adapters.MediaLineAdapter;
+import com.example.vibecut.Adapters.LineAdapters.MediaLineAdapter;
 import com.example.vibecut.JSONHelper;
 import com.example.vibecut.R;
 import com.example.vibecut.ViewModels.EditerActivity;
@@ -23,15 +21,11 @@ import java.time.Duration;
 public class CustomMediaLineLayout extends BaseCustomLineLayout {
 
     private float initialXDraggingPosition;
-    private boolean isLeftOrRight;
     private int differenceLeftBorderFromLeftSide, differenceRightBorderFromRightSide;
-    private int maxWidth;
 
     public CustomMediaLineLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
-
-    private CountTimeAndWidth countTimeAndWidth = new CountTimeAndWidth(context);
     @Override
     public void init() {
         startHandle = findViewById(R.id.start_medialine_item);
@@ -55,15 +49,13 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
         };
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         parentLayout = (RelativeLayout) getParent();
-        int scrollX = layoutManager.getHorizontalScrollView().getScrollX();
-        Log.d("CustomMediaLineLayout", "onTouchEvent called");
-        Log.d("CustomMediaLineLayout", "startHandle: " + startHandle + ", endHandle: " + endHandle);
-        Log.d("CustomMediaLineLayout", "layoutManager: " + layoutManager + ", isHandleVisible: " + isHandleVisible);
         int newWidth = initialWidth; // Инициализируем newWidth значением initialWidth
 
+        int MIN_WIDTH = 100;
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 initialX = event.getRawX();
@@ -94,7 +86,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                 // Определите, за какую рамку тянет пользователь
                 if (flagStartOrEnd == 1) {
                     // Растягиваем с левой стороны
-                    isLeftOrRight = false;
                     flagDrag = true;
                     isDragging = false;
 
@@ -107,18 +98,17 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                         differenceLeftBorderFromLeftSide = 0;
                         newWidth = maxWidth + differenceRightBorderFromRightSide;
                     }
-                    newWidth -= dX; // Уменьшаем ширину
+                    newWidth -= (int) dX; // Уменьшаем ширину
 
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
-                    Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
-                    duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
+                    Duration newDuration = CountTimeAndWidth.TimeByWidthChanged(newWidth);
+                    duration.setText(CountTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
                     mediaFile.setWidthOnTimeline(newWidth);
                     requestLayout();
                 } else if (flagStartOrEnd == 2) {
-                    isLeftOrRight = true;
                     flagDrag = true;
                     isDragging = false;
                     // Растягиваем с правой стороны
@@ -131,14 +121,14 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                         differenceRightBorderFromRightSide = 0;
                         newWidth = maxWidth - differenceLeftBorderFromLeftSide;
                     }
-                    newWidth += dX; // Уменьшаем ширину
+                    newWidth += (int) dX; // Уменьшаем ширину
                     Log.d("TouchEvent", "Resizing from right: newWidth: " + newWidth);
-                    layoutManager.setWidth(newWidth, this);
+                    resizeItem(newWidth);
                     RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) this.getLayoutParams();
                     params.width = newWidth; // Изменяем только ширину
                     this.setLayoutParams(params); // Применяем изменения
-                    Duration newDuration = countTimeAndWidth.TimeByWidthChanged(newWidth);
-                    duration.setText(countTimeAndWidth.formatDurationToString(newDuration));
+                    Duration newDuration = CountTimeAndWidth.TimeByWidthChanged(newWidth);
+                    duration.setText(CountTimeAndWidth.formatDurationToString(newDuration));
                     mediaFile.setDuration(newDuration);
                     mediaFile.setWidthOnTimeline(newWidth);
 
@@ -159,7 +149,7 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     if (flagVibrate) {
                         Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
                         if (vibrator != null) {
-                            vibrator.vibrate(150); // Вибрация на 500 миллисекунд
+                            vibrator.vibrate(150); // вибрация 150 милисек
                         }
                         flagVibrate = false;
                     }
@@ -176,7 +166,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     }
 
                 }
-                HorizontalScrollView horizontalScrollView = layoutManager.getHorizontalScrollView();
 
                 float touchX = event.getRawX();
                 int screenWidth = getResources().getDisplayMetrics().widthPixels;
@@ -209,17 +198,17 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
                     }
                 }
                 if (flagStartOrEnd == 1){
-                    differenceLeftBorderFromLeftSide +=  dX;
+                    differenceLeftBorderFromLeftSide += (int) dX;
                     mediaFile.setDifferenceLeftBorderFromLeftSide(differenceLeftBorderFromLeftSide);
-                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));                }
+                    videoEditer.ChangeLengthByBorders(CountTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), CountTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));                }
                 else if(flagStartOrEnd == 2){
-                    differenceRightBorderFromRightSide +=  dX;
+                    differenceRightBorderFromRightSide += (int) dX;
                     mediaFile.setDifferenceRightBorderFromRightSide(differenceRightBorderFromRightSide);
-                    ffmpegEditer.ChangeLengthByBorders(countTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), countTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));
+                    videoEditer.ChangeLengthByBorders(CountTimeAndWidth.TimeByWidthChanged(differenceLeftBorderFromLeftSide), CountTimeAndWidth.TimeByWidthChanged(differenceRightBorderFromRightSide));
                 }
                 else if ((flagStartOrEnd == 0) && !isScrolling) {
                     setHandlesVisibility(true);
-                    CustomLayoutManager.updateHandlesVisibility(this);
+                    CustomLayoutHelper.updateHandlesVisibility(this);
                 }
                 flagVibrate = true;
                 isDragging = false;
@@ -263,7 +252,6 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
             }
         }
     }
-
     public void resetHighlightTargetPosition(int position) {
         for (int i = 0; i < parentLayout.getChildCount(); i++) {
             View child = parentLayout.getChildAt(i);
@@ -273,8 +261,4 @@ public class CustomMediaLineLayout extends BaseCustomLineLayout {
         }
     }
 
-
-    public void setMaxWidth() {
-        maxWidth = countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration());
-    }
 }

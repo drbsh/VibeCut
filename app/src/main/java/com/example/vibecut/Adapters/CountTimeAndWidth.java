@@ -1,5 +1,6 @@
 package com.example.vibecut.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
@@ -7,11 +8,12 @@ import android.view.WindowManager;
 import java.time.Duration;
 
 public class CountTimeAndWidth {
-    private Context context;
+    @SuppressLint("StaticFieldLeak")
+    private static Context context;
     private static int screenWidth;
     private static double oneMilliSecondWidth;
     public CountTimeAndWidth(Context context){
-        this.context = context;
+        CountTimeAndWidth.context = context;
         screenWidth = getScreenWidth();
     }
     public static Duration TimeByWidthChanged(int newWidth){

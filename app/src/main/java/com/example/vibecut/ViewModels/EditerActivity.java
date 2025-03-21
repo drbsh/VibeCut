@@ -2,22 +2,14 @@ package com.example.vibecut.ViewModels;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-
-import android.Manifest;
 import android.content.ClipData;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.OpenableColumns;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,54 +23,40 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.vibecut.Adapters.LineAdapters.AudioLineAdapter;
 import com.example.vibecut.Adapters.CountTimeAndWidth;
 import com.example.vibecut.Adapters.EffectClickListener;
 import com.example.vibecut.Adapters.FillingMediaFile;
-import com.example.vibecut.CustomizeProject.CustomLayoutManager;
 import com.example.vibecut.JSONHelper;
+import com.example.vibecut.Adapters.LineAdapters.MediaLineAdapter;
 import com.example.vibecut.Models.MediaFile;
-import com.example.vibecut.Adapters.MediaLineAdapter;
 import com.example.vibecut.Models.ProjectInfo;
 import com.example.vibecut.R;
-
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalTime;
 import java.util.List;
-
-import kotlin.math.UMathKt;
 
 public class EditerActivity extends AppCompatActivity implements TimePickerDialog.TimePickerDialogListener {
     private static final int PICK_MEDIA_REQUEST = 1;
-    private static final int REQUEST_CODE_PERMISSIONS = 101;
-    private static final String[] REQUIRED_PERMISSIONS = new String[] {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
     private TextView nameProjectTextView;
     private HorizontalScrollView horizontalScrollView;
     private ProjectInfo projectInfo;//текущий  проект
     private List<MediaFile> MediaFiles;
-    private static MediaLineAdapter adapter;
-    public static CustomLayoutManager layoutManagerMedia;
-    public static CustomLayoutManager layoutManagerAudio;
+    private List<MediaFile> AudioFiles;
+    private static MediaLineAdapter mediaLineAdapter;
+    private static AudioLineAdapter audioLineAdapter;
     private RelativeLayout mediaLineContainer;
     private RelativeLayout audioLineContainer;
     private CountTimeAndWidth countTimeAndWidth;
-    private FillingMediaFile fillingMediaFile;
+    private FillingMediaFile fillingMediaFiles;
+    private FillingMediaFile fillingAudioFiles;
     private ImageButton buttonCuttingVideo;
     private ImageButton buttonTextImpose;
     private ImageButton buttonAddEffects;
 
     public static MediaLineAdapter getAdapter() {
-        return adapter;
+        return mediaLineAdapter;
     }
     public ProjectInfo getProjectInfo(){
             return projectInfo;
@@ -88,12 +66,11 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.editer_activity);
 
-        horizontalScrollView = findViewById(R.id.scroll_all_media_line);
+        new CountTimeAndWidth(this);// Устанавливаем контекст для статических функций класса
 
+        horizontalScrollView = findViewById(R.id.scroll_all_media_line);
         mediaLineContainer = findViewById(R.id.media_line_container);
         audioLineContainer = findViewById(R.id.audio_line_container);
-
-//        recyclerView = findViewById(R.id.recyclerViewVideoTimeline);
 
         if (getIntent() != null && getIntent().hasExtra("project_info")) {
             projectInfo = (ProjectInfo) getIntent().getSerializableExtra("project_info");
@@ -107,23 +84,22 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
             }
         }
 
-        MediaFiles = projectInfo.getProjectFiles();
-        layoutManagerMedia = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
-        layoutManagerAudio = new CustomLayoutManager(MediaFiles, mediaLineContainer, this, projectInfo);
-        layoutManagerMedia.setHorizontalScrollView(horizontalScrollView);
+        MediaFiles = projectInfo.getMediaFiles();
 
-        adapter = new MediaLineAdapter(mediaLineContainer, MediaFiles, projectInfo, layoutManagerMedia, this, this); // Создаем адаптер
+        AudioFiles = projectInfo.getAudioFiles();
 
-        // <<<<<<<<<<||||||||||||||||||||||||||||||||||||||||>>>>>>>>
-//        MediaLineAdapter adapter1 = new MediaLineAdapter(audioLineContainer, MediaFiles, projectInfo, layoutManagerAudio, this, this);
-        // УБЕРИ ЭТУ СТРОКУ ЧТОБЫ СККРЫТЬ НИЖНИЙ РЯД
+        mediaLineAdapter = new MediaLineAdapter(horizontalScrollView, mediaLineContainer, MediaFiles, projectInfo, this, this); // Создаем адаптер
+
+        audioLineAdapter = new AudioLineAdapter(horizontalScrollView, audioLineContainer, AudioFiles, projectInfo, this, this); // Создаем адаптер
+
 
 
         SharedPreferences preferences = getSharedPreferences("settings", MODE_PRIVATE);
         boolean isDarkTheme = preferences.getBoolean("isDarkTheme", false);
         updateTheme(isDarkTheme);
         countTimeAndWidth = new CountTimeAndWidth(this);
-        fillingMediaFile = new FillingMediaFile(this, adapter, projectInfo, MediaFiles);
+        fillingMediaFiles = new FillingMediaFile(this, mediaLineAdapter, projectInfo, MediaFiles);
+        fillingAudioFiles = new FillingMediaFile(this, audioLineAdapter, projectInfo, AudioFiles);
     }
 
     private void updateTheme(boolean isDarkTheme) {
@@ -176,7 +152,7 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
             button.setOnClickListener(v -> {
                 int index = MediaFiles.indexOf(file); // Находим индекс файла
                 if (index != -1) {
-                    adapter.notifyItemRemoved(index); // Уведомляем адаптер об удалении
+                    mediaLineAdapter.notifyItemRemoved(index); // Уведомляем адаптер об удалении
                     boolean success = JSONHelper.exportToJSON(this, projectInfo); // Сохраняем изменения
                     if (success) {
                         Toast.makeText(this, "Файл " + file.getNameFile() + " успешно удален из проекта", Toast.LENGTH_SHORT).show();
@@ -218,11 +194,11 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     ClipData.Item item = data.getClipData().getItemAt(i);
-                    fillingMediaFile.processingFile(item);
+                    fillingMediaFiles.processingFile(item);
                 }
             } else if (data.getData() != null) {
                 // Если выбран только один файл
-                fillingMediaFile.processingFile(data.getData());
+                fillingMediaFiles.processingFile(data.getData());
             }
         }
     }
