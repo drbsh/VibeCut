@@ -213,12 +213,14 @@ public class EditerActivity extends AppCompatActivity implements TimePickerDialo
             mediaFile.setDuration(newDuration); // Set to newDuration if it's less than maxDuration
             mediaFile.setWidthOnTimeline(countTimeAndWidth.WidthByTimeChanged(newDuration));
 
+            Toast.makeText(this, "Длительность изменена: " + CountTimeAndWidth.formatDurationToString(mediaFile.getDuration()), Toast.LENGTH_SHORT).show();
+
         } else {
             mediaFile.setDuration(mediaFile.getMaxDuration()); // Set to maxDuration if newDuration is greater
             mediaFile.setWidthOnTimeline(countTimeAndWidth.WidthByTimeChanged(mediaFile.getMaxDuration()));
-        }
 
-        Toast.makeText(this, "Время изменено: " + mediaFile.getDuration(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Новая длительность не может превышать исходную", Toast.LENGTH_SHORT).show();
+        }
         Log.d("widthTimeChange", String.valueOf(mediaFile.getWidthOnTimeline()));
         projectInfo.updateMediafile(mediaFile);
 
